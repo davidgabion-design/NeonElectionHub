@@ -1,18 +1,21 @@
 ﻿<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-    <meta http-equiv="Pragma" content="no-cache">
-    <meta http-equiv="Expires" content="0">
-    <title>Voting App</title>
-    <link rel="stylesheet" href="style.css?v=20251130222456">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Neon Voting App</title>
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="material-you.css" />
+
+  <!-- Icons & Excel -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
 <body>
 
   <!-- GATEWAY -->
-  <div id="gatewayScreen" class="screen active" aria-hidden="false">
+  <div id="gatewayScreen" class="screen active">
     <div class="panel-container">
       <h2 class="title">Neon Voting App</h2>
       <p class="subtext">Choose how to proceed</p>
@@ -28,7 +31,7 @@
   </div>
 
   <!-- SUPERADMIN LOGIN -->
-  <div id="superAdminLoginScreen" class="screen" aria-hidden="true">
+  <div id="superAdminLoginScreen" class="screen">
     <div class="auth-card">
       <h2>SuperAdmin Login</h2>
       <input id="superAdminPassword" class="input" type="password" placeholder="Password">
@@ -40,7 +43,7 @@
   </div>
 
   <!-- SUPERADMIN PANEL -->
-  <div id="superAdminPanel" class="screen" aria-hidden="true">
+  <div id="superAdminPanel" class="screen">
     <div class="panel-container">
       <h2>SuperAdmin Panel</h2>
 
@@ -59,7 +62,7 @@
   </div>
 
   <!-- EC LOGIN -->
-  <div id="ecLoginScreen" class="screen" aria-hidden="true">
+  <div id="ecLoginScreen" class="screen">
     <div class="auth-card">
       <h2>EC Login</h2>
       <input id="ecOrgId" class="input" placeholder="Organization ID">
@@ -72,7 +75,7 @@
   </div>
 
   <!-- EC PANEL -->
-  <div id="ecPanel" class="screen" aria-hidden="true">
+  <div id="ecPanel" class="screen">
     <div class="panel-container">
       <div style="display:flex;gap:14px;align-items:center;">
         <img id="ecOrgLogo" class="org-logo" alt="Org logo" src="">
@@ -102,7 +105,7 @@
   </div>
 
   <!-- VOTER LOGIN -->
-  <div id="voterLoginScreen" class="screen" aria-hidden="true">
+  <div id="voterLoginScreen" class="screen">
     <div class="auth-card">
       <h2 id="voterOrgName">Organization</h2>
       <img id="voterOrgLogo" class="org-logo" alt="Org logo" style="margin:10px auto;display:block;">
@@ -121,7 +124,7 @@
   </div>
 
   <!-- VOTING SCREEN -->
-  <div id="votingScreen" class="screen" aria-hidden="true">
+  <div id="votingScreen" class="screen">
     <div class="panel-container">
       <h2>Cast Your Vote — <span id="voterNameLabel"></span></h2>
       <div id="votingPositions" style="margin-top:12px"></div>
@@ -134,7 +137,7 @@
   </div>
 
   <!-- PUBLIC RESULTS -->
-  <div id="publicScreen" class="screen" aria-hidden="true">
+  <div id="publicScreen" class="screen">
     <div class="panel-container">
       <img id="publicOrgLogo" class="org-logo" alt="Org logo">
       <h2 id="publicOrgName"></h2>
@@ -144,7 +147,7 @@
   </div>
 
   <!-- GUEST -->
-  <div id="guestScreen" class="screen" aria-hidden="true">
+  <div id="guestScreen" class="screen">
     <div class="panel-container">
       <h2>Guest Portal</h2>
       <div id="guestContent"></div>
@@ -155,8 +158,8 @@
   <!-- TOAST -->
   <div id="toast" role="status" aria-live="polite"></div>
 
-  <!-- App logic -->
-  <script type="module" src="script.js"></script>
+  <!-- FIXED: must load as ES module -->
+  <script type="module" src="./script.js"></script>
+
 </body>
 </html>
-

@@ -12,11 +12,12 @@ body {
   overflow-x: hidden;
 }
 
-/* ------------------------------------------------------------
-   CRITICAL: SCREEN VISIBILITY (Anti-Split Engine)
-   ------------------------------------------------------------ */
+/* ============================================================
+   CRITICAL: SCREEN VISIBILITY ENGINE (ANTI-SPLIT FIX)
+   ============================================================ */
+
 .screen {
-  display: none !important;
+  display: none;
   width: 100%;
   opacity: 0;
   transform: translateY(20px);
@@ -24,12 +25,12 @@ body {
 }
 
 .screen.active {
-  display: block !important;
+  display: block;
   opacity: 1;
   transform: translateY(0);
 }
 
-/* Collapse inactive screens so they take zero space */
+/* Force invisible screens to collapse */
 .screen:not(.active) {
   height: 0 !important;
   margin: 0 !important;
@@ -37,9 +38,10 @@ body {
   overflow: hidden !important;
 }
 
-/* ------------------------------------------------------------
-   UNIVERSAL CONTAINERS
-   ------------------------------------------------------------ */
+/* ============================================================
+   UNIVERSAL PANELS
+   ============================================================ */
+
 .panel-container,
 .auth-card {
   max-width:860px;
@@ -58,12 +60,14 @@ body {
 }
 
 /* -------- TITLES -------- */
+
 .title {
   text-align:center;
   font-size:26px;
   font-weight:700;
   background:linear-gradient(90deg,#ff28fb,#00eaff);
   -webkit-background-clip:text;
+  background-clip:text;
   color:transparent;
 }
 
@@ -76,6 +80,7 @@ body {
 }
 
 /* -------- INPUTS -------- */
+
 .input {
   width:100%;
   padding:12px 14px;
@@ -93,7 +98,10 @@ body {
   border-color:#00eaff;
 }
 
-/* -------- BUTTONS -------- */
+/* ============================================================
+   BUTTONS
+   ============================================================ */
+
 .btn {
   padding:12px 14px;
   border-radius:12px;
@@ -127,6 +135,7 @@ body {
 }
 
 /* -------- LOGOS -------- */
+
 .org-logo {
   width:72px;
   height:72px;
@@ -137,9 +146,10 @@ body {
   display:block;
 }
 
-/* ------------------------------------------------------------
+/* ============================================================
    TABS
-   ------------------------------------------------------------ */
+   ============================================================ */
+
 .tab-bar {
   display:flex;
   gap:8px;
@@ -165,6 +175,7 @@ body {
 }
 
 /* -------- TAB CONTENT -------- */
+
 .tab-content {
   display:none;
   margin-top:14px;
@@ -175,6 +186,7 @@ body {
 }
 
 /* -------- LIST ITEMS -------- */
+
 .list-item {
   padding:12px;
   border-radius:12px;
@@ -194,7 +206,10 @@ body {
   border:2px solid rgba(0,234,255,0.12);
 }
 
-/* -------- TOAST -------- */
+/* ============================================================
+   TOAST
+   ============================================================ */
+
 #toast {
   position:fixed;
   bottom:24px;
@@ -211,7 +226,10 @@ body {
 
 #toast.show { display:block; }
 
-/* -------- EC DASHBOARD TILES -------- */
+/* ============================================================
+   EC DASHBOARD TILES
+   ============================================================ */
+
 .ec-tiles {
   display:grid;
   grid-template-columns: repeat(auto-fit,minmax(180px,1fr));
@@ -240,7 +258,10 @@ body {
   color:#fff;
 }
 
-/* -------- BADGES -------- */
+/* ============================================================
+   BADGES
+   ============================================================ */
+
 .badge {
   display:inline-block;
   padding:6px 10px;
@@ -252,7 +273,10 @@ body {
   box-shadow:0 6px 22px rgba(150,0,255,0.12);
 }
 
-/* -------- PROGRESS BARS -------- */
+/* ============================================================
+   PROGRESS BARS
+   ============================================================ */
+
 .progress-row { margin-top:10px; }
 
 .progress-bar {
@@ -277,7 +301,10 @@ body {
   color:#cfeeff;
 }
 
-/* -------- RESPONSIVE -------- */
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+
 @media (max-width:640px) {
   .panel-container,
   .auth-card {
