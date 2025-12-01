@@ -1,0 +1,162 @@
+﻿<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>Voting App</title>
+    <link rel="stylesheet" href="style.css?v=20251130222456">
+</head>
+<body>
+
+  <!-- GATEWAY -->
+  <div id="gatewayScreen" class="screen active" aria-hidden="false">
+    <div class="panel-container">
+      <h2 class="title">Neon Voting App</h2>
+      <p class="subtext">Choose how to proceed</p>
+
+      <div class="panel-buttons" style="display:flex;flex-direction:column;gap:12px">
+        <button class="btn neon-btn" onclick="openSuperAdminLogin()">SuperAdmin Login</button>
+        <button class="btn neon-btn" onclick="openECLogin()">EC Login</button>
+        <button class="btn neon-btn" onclick="openVoterLogin()">Voter Login (Org Link)</button>
+        <button class="btn neon-btn-outline" onclick="openPublicResults()">Public Results</button>
+        <button class="btn neon-btn-outline" onclick="openGuestPortal()">Guest Portal</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SUPERADMIN LOGIN -->
+  <div id="superAdminLoginScreen" class="screen" aria-hidden="true">
+    <div class="auth-card">
+      <h2>SuperAdmin Login</h2>
+      <input id="superAdminPassword" class="input" type="password" placeholder="Password">
+      <div style="display:flex;gap:8px;margin-top:10px">
+        <button class="btn neon-btn" onclick="loginSuperAdmin()">Login</button>
+        <button class="btn neon-btn-outline" onclick="goHome()">Back</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SUPERADMIN PANEL -->
+  <div id="superAdminPanel" class="screen" aria-hidden="true">
+    <div class="panel-container">
+      <h2>SuperAdmin Panel</h2>
+
+      <div class="tab-bar" style="margin-bottom:12px">
+        <button class="tab-btn active" onclick="showSuperTab('orgs')">Organizations</button>
+        <button class="tab-btn" onclick="showSuperTab('settings')">Settings</button>
+      </div>
+
+      <div id="superContent-orgs" class="tab-content active"></div>
+      <div id="superContent-settings" class="tab-content"></div>
+
+      <div style="margin-top:12px">
+        <button class="btn neon-btn-outline" onclick="logout()">Logout</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- EC LOGIN -->
+  <div id="ecLoginScreen" class="screen" aria-hidden="true">
+    <div class="auth-card">
+      <h2>EC Login</h2>
+      <input id="ecOrgId" class="input" placeholder="Organization ID">
+      <input id="ecPassword" class="input" type="password" placeholder="EC Password">
+      <div style="display:flex;gap:8px;margin-top:10px">
+        <button class="btn neon-btn" onclick="loginEC()">Login</button>
+        <button class="btn neon-btn-outline" onclick="goHome()">Back</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- EC PANEL -->
+  <div id="ecPanel" class="screen" aria-hidden="true">
+    <div class="panel-container">
+      <div style="display:flex;gap:14px;align-items:center;">
+        <img id="ecOrgLogo" class="org-logo" alt="Org logo" src="">
+        <div style="flex:1">
+          <h3 id="ecOrgName" style="margin:0"></h3>
+          <div id="ecStatusBadge" style="margin-top:8px"></div>
+        </div>
+        <div style="width:120px;text-align:right">
+          <button class="btn neon-btn-outline" onclick="logout()">Logout</button>
+        </div>
+      </div>
+
+      <div id="ecTabs" class="tab-bar" style="margin-top:18px">
+        <button class="tab-btn active" onclick="showECTab('dashboard')">Dashboard</button>
+        <button class="tab-btn" onclick="showECTab('voters')">Voters</button>
+        <button class="tab-btn" onclick="showECTab('positions')">Positions</button>
+        <button class="tab-btn" onclick="showECTab('candidates')">Candidates</button>
+        <button class="tab-btn" onclick="showECTab('settings')">Settings</button>
+      </div>
+
+      <div id="ecContent-dashboard" class="tab-content active"></div>
+      <div id="ecContent-voters" class="tab-content"></div>
+      <div id="ecContent-positions" class="tab-content"></div>
+      <div id="ecContent-candidates" class="tab-content"></div>
+      <div id="ecContent-settings" class="tab-content"></div>
+    </div>
+  </div>
+
+  <!-- VOTER LOGIN -->
+  <div id="voterLoginScreen" class="screen" aria-hidden="true">
+    <div class="auth-card">
+      <h2 id="voterOrgName">Organization</h2>
+      <img id="voterOrgLogo" class="org-logo" alt="Org logo" style="margin:10px auto;display:block;">
+
+      <input id="voterEmail" class="input" placeholder="Email">
+      <div style="display:flex;gap:8px;margin-top:8px">
+        <button class="btn neon-btn" onclick="sendVoterOTP()">Send OTP</button>
+        <button class="btn neon-btn-outline" onclick="goHome()">Back</button>
+      </div>
+
+      <div id="voterOTPSection" class="hidden" style="margin-top:12px">
+        <input id="voterOTP" class="input" placeholder="Enter OTP">
+        <button class="btn neon-btn" onclick="verifyVoterOTP()">Verify OTP</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- VOTING SCREEN -->
+  <div id="votingScreen" class="screen" aria-hidden="true">
+    <div class="panel-container">
+      <h2>Cast Your Vote — <span id="voterNameLabel"></span></h2>
+      <div id="votingPositions" style="margin-top:12px"></div>
+
+      <div style="display:flex;gap:12px;margin-top:18px">
+        <button class="btn neon-btn" onclick="submitVote()">Submit Vote</button>
+        <button class="btn neon-btn-outline" onclick="logout()">Logout</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PUBLIC RESULTS -->
+  <div id="publicScreen" class="screen" aria-hidden="true">
+    <div class="panel-container">
+      <img id="publicOrgLogo" class="org-logo" alt="Org logo">
+      <h2 id="publicOrgName"></h2>
+      <div id="publicResults"></div>
+      <div style="margin-top:12px"><button class="btn neon-btn-outline" onclick="goHome()">Back</button></div>
+    </div>
+  </div>
+
+  <!-- GUEST -->
+  <div id="guestScreen" class="screen" aria-hidden="true">
+    <div class="panel-container">
+      <h2>Guest Portal</h2>
+      <div id="guestContent"></div>
+      <div style="margin-top:12px"><button class="btn neon-btn-outline" onclick="goHome()">Back</button></div>
+    </div>
+  </div>
+
+  <!-- TOAST -->
+  <div id="toast" role="status" aria-live="polite"></div>
+
+  <!-- App logic -->
+  <script type="module" src="script.js"></script>
+</body>
+</html>
+

@@ -1,0 +1,21 @@
+{
+  "name": "voting-app",
+  "version": "1.0.0",
+  "description": "This is a local/offline multi-organization voting app. Each organization gets its own:\r - Org ID (e.g. `ORG-47291`)\r - EC password (managed per-org)\r - Voters, Positions, Candidates, Votes\r - Optional logo (Base64 stored in browser storage)\r - Public read-only results link + embed (token-protected)",
+  "main": "script.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "body-parser": "^2.2.1",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
+    "express": "^5.1.0",
+    "nodemailer": "^7.0.11"
+  }
+}

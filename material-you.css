@@ -1,0 +1,292 @@
+/* ============================================================
+   NEON VOTING APP — FINAL UPDATED CSS (No Split Screen)
+   ============================================================ */
+
+/* -------- RESET + GLOBAL -------- */
+* { box-sizing:border-box; margin:0; padding:0; font-family:Inter, Arial, sans-serif; }
+
+body {
+  background: radial-gradient(circle at 20% 20%, #0f0a2a, #05051a 60%, #02020d 100%);
+  min-height:100vh;
+  color:#fff;
+  overflow-x: hidden;
+}
+
+/* ------------------------------------------------------------
+   CRITICAL: SCREEN VISIBILITY (Anti-Split Engine)
+   ------------------------------------------------------------ */
+.screen {
+  display: none !important;
+  width: 100%;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity .28s ease, transform .28s ease;
+}
+
+.screen.active {
+  display: block !important;
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Collapse inactive screens so they take zero space */
+.screen:not(.active) {
+  height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+}
+
+/* ------------------------------------------------------------
+   UNIVERSAL CONTAINERS
+   ------------------------------------------------------------ */
+.panel-container,
+.auth-card {
+  max-width:860px;
+  margin:36px auto;
+  padding:24px;
+  border-radius:18px;
+
+  background: linear-gradient(180deg, rgba(10,10,30,0.6), rgba(15,10,35,0.5));
+  border:1px solid rgba(0,255,255,0.08);
+
+  box-shadow:
+    0 8px 40px rgba(0,0,0,0.6),
+    0 0 18px rgba(120,50,255,0.06);
+
+  backdrop-filter: blur(10px);
+}
+
+/* -------- TITLES -------- */
+.title {
+  text-align:center;
+  font-size:26px;
+  font-weight:700;
+  background:linear-gradient(90deg,#ff28fb,#00eaff);
+  -webkit-background-clip:text;
+  color:transparent;
+}
+
+.subtext {
+  text-align:center;
+  opacity:0.75;
+  margin-top:6px;
+  margin-bottom:16px;
+  font-size:14px;
+}
+
+/* -------- INPUTS -------- */
+.input {
+  width:100%;
+  padding:12px 14px;
+  margin:8px 0;
+  border-radius:12px;
+
+  background: rgba(255,255,255,0.04);
+  color:#fff;
+  border:1px solid rgba(0,255,255,0.12);
+}
+
+.input:focus {
+  outline:none;
+  box-shadow:0 0 12px rgba(0,234,255,0.12);
+  border-color:#00eaff;
+}
+
+/* -------- BUTTONS -------- */
+.btn {
+  padding:12px 14px;
+  border-radius:12px;
+  font-weight:600;
+  border:none;
+  cursor:pointer;
+  transition:all .22s ease;
+  min-height:44px;
+}
+
+.neon-btn {
+  background:linear-gradient(90deg,#ff28fb,#00eaff);
+  color:#fff;
+  box-shadow:0 6px 24px rgba(0,255,255,0.12), 0 0 30px rgba(255,0,200,0.07);
+}
+
+.neon-btn:hover {
+  transform:translateY(-3px);
+  box-shadow:0 12px 40px rgba(0,255,255,0.2), 0 0 60px rgba(255,0,200,0.12);
+}
+
+.neon-btn-outline {
+  background:transparent;
+  color:#00eaff;
+  border:1.5px solid rgba(0,234,255,0.12);
+}
+
+.neon-btn-outline:hover {
+  background: rgba(0,234,255,0.06);
+  box-shadow:0 8px 28px rgba(0,234,255,0.08);
+}
+
+/* -------- LOGOS -------- */
+.org-logo {
+  width:72px;
+  height:72px;
+  border-radius:12px;
+  object-fit:cover;
+  border:2px solid rgba(0,234,255,0.12);
+  box-shadow:0 6px 18px rgba(0,234,255,0.08);
+  display:block;
+}
+
+/* ------------------------------------------------------------
+   TABS
+   ------------------------------------------------------------ */
+.tab-bar {
+  display:flex;
+  gap:8px;
+  margin-top:12px;
+  overflow-x:auto;
+}
+
+.tab-btn {
+  padding:10px 14px;
+  border-radius:10px;
+  background: rgba(0,234,255,0.06);
+  color:#9beaff;
+  border:none;
+  cursor:pointer;
+  flex-shrink:0;
+  white-space:nowrap;
+}
+
+.tab-btn.active {
+  background:linear-gradient(90deg,#ff28fb,#00eaff);
+  color:#fff;
+  box-shadow:0 6px 24px rgba(255,0,200,0.06);
+}
+
+/* -------- TAB CONTENT -------- */
+.tab-content {
+  display:none;
+  margin-top:14px;
+}
+
+.tab-content.active {
+  display:block;
+}
+
+/* -------- LIST ITEMS -------- */
+.list-item {
+  padding:12px;
+  border-radius:12px;
+  background: rgba(255,255,255,0.03);
+  margin:10px 0;
+  border:1px solid rgba(0,255,255,0.06);
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+
+.candidate-photo {
+  width:52px;
+  height:52px;
+  border-radius:10px;
+  object-fit:cover;
+  border:2px solid rgba(0,234,255,0.12);
+}
+
+/* -------- TOAST -------- */
+#toast {
+  position:fixed;
+  bottom:24px;
+  left:50%;
+  transform:translateX(-50%);
+  background:rgba(0,0,0,0.7);
+  padding:12px 18px;
+  border-radius:10px;
+  display:none;
+  color:#00eaff;
+  border:1px solid rgba(0,234,255,0.12);
+  box-shadow:0 8px 32px rgba(0,0,0,0.6);
+}
+
+#toast.show { display:block; }
+
+/* -------- EC DASHBOARD TILES -------- */
+.ec-tiles {
+  display:grid;
+  grid-template-columns: repeat(auto-fit,minmax(180px,1fr));
+  gap:14px;
+  margin-top:14px;
+}
+
+.tile {
+  padding:16px;
+  border-radius:12px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+  border: 1px solid rgba(255,255,255,0.03);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.5);
+}
+
+.tile .label {
+  font-size:13px;
+  opacity:0.9;
+  margin-bottom:6px;
+  color:#cfeeff;
+}
+
+.tile .value {
+  font-size:20px;
+  font-weight:700;
+  color:#fff;
+}
+
+/* -------- BADGES -------- */
+.badge {
+  display:inline-block;
+  padding:6px 10px;
+  border-radius:999px;
+  font-weight:600;
+  font-size:13px;
+  color:#061022;
+  background:linear-gradient(90deg,#9b00ff,#00ecff);
+  box-shadow:0 6px 22px rgba(150,0,255,0.12);
+}
+
+/* -------- PROGRESS BARS -------- */
+.progress-row { margin-top:10px; }
+
+.progress-bar {
+  height:10px;
+  width:100%;
+  background: rgba(255,255,255,0.06);
+  border-radius:999px;
+  overflow:hidden;
+  border:1px solid rgba(0,0,0,0.2);
+}
+
+.progress-fill {
+  height:100%;
+  width:0%;
+  background: linear-gradient(90deg,#ff28fb,#00eaff);
+  transition: width 0.6s ease;
+}
+
+.subtext {
+  font-size:13px;
+  opacity:0.8;
+  color:#cfeeff;
+}
+
+/* -------- RESPONSIVE -------- */
+@media (max-width:640px) {
+  .panel-container,
+  .auth-card {
+    margin:20px;
+    padding:16px;
+  }
+
+  .org-logo {
+    width:60px;
+    height:60px;
+  }
+}
