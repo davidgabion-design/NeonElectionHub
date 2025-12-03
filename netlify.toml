@@ -1,0 +1,113 @@
+# netlify.toml
+[build]
+  publish = "."
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+[build.environment]
+  NODE_VERSION = "18"
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-XSS-Protection = "1; mode=block"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Content-Security-Policy = """
+      default-src 'self';
+      script-src 'self' https://www.gstatic.com https://cdnjs.cloudflare.com;
+      style-src 'self' https://cdnjs.cloudflare.com 'unsafe-inline';
+      img-src 'self' data: https: http:;
+      connect-src 'self' https://neon-voting-app.firebaseio.com https://neon-voting-app.firebasestorage.app;
+      font-src 'self' https://cdnjs.cloudflare.com;
+    """
+# Add these lines to the END of your netlify.toml
+@'
+
+# ============================================
+# ADMIN & AUTHENTICATION CONFIGURATION
+# ============================================
+
+# Enable Netlify Identity for user authentication (optional)
+[build.environment]
+  # Already have NODE_VERSION = "18"
+  # Add if needed: USE_NETLIFY_IDENTITY = "true"
+
+# Admin routes - redirect to main app for client-side routing
+[[redirects]]
+  from = "/admin"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/admin/*"
+  to = "/index.html"
+  status = 200
+
+# Login/logout routes
+[[redirects]]
+  from = "/login"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/logout"
+  to = "/index.html"
+  status = 200
+
+# Dashboard routes
+[[redirects]]
+  from = "/dashboard"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/dashboard/*"
+  to = "/index.html"
+  status = 200
+
+# API proxy for development (if you add serverless functions later)
+# [[redirects]]
+#   from = "/api/*"
+#   to = "https://your-backend-server.com/api/:splat"
+#   status = 200
+#   force = true
+
+# ============================================
+# ENVIRONMENT SPECIFIC SETTINGS
+# ============================================
+
+[context.deploy-preview.environment]
+  ENVIRONMENT = "preview"
+  API_URL = "/"  # Use relative paths for preview
+
+[context.branch-deploy.environment]
+  ENVIRONMENT = "staging"
+  API_URL = "/"
+
+[context.production.environment]
+  ENVIRONMENT = "production"
+  # Add production-only environment variables here
+  # ADMIN_PASSWORD_HASH = "your-hashed-password"
+'@ | Add-Content netlify.toml
+
+Write-Host "✅ Added admin/auth configuration to netlify.toml" -ForegroundColor Green
+# Admin authentication routes
+[[redirects]]
+  from = "/admin/*"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/login"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/dashboard"
+  to = "/index.html"
+  status = 200
