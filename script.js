@@ -1561,3 +1561,120 @@ document.addEventListener("DOMContentLoaded", function() {
         document.body.appendChild(adminLink);
     }
 });
+
+// ============================================
+// TAB EVENT BINDING - FIX FOR NON-RESPONSIVE TABS
+// ============================================
+
+function initializeTabs() {
+    console.log('Initializing tabs...');
+    
+    // 1. SuperAdmin Tabs
+    const superTabButtons = document.querySelectorAll('[data-super-tab]');
+    if (superTabButtons.length > 0) {
+        console.log('Found SuperAdmin tabs:', superTabButtons.length);
+        superTabButtons.forEach(button => {
+            // Remove existing listeners to avoid duplicates
+            const newButton = button.cloneNode(true);
+            button.parentNode.replaceChild(newButton, button);
+            
+            newButton.addEventListener('click', function() {
+                const tabName = this.getAttribute('data-super-tab');
+                console.log('SuperAdmin tab clicked:', tabName);
+                
+                // Remove active class from all super tabs
+                document.querySelectorAll('[data-super-tab]').forEach(tab => {
+                    tab.classList.remove('active');
+                });
+                document.querySelectorAll('[id^="superContent-"]').forEach(content => {
+                    content.classList.remove('active');
+                });
+                
+                // Add active to clicked tab
+                this.classList.add('active');
+                const contentId = 'superContent-' + tabName;
+                const contentElement = document.getElementById(contentId);
+                if (contentElement) {
+                    contentElement.classList.add('active');
+                } else {
+                    console.error('Tab content not found:', contentId);
+                }
+                
+                // Call existing function if it exists
+                if (typeof showSuperTab === 'function') {
+                    showSuperTab(tabName);
+                }
+            });
+        });
+    }
+    
+    // 2. EC (Election Commission) Tabs
+    const ecTabButtons = document.querySelectorAll('[data-ec-tab]');
+    if (ecTabButtons.length > 0) {
+        console.log('Found EC tabs:', ecTabButtons.length);
+        ecTabButtons.forEach(button => {
+            const newButton = button.cloneNode(true);
+            button.parentNode.replaceChild(newButton, button);
+            
+            newButton.addEventListener('click', function() {
+                const tabName = this.getAttribute('data-ec-tab');
+                console.log('EC tab clicked:', tabName);
+                
+                // Remove active class from all EC tabs
+                document.querySelectorAll('[data-ec-tab]').forEach(tab => {
+                    tab.classList.remove('active');
+                });
+                document.querySelectorAll('[id^="ecContent-"]').forEach(content => {
+                    content.classList.remove('active');
+                });
+                
+                // Add active to clicked tab
+                this.classList.add('active');
+                const contentId = 'ecContent-' + tabName;
+                const contentElement = document.getElementById(contentId);
+                if (contentElement) {
+                    contentElement.classList.add('active');
+                }
+                
+                // Get current org and call existing function
+                const orgId = document.getElementById('ecOrgId')?.value || 
+                             localStorage.getItem('currentOrgId');
+                if (orgId && typeof showECTab === 'function') {
+                    showECTab(tabName, { id: orgId });
+                } else if (typeof showECTab === 'function') {
+                    showECTab(tabName);
+                }
+            });
+        });
+    }
+    
+    // 3. Initialize first active tabs
+    if (superTabButtons.length > 0) {
+        const firstSuperTab = document.querySelector('[data-super-tab].active') || 
+                             document.querySelector('[data-super-tab]');
+        if (firstSuperTab) firstSuperTab.click();
+    }
+    
+    if (ecTabButtons.length > 0) {
+        const firstEcTab = document.querySelector('[data-ec-tab].active') || 
+                          document.querySelector('[data-ec-tab]');
+        if (firstEcTab) firstEcTab.click();
+    }
+}
+
+// Initialize tabs when DOM is ready
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeTabs);
+} else {
+    initializeTabs();
+}
+
+// Also re-initialize tabs when screens change
+const originalShowScreen = window.showScreen;
+if (originalShowScreen) {
+    window.showScreen = function(id) {
+        originalShowScreen(id);
+        // Re-initialize tabs after a short delay (for dynamic content)
+        setTimeout(initializeTabs, 100);
+    };
+}
