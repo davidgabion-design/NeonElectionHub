@@ -1,0 +1,68 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>SuperAdmin Fix</title>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+</head>
+<body>
+    <h2>Fix SuperAdmin Login</h2>
+    <button onclick="checkSuperAdmin()">Check SuperAdmin</button>
+    <button onclick="createSuperAdmin()">Create SuperAdmin</button>
+    <div id="result" style="margin-top: 20px; padding: 10px; border: 1px solid #ccc;"></div>
+    
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyBNuIYfcsi2NWkK1Ua4Tnycaf_qM3oix1s",
+            authDomain: "neon-voting-app.firebaseapp.com",
+            projectId: "neon-voting-app",
+            storageBucket: "neon-voting-app.firebasestorage.app",
+            messagingSenderId: "406871836482",
+            appId: "1:406871836482:web:b25063cd3829cd3dc6aadb",
+            measurementId: "G-VGW2Z3FR8M"
+        };
+        
+        // Initialize Firebase
+        const app = firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        
+        async function checkSuperAdmin() {
+            const result = document.getElementById('result');
+            result.innerHTML = 'Checking...';
+            
+            try {
+                const snap = await db.collection('config').doc('superAdmin').get();
+                
+                if (!snap.exists()) {
+                    result.innerHTML = '❌ SuperAdmin NOT FOUND in Firebase<br>Click "Create SuperAdmin" button';
+                    return;
+                }
+                
+                const data = snap.data();
+                result.innerHTML = '✅ SuperAdmin FOUND!<br>';
+                result.innerHTML += 'Password in database: ' + (data.password || 'NOT SET') + '<br>';
+                result.innerHTML += 'Try login with: ' + (data.password || 'admin123');
+                
+            } catch (error) {
+                result.innerHTML = '❌ ERROR: ' + error.message;
+            }
+        }
+        
+        async function createSuperAdmin() {
+            const result = document.getElementById('result');
+            result.innerHTML = 'Creating...';
+            
+            try {
+                await db.collection('config').doc('superAdmin').set({
+                    password: 'admin123',
+                    createdAt: new Date().toISOString(),
+                    email: 'admin@neonvoting.app'
+                });
+                result.innerHTML = '✅ SuperAdmin CREATED!<br>Password: admin123<br>You can now login.';
+            } catch (error) {
+                result.innerHTML = '❌ Failed to create: ' + error.message;
+            }
+        }
+    </script>
+</body>
+</html>

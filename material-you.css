@@ -1,292 +1,761 @@
 /* ============================================================
-   NEON VOTING APP — FINAL UPDATED CSS (No Split Screen)
+   NEON VOTING APP — COMPLETE FIXED UI (PATCHED VERSION)
    ============================================================ */
 
-/* -------- RESET + GLOBAL -------- */
-* { box-sizing:border-box; margin:0; padding:0; font-family:Inter, Arial, sans-serif; }
+/* RESET */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: "Inter", Arial, sans-serif;
+}
 
 body {
-  background: radial-gradient(circle at 20% 20%, #0f0a2a, #05051a 60%, #02020d 100%);
-  min-height:100vh;
-  color:#fff;
+  background: radial-gradient(circle at 20% 20%, #0e0826, #05051a 60%, #02020d 100%);
+  min-height: 100vh;
+  color: #fff;
   overflow-x: hidden;
 }
 
-/* ------------------------------------------------------------
-   CRITICAL: SCREEN VISIBILITY (Anti-Split Engine)
-   ------------------------------------------------------------ */
-.screen {
-  display: none !important;
+/* ============================================================
+   TOP NAV BAR
+   ============================================================ */
+.top-nav {
   width: 100%;
-  opacity: 0;
-  transform: translateY(20px);
-  transition: opacity .28s ease, transform .28s ease;
+  padding: 18px 26px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(0, 255, 255, 0.1);
+}
+
+.top-nav-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.app-dot {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #00ffaa;
+  box-shadow: 0 0 12px #00ffaa;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+.app-title {
+  font-size: 20px;
+  font-weight: 700;
+  background: linear-gradient(90deg, #a855ff, #00eaff);
+
+  /* FIXED vendor prefix requirement */
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.app-subtitle {
+  font-size: 13px;
+  opacity: 0.7;
+  margin-left: 12px;
+}
+
+.top-nav-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.top-badge {
+  padding: 6px 12px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 8px;
+  border: 1px solid rgba(0, 255, 255, 0.12);
+  font-size: 12px;
+  color: #8efaff;
+}
+
+.top-home-btn {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(0, 255, 255, 0.16);
+  padding: 8px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  color: #8efaff;
+  transition: all 0.3s ease;
+}
+
+.top-home-btn:hover {
+  background: rgba(0, 255, 255, 0.1);
+  box-shadow: 0 0 10px rgba(0, 255, 255, 0.2);
+}
+
+/* ============================================================
+   SCREENS
+   ============================================================ */
+.screen {
+  display: none;
+  width: 100%;
+  padding-bottom: 60px;
+  animation: fadeIn 0.5s ease;
 }
 
 .screen.active {
-  display: block !important;
-  opacity: 1;
-  transform: translateY(0);
+  display: block;
 }
 
-/* Collapse inactive screens so they take zero space */
-.screen:not(.active) {
-  height: 0 !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  overflow: hidden !important;
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
-/* ------------------------------------------------------------
-   UNIVERSAL CONTAINERS
-   ------------------------------------------------------------ */
-.panel-container,
-.auth-card {
-  max-width:860px;
-  margin:36px auto;
-  padding:24px;
-  border-radius:18px;
-
-  background: linear-gradient(180deg, rgba(10,10,30,0.6), rgba(15,10,35,0.5));
-  border:1px solid rgba(0,255,255,0.08);
-
-  box-shadow:
-    0 8px 40px rgba(0,0,0,0.6),
-    0 0 18px rgba(120,50,255,0.06);
-
-  backdrop-filter: blur(10px);
+/* ============================================================
+   GATEWAY CARD
+   ============================================================ */
+.gateway-card {
+  max-width: 720px;
+  margin: 40px auto;
+  padding: 32px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(0,255,255,0.12);
+  border-radius: 22px;
+  box-shadow: 0 0 50px rgba(0,0,0,0.5),
+              inset 0 0 35px rgba(255,255,255,0.03);
+  text-align: center;
+  position: relative;
+  overflow: hidden;
 }
 
-/* -------- TITLES -------- */
-.title {
-  text-align:center;
-  font-size:26px;
-  font-weight:700;
-  background:linear-gradient(90deg,#ff28fb,#00eaff);
-  -webkit-background-clip:text;
-  color:transparent;
+.gateway-card::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(157,0,255,0.1) 0%, transparent 70%);
+  z-index: -1;
 }
 
-.subtext {
-  text-align:center;
-  opacity:0.75;
-  margin-top:6px;
-  margin-bottom:16px;
-  font-size:14px;
+.gateway-title {
+  font-size: 28px;
+  font-weight: 700;
+  background: linear-gradient(90deg, #a855ff, #00eaff);
+
+  /* FIX 2 */
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+
+  margin-bottom: 8px;
 }
 
-/* -------- INPUTS -------- */
-.input {
-  width:100%;
-  padding:12px 14px;
-  margin:8px 0;
-  border-radius:12px;
-
-  background: rgba(255,255,255,0.04);
-  color:#fff;
-  border:1px solid rgba(0,255,255,0.12);
+.gateway-sub {
+  margin-top: 6px;
+  font-size: 14px;
+  opacity: 0.7;
+  margin-bottom: 24px;
 }
 
-.input:focus {
-  outline:none;
-  box-shadow:0 0 12px rgba(0,234,255,0.12);
-  border-color:#00eaff;
+.gateway-btn-row {
+  margin-top: 22px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
 }
 
-/* -------- BUTTONS -------- */
+.gateway-footer {
+  margin-top: 28px;
+  font-size: 12px;
+  opacity: 0.7;
+  padding-top: 16px;
+  border-top: 1px solid rgba(0,255,255,0.1);
+}
+
+/* ============================================================
+   BUTTONS
+   ============================================================ */
 .btn {
-  padding:12px 14px;
-  border-radius:12px;
-  font-weight:600;
-  border:none;
-  cursor:pointer;
-  transition:all .22s ease;
-  min-height:44px;
+  border: none;
+  cursor: pointer;
+  padding: 12px 24px;
+  border-radius: 14px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  font-size: 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-width: 140px;
+}
+
+.btn i {
+  font-size: 16px;
+}
+
+.neon-btn-lg {
+  background: linear-gradient(90deg, #b023ff, #00d4ff);
+  color: #fff !important;
+  box-shadow: 0 0 20px rgba(176,35,255,0.25);
+  border: 1px solid rgba(0,255,255,0.3);
+}
+
+.neon-btn-lg:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 0 28px rgba(0,255,255,0.35);
+  background: linear-gradient(90deg, #c13cff, #00eaff);
+}
+
+.neon-btn-outline-lg {
+  background: transparent;
+  border: 1.4px solid rgba(0,255,255,0.35);
+  color: #8efaff;
+}
+
+.neon-btn-outline-lg:hover {
+  background: rgba(0,255,255,0.06);
+  transform: translateY(-3px);
+  box-shadow: 0 0 15px rgba(0,255,255,0.15);
 }
 
 .neon-btn {
-  background:linear-gradient(90deg,#ff28fb,#00eaff);
-  color:#fff;
-  box-shadow:0 6px 24px rgba(0,255,255,0.12), 0 0 30px rgba(255,0,200,0.07);
+  background: linear-gradient(90deg, #9D00FF, #00C3FF);
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
 }
 
 .neon-btn:hover {
-  transform:translateY(-3px);
-  box-shadow:0 12px 40px rgba(0,255,255,0.2), 0 0 60px rgba(255,0,200,0.12);
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(157,0,255,0.4);
 }
 
 .neon-btn-outline {
-  background:transparent;
-  color:#00eaff;
-  border:1.5px solid rgba(0,234,255,0.12);
+  background: transparent;
+  border: 1px solid rgba(0,255,255,0.3);
+  color: #8efaff;
+  padding: 10px 20px;
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
 }
 
 .neon-btn-outline:hover {
-  background: rgba(0,234,255,0.06);
-  box-shadow:0 8px 28px rgba(0,234,255,0.08);
+  background: rgba(0,255,255,0.1);
+  transform: translateY(-2px);
 }
 
-/* -------- LOGOS -------- */
-.org-logo {
-  width:72px;
-  height:72px;
-  border-radius:12px;
-  object-fit:cover;
-  border:2px solid rgba(0,234,255,0.12);
-  box-shadow:0 6px 18px rgba(0,234,255,0.08);
-  display:block;
+/* ============================================================
+   AUTH CARDS
+   ============================================================ */
+.auth-card {
+  max-width: 500px;
+  margin: 40px auto;
+  padding: 28px;
+  border-radius: 20px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(0,255,255,0.15);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
 }
 
-/* ------------------------------------------------------------
+.auth-card h2 {
+  text-align: center;
+  margin-bottom: 24px;
+  background: linear-gradient(90deg, #a855ff, #00eaff);
+
+  /* FIX 3 */
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.auth-btn-row {
+  margin-top: 20px;
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+/* ============================================================
+   INPUTS
+   ============================================================ */
+.input {
+  width: 100%;
+  padding: 14px 16px;
+  margin: 10px 0;
+  border-radius: 12px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(0,255,255,0.12);
+  color: #fff;
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+.input:focus {
+  border-color: #00eaff;
+  box-shadow: 0 0 12px rgba(0, 255, 255, 0.25);
+  outline: none;
+  background: rgba(255,255,255,0.08);
+}
+
+.input::placeholder {
+  color: rgba(255,255,255,0.4);
+}
+
+/* ============================================================
+   PANELS
+   ============================================================ */
+.panel-container {
+  max-width: 960px;
+  margin: 40px auto;
+  padding: 30px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(0,255,255,0.15);
+  border-radius: 22px;
+  box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+}
+
+.section-title {
+  text-align: center;
+  margin-bottom: 24px;
+  background: linear-gradient(90deg, #a855ff, #00eaff);
+
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+
+  font-size: 24px;
+}
+
+/* ============================================================
    TABS
-   ------------------------------------------------------------ */
+   ============================================================ */
 .tab-bar {
-  display:flex;
-  gap:8px;
-  margin-top:12px;
-  overflow-x:auto;
+  display: flex;
+  background: rgba(0,0,0,0.3);
+  border-radius: 12px;
+  padding: 4px;
+  margin-bottom: 24px;
+  border: 1px solid rgba(0,255,255,0.1);
 }
 
 .tab-btn {
-  padding:10px 14px;
-  border-radius:10px;
-  background: rgba(0,234,255,0.06);
-  color:#9beaff;
-  border:none;
-  cursor:pointer;
-  flex-shrink:0;
-  white-space:nowrap;
+  flex: 1;
+  padding: 12px 16px;
+  background: transparent;
+  border: none;
+  color: rgba(255,255,255,0.6);
+  font-weight: 600;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  text-align: center;
+  font-size: 14px;
 }
 
 .tab-btn.active {
-  background:linear-gradient(90deg,#ff28fb,#00eaff);
-  color:#fff;
-  box-shadow:0 6px 24px rgba(255,0,200,0.06);
+  background: linear-gradient(90deg, rgba(157,0,255,0.2), rgba(0,195,255,0.2));
+  color: #00eaff;
+  box-shadow: 0 0 10px rgba(0,255,255,0.1);
+  border: 1px solid rgba(0,255,255,0.2);
 }
 
-/* -------- TAB CONTENT -------- */
+.tab-btn:hover:not(.active) {
+  background: rgba(255,255,255,0.05);
+  color: rgba(255,255,255,0.8);
+}
+
 .tab-content {
-  display:none;
-  margin-top:14px;
+  display: none;
 }
 
 .tab-content.active {
-  display:block;
+  display: block;
 }
 
-/* -------- LIST ITEMS -------- */
+/* ============================================================
+   EC PANEL
+   ============================================================ */
+.ec-header {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 24px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid rgba(0,255,255,0.1);
+}
+
+.ec-header-info {
+  flex: 1;
+}
+
+.ec-header-info h3 {
+  font-size: 20px;
+  margin-bottom: 4px;
+  color: #8efaff;
+}
+
+#ecStatusBadge {
+  display: inline-block;
+  padding: 4px 10px;
+  background: rgba(0,255,170,0.1);
+  border: 1px solid rgba(0,255,170,0.3);
+  border-radius: 6px;
+  font-size: 12px;
+  color: #00ffaa;
+}
+
+/* ============================================================
+   CARDS & LISTS
+   ============================================================ */
+.card {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(0,255,255,0.1);
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 16px;
+  transition: all 0.3s ease;
+}
+
+.card:hover {
+  border-color: rgba(0,255,255,0.2);
+  background: rgba(255,255,255,0.05);
+}
+
+.org-card {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(0,255,255,0.1);
+  border-radius: 16px;
+  padding: 16px;
+  flex: 1;
+  min-width: 280px;
+  max-width: 320px;
+  transition: all 0.3s ease;
+}
+
+.org-card:hover {
+  border-color: rgba(0,255,255,0.3);
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+}
+
 .list-item {
-  padding:12px;
-  border-radius:12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px;
   background: rgba(255,255,255,0.03);
-  margin:10px 0;
-  border:1px solid rgba(0,255,255,0.06);
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
+  border: 1px solid rgba(0,255,255,0.08);
+  border-radius: 12px;
+  margin-bottom: 8px;
+  transition: all 0.3s ease;
+}
+
+.list-item:hover {
+  background: rgba(255,255,255,0.05);
+  border-color: rgba(0,255,255,0.15);
+}
+
+/* ============================================================
+   LOGOS + AVATARS
+   ============================================================ */
+.org-logo {
+  width: 82px;
+  height: 82px;
+  border-radius: 12px;
+  border: 2px solid rgba(0,255,255,0.20);
+  object-fit: cover;
+  background: rgba(0,0,0,0.3);
 }
 
 .candidate-photo {
-  width:52px;
-  height:52px;
-  border-radius:10px;
-  object-fit:cover;
-  border:2px solid rgba(0,234,255,0.12);
+  width: 44px;
+  height: 44px;
+  border-radius: 8px;
+  object-fit: cover;
+  border: 1px solid rgba(0,255,255,0.2);
 }
 
-/* -------- TOAST -------- */
-#toast {
-  position:fixed;
-  bottom:24px;
-  left:50%;
-  transform:translateX(-50%);
-  background:rgba(0,0,0,0.7);
-  padding:12px 18px;
-  border-radius:10px;
-  display:none;
-  color:#00eaff;
-  border:1px solid rgba(0,234,255,0.12);
-  box-shadow:0 8px 32px rgba(0,0,0,0.6);
-}
-
-#toast.show { display:block; }
-
-/* -------- EC DASHBOARD TILES -------- */
-.ec-tiles {
-  display:grid;
-  grid-template-columns: repeat(auto-fit,minmax(180px,1fr));
-  gap:14px;
-  margin-top:14px;
-}
-
-.tile {
-  padding:16px;
-  border-radius:12px;
-  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
-  border: 1px solid rgba(255,255,255,0.03);
-  box-shadow: 0 6px 20px rgba(0,0,0,0.5);
-}
-
-.tile .label {
-  font-size:13px;
-  opacity:0.9;
-  margin-bottom:6px;
-  color:#cfeeff;
-}
-
-.tile .value {
-  font-size:20px;
-  font-weight:700;
-  color:#fff;
-}
-
-/* -------- BADGES -------- */
-.badge {
-  display:inline-block;
-  padding:6px 10px;
-  border-radius:999px;
-  font-weight:600;
-  font-size:13px;
-  color:#061022;
-  background:linear-gradient(90deg,#9b00ff,#00ecff);
-  box-shadow:0 6px 22px rgba(150,0,255,0.12);
-}
-
-/* -------- PROGRESS BARS -------- */
-.progress-row { margin-top:10px; }
-
-.progress-bar {
-  height:10px;
-  width:100%;
-  background: rgba(255,255,255,0.06);
-  border-radius:999px;
-  overflow:hidden;
-  border:1px solid rgba(0,0,0,0.2);
-}
-
-.progress-fill {
-  height:100%;
-  width:0%;
-  background: linear-gradient(90deg,#ff28fb,#00eaff);
-  transition: width 0.6s ease;
+/* ============================================================
+   UTILITY
+   ============================================================ */
+.hidden {
+  display: none !important;
 }
 
 .subtext {
-  font-size:13px;
-  opacity:0.8;
-  color:#cfeeff;
+  color: rgba(255,255,255,0.5);
+  font-size: 13px;
+  margin-top: 4px;
 }
 
-/* -------- RESPONSIVE -------- */
-@media (max-width:640px) {
-  .panel-container,
-  .auth-card {
-    margin:20px;
-    padding:16px;
-  }
+.label {
+  color: rgba(255,255,255,0.6);
+  font-size: 13px;
+  margin-bottom: 6px;
+  display: block;
+}
 
-  .org-logo {
-    width:60px;
-    height:60px;
+/* ============================================================
+   TILES
+   ============================================================ */
+.ec-tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.tile {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(0,255,255,0.1);
+  border-radius: 12px;
+  padding: 20px;
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+.tile:hover {
+  border-color: rgba(0,255,255,0.3);
+  transform: translateY(-2px);
+}
+
+.tile .label {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 8px;
+  opacity: 0.7;
+}
+
+/* ============================================================
+   PROGRESS BARS
+   ============================================================ */
+.progress-bar {
+  width: 100%;
+  height: 8px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-top: 4px;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #9D00FF, #00C3FF);
+  border-radius: 4px;
+  transition: width 0.5s ease;
+}
+
+/* ============================================================
+   MODALS
+   ============================================================ */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  backdrop-filter: blur(5px);
+}
+
+.modal-card {
+  background: rgba(30,30,40,0.95);
+  border: 1px solid rgba(0,255,255,0.2);
+  border-radius: 20px;
+  padding: 24px;
+  max-width: 500px;
+  width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+}
+
+/* ============================================================
+   TOAST
+   ============================================================ */
+#toast {
+  position: fixed;
+  bottom: 26px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 12px 24px;
+  background: rgba(0,0,0,0.85);
+  border-radius: 12px;
+  border: 1px solid rgba(0,255,255,0.25);
+  display: none;
+  color: #00eaff;
+  font-size: 14px;
+  font-weight: 500;
+  z-index: 1001;
+  box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+  backdrop-filter: blur(10px);
+}
+
+#toast.show {
+  display: block;
+  animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 20px);
   }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+
+/* ============================================================
+   FOOTER
+   ============================================================ */
+.global-footer {
+  text-align: center;
+  margin-top: 40px;
+  opacity: 0.7;
+  font-size: 13px;
+  padding: 20px;
+  border-top: 1px solid rgba(0,255,255,0.1);
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width: 768px) {
+  .top-nav {
+    flex-direction: column;
+    gap: 12px;
+    padding: 16px;
+  }
+  
+  .top-nav-left, .top-nav-right {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .gateway-card {
+    margin: 20px;
+    padding: 20px;
+  }
+  
+  .gateway-btn-row {
+    flex-direction: column;
+  }
+  
+  .btn {
+    width: 100%;
+    min-width: auto;
+  }
+  
+  .panel-container {
+    margin: 20px;
+    padding: 20px;
+  }
+  
+  .ec-tiles {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .tab-bar {
+    flex-wrap: wrap;
+  }
+  
+  .tab-btn {
+    flex: 1 0 45%;
+    margin-bottom: 4px;
+  }
+  
+  .auth-card {
+    margin: 20px;
+    padding: 20px;
+  }
+  
+  .ec-header {
+    flex-direction: column;
+    text-align: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .ec-tiles {
+    grid-template-columns: 1fr;
+  }
+  
+  .tab-btn {
+    flex: 1 0 100%;
+  }
+  
+  .app-title {
+    font-size: 18px;
+  }
+  
+  .gateway-title {
+    font-size: 24px;
+  }
+}
+
+/* ============================================================
+   NEON EFFECTS
+   ============================================================ */
+.neon-glow {
+  text-shadow: 0 0 10px #00eaff, 0 0 20px #00eaff, 0 0 30px #00eaff;
+}
+
+.neon-border {
+  box-shadow: 0 0 15px rgba(0, 255, 255, 0.5), inset 0 0 15px rgba(0, 255, 255, 0.1);
+}
+
+/* ============================================================
+   SELECT
+   ============================================================ */
+select.input {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%2300eaff' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 36px;
+}
+
+/* ============================================================
+   SCROLLBAR
+   ============================================================ */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(0,0,0,0.2);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #9D00FF, #00C3FF);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #b023ff, #00eaff);
 }
