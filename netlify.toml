@@ -1,14 +1,15 @@
 # netlify.toml
 [build]
-  publish = "."
+  publish = "."  # Your app files are in the root
+  command = ""   # No build command needed for static site
+
+[build.environment]
+  NODE_VERSION = "18"
 
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
-
-[build.environment]
-  NODE_VERSION = "18"
 
 [[headers]]
   for = "/*"
@@ -17,27 +18,9 @@
     X-XSS-Protection = "1; mode=block"
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "strict-origin-when-cross-origin"
-    Content-Security-Policy = """
-      default-src 'self';
-      script-src 'self' https://www.gstatic.com https://cdnjs.cloudflare.com;
-      style-src 'self' https://cdnjs.cloudflare.com 'unsafe-inline';
-      img-src 'self' data: https: http:;
-      connect-src 'self' https://neon-voting-app.firebaseio.com https://neon-voting-app.firebasestorage.app;
-      font-src 'self' https://cdnjs.cloudflare.com;
-    """
 
-# Admin authentication routes
-[[redirects]]
-  from = "/admin/*"
-  to = "/index.html"
-  status = 200
-
-[[redirects]]
-  from = "/login"
-  to = "/index.html"
-  status = 200
-
-[[redirects]]
-  from = "/dashboard"
-  to = "/index.html"
-  status = 200
+# Environment variables (set these in Netlify dashboard)
+# [context.production.environment]
+#   FIREBASE_API_KEY = "your-api-key"
+#   FIREBASE_AUTH_DOMAIN = "your-auth-domain"
+#   # etc.
