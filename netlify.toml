@@ -1,26 +1,11 @@
-# netlify.toml
 [build]
-  publish = "."  # Your app files are in the root
-  command = ""   # No build command needed for static site
-
-[build.environment]
-  NODE_VERSION = "18"
+  publish = "."
+  command = "echo 'No build needed'"
 
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
 
-[[headers]]
-  for = "/*"
-  [headers.values]
-    X-Frame-Options = "DENY"
-    X-XSS-Protection = "1; mode=block"
-    X-Content-Type-Options = "nosniff"
-    Referrer-Policy = "strict-origin-when-cross-origin"
-
-# Environment variables (set these in Netlify dashboard)
-# [context.production.environment]
-#   FIREBASE_API_KEY = "your-api-key"
-#   FIREBASE_AUTH_DOMAIN = "your-auth-domain"
-#   # etc.
+[build.environment]
+  NODE_VERSION = "18"

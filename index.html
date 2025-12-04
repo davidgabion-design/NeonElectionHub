@@ -1,195 +1,1145 @@
-﻿<!doctype html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Neon Voting App — Polished</title>
-  <link rel="stylesheet" href="material-you.css">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
-  <script defer src="https://kit.fontawesome.com/your-fontawesome-kit.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neon Voting System</title>
+    
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Material You CSS -->
+    <link rel="stylesheet" href="material-you.css">
+    
+    <!-- Custom Styles -->
+    <style>
+        /* ============================================================
+           NEON VOTING APP — POLISHED MATERIAL (ENHANCED)
+           ============================================================ */
+        /* RESET */
+        * { box-sizing: border-box; margin:0; padding:0; font-family:"Inter", Arial, sans-serif; }
+        body {
+          background: radial-gradient(circle at 20% 20%, #0e0826, #05051a 60%, #02020d 100%);
+          min-height:100vh; color:#fff; overflow-x:hidden;
+        }
+
+        /* TOP NAV */
+        .top-nav {
+          width:100%; padding:18px 26px; display:flex; justify-content:space-between; align-items:center;
+          background: rgba(0,0,0,0.2); backdrop-filter: blur(10px);
+          border-bottom: 1px solid rgba(0,255,255,0.08);
+        }
+        .top-nav-left{ display:flex; gap:12px; align-items:center; }
+        .app-dot{ width:14px;height:14px;border-radius:50%;background:#00ffaa;box-shadow:0 0 12px #00ffaa;animation:pulse 2s infinite; }
+        @keyframes pulse{ 0%,100%{opacity:1}50%{opacity:0.6} }
+
+        .app-title{
+          font-size:20px; font-weight:700;
+          background: linear-gradient(90deg,#a855ff,#00eaff);
+          -webkit-background-clip: text; background-clip: text;
+          -webkit-text-fill-color: transparent;
+        }
+        .app-subtitle{ font-size:13px; opacity:0.7; margin-left:12px; }
+
+        .top-nav-right { display:flex; gap:12px; align-items:center; }
+        .top-badge { padding:6px 12px; background:rgba(255,255,255,0.04); border-radius:8px; border:1px solid rgba(0,255,255,0.12); color:#8efaff; font-size:12px; }
+        .top-home-btn { padding:8px 12px; border-radius:8px; background:rgba(255,255,255,0.04); border:1px solid rgba(0,255,255,0.12); color:#8efaff; cursor:pointer; }
+
+        /* ENHANCED BADGE */
+        .enhanced-badge {
+            background: linear-gradient(90deg, #FF9800, #FF5722);
+            color: white;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 10px;
+            font-weight: 600;
+            margin-left: 8px;
+            display: inline-block;
+        }
+
+        /* SCREEN */
+        .screen { display:none; width:100%; padding-bottom:60px; animation:fadeIn .45s ease; }
+        .screen.active { display:block; }
+        @keyframes fadeIn { from{opacity:0; transform:translateY(10px)} to{opacity:1; transform:none} }
+
+        /* GATEWAY */
+        .gateway-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-top: 40px;
+            max-width: 1200px;
+            margin-left: auto;
+            margin-right: auto;
+            padding: 0 20px;
+        }
+        
+        .gateway-card{
+          background: rgba(255,255,255,0.02); border-radius:20px;
+          padding: 30px; text-align:center; position:relative;
+          border: 1px solid rgba(0,255,255,0.06);
+          transition: all 0.3s ease;
+          cursor: pointer;
+          backdrop-filter: blur(10px);
+          box-shadow: 0 0 35px rgba(0,0,0,0.3), inset 0 0 25px rgba(255,255,255,0.01);
+        }
+        .gateway-card:hover {
+            transform: translateY(-5px);
+            background: rgba(255,255,255,0.03);
+            border-color: rgba(157,0,255,0.2);
+            box-shadow: 0 10px 35px rgba(157,0,255,0.15), inset 0 0 25px rgba(255,255,255,0.02);
+        }
+        
+        .gateway-icon {
+            font-size: 48px;
+            margin-bottom: 20px;
+            background: linear-gradient(90deg,#a855ff,#00eaff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .gateway-title { 
+            font-size:24px; font-weight:700; margin-bottom:10px;
+            background: linear-gradient(90deg,#a855ff,#00eaff);
+            -webkit-background-clip: text; background-clip:text; -webkit-text-fill-color:transparent;
+        }
+        .gateway-sub{ margin-top:6px; opacity:0.75; margin-bottom:20px; font-size:14px; }
+
+        /* FEATURE HIGHLIGHTS */
+        .feature-highlight {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            background: rgba(255,255,255,0.02);
+            border-radius: 10px;
+            margin-bottom: 8px;
+            font-size: 13px;
+        }
+        
+        .feature-highlight i {
+            color: #00C3FF;
+            font-size: 16px;
+            min-width: 20px;
+        }
+
+        /* BUTTONS */
+        .btn { 
+            border:none; cursor:pointer; padding:12px 24px; border-radius:14px; 
+            font-weight:600; transition:all .25s; display:inline-flex; gap:8px; 
+            min-width:140px; align-items:center; justify-content:center; 
+        }
+        .neon-btn-lg { 
+            background: linear-gradient(90deg,#b023ff,#00d4ff); color:#fff; 
+            box-shadow:0 0 20px rgba(176,35,255,0.25); border:1px solid rgba(0,255,255,0.18); 
+        }
+        .neon-btn { 
+            background: linear-gradient(90deg,#9D00FF,#00C3FF); color:#fff; 
+            border-radius:10px; padding:10px 20px;
+        }
+        .neon-btn-outline { 
+            background:transparent; border:1px solid rgba(0,255,255,0.12); color:#8efaff; padding:10px 20px; 
+        }
+        .neon-btn:hover, .neon-btn-lg:hover { 
+            transform:translateY(-2px); box-shadow:0 6px 20px rgba(157,0,255,0.2); 
+        }
+        
+        .btn-danger {
+            background: linear-gradient(90deg, #ff4444, #cc0000);
+            color: white;
+            border: 1px solid rgba(255,68,68,0.3);
+        }
+        
+        .btn-danger:hover {
+            background: linear-gradient(90deg, #e63939, #b30000);
+            box-shadow: 0 6px 20px rgba(255,68,68,0.2);
+        }
+
+        /* AUTH / PANELS */
+        .auth-card { 
+            max-width:500px; margin:40px auto; padding:28px; border-radius:20px; 
+            background:rgba(255,255,255,0.02); border:1px solid rgba(0,255,255,0.06); 
+            box-shadow: 0 0 35px rgba(0,0,0,0.3), inset 0 0 25px rgba(255,255,255,0.01);
+        }
+        
+        .login-box {
+            max-width: 500px;
+            margin: 40px auto;
+            background: rgba(255,255,255,0.02);
+            border-radius: 20px;
+            padding: 40px;
+            border: 1px solid rgba(0,255,255,0.06);
+            box-shadow: 0 0 35px rgba(0,0,0,0.3), inset 0 0 25px rgba(255,255,255,0.01);
+        }
+        
+        .input{ 
+            width:100%; padding:14px 16px; margin:10px 0; border-radius:12px; 
+            background:rgba(255,255,255,0.03); border:1px solid rgba(0,255,255,0.08); color:#fff; 
+            font-size: 16px;
+        }
+        .input:focus{ 
+            outline:none; border-color:#00eaff; 
+            box-shadow:0 0 12px rgba(0,234,255,0.08); background:rgba(255,255,255,0.04); 
+        }
+        
+        .panel-container{ 
+            max-width:960px; margin:40px auto; padding:30px; border-radius:22px; 
+            background:rgba(255,255,255,0.02); border:1px solid rgba(0,255,255,0.06); 
+            box-shadow: 0 0 35px rgba(0,0,0,0.3), inset 0 0 25px rgba(255,255,255,0.01);
+        }
+        
+        .org-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        /* TABS */
+        .tab-bar{ 
+            display:flex; background: rgba(0,0,0,0.25); padding:4px; border-radius:12px; 
+            gap:8px; margin-bottom:20px; 
+        }
+        .tab-btn{ 
+            flex:1; padding:12px 16px; background:transparent; color:rgba(255,255,255,0.7); 
+            border-radius:8px; border:none; cursor:pointer; font-weight:600; 
+        }
+        .tab-btn.active{ 
+            background: linear-gradient(90deg, rgba(157,0,255,0.12), rgba(0,195,255,0.08)); 
+            color:#00eaff; box-shadow:0 0 10px rgba(0,255,255,0.06); border:1px solid rgba(0,255,255,0.06); 
+        }
+
+        /* CARDS */
+        .card{ 
+            background:rgba(255,255,255,0.02); border-radius:16px; padding:18px; 
+            border:1px solid rgba(0,255,255,0.04); margin-bottom:16px; 
+        }
+        .list-item{ 
+            display:flex; justify-content:space-between; gap:12px; align-items:center; 
+            padding:12px; border-radius:12px; background:rgba(255,255,255,0.01); 
+            border:1px solid rgba(0,255,255,0.02); margin-bottom: 10px;
+        }
+        
+        .org-card {
+            background: rgba(255,255,255,0.02);
+            border-radius: 16px;
+            padding: 20px;
+            border: 1px solid rgba(0,255,255,0.04);
+            transition: all 0.3s ease;
+            min-width: 300px;
+        }
+        
+        .org-card:hover {
+            background: rgba(255,255,255,0.03);
+            border-color: rgba(157,0,255,0.2);
+            transform: translateY(-3px);
+        }
+
+        /* ORG LOGO & AVATAR */
+        .org-logo{ 
+            width:82px; height:82px; border-radius:12px; object-fit:cover; 
+            border:2px solid rgba(0,255,255,0.08); background:rgba(0,0,0,0.2); 
+        }
+        .candidate-photo{ 
+            width:44px; height:44px; border-radius:8px; object-fit:cover; 
+            border:1px solid rgba(0,255,255,0.06); 
+        }
+
+        /* STATUS BADGES */
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            display: inline-block;
+        }
+        
+        .status-active {
+            background: rgba(0, 200, 81, 0.2);
+            color: #00ffaa;
+            border: 1px solid rgba(0, 200, 81, 0.3);
+        }
+        
+        .status-scheduled {
+            background: rgba(255, 193, 7, 0.2);
+            color: #ffc107;
+            border: 1px solid rgba(255, 193, 7, 0.3);
+        }
+        
+        .status-declared {
+            background: rgba(157, 0, 255, 0.2);
+            color: #9D00FF;
+            border: 1px solid rgba(157, 0, 255, 0.3);
+        }
+
+        /* UTIL */
+        .hidden{ display:none!important; }
+        .subtext{ color:rgba(255,255,255,0.6); font-size:13px; line-height: 1.5; }
+        .label{ color:rgba(255,255,255,0.7); font-size:13px; margin-bottom:6px; display:block; }
+        .text-center { text-align: center; }
+        .mt-10 { margin-top: 10px; }
+        .mt-20 { margin-top: 20px; }
+        .mt-30 { margin-top: 30px; }
+        .mb-10 { margin-bottom: 10px; }
+        .mb-20 { margin-bottom: 20px; }
+        .mb-30 { margin-bottom: 30px; }
+        .flex { display: flex; }
+        .items-center { align-items: center; }
+        .justify-between { justify-content: space-between; }
+        .gap-10 { gap: 10px; }
+        .gap-20 { gap: 20px; }
+        .w-full { width: 100%; }
+
+        /* PROGRESS */
+        .progress-bar{ width:100%; height:8px; background:rgba(255,255,255,0.06); border-radius:6px; overflow:hidden; }
+        .progress-fill{ height:100%; background:linear-gradient(90deg,#9D00FF,#00C3FF); transition: width .5s; }
+
+        /* MODAL */
+        .modal-overlay{ 
+            position:fixed; inset:0; background:rgba(0,0,0,0.7); 
+            display:flex; align-items:center; justify-content:center; z-index:1000; 
+            backdrop-filter: blur(5px);
+        }
+        .modal-card{ 
+            width:90%; max-width:520px; background:rgba(20,20,30,0.96); 
+            border-radius:18px; padding:22px; border:1px solid rgba(0,255,255,0.04); 
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+        }
+
+        /* TOAST */
+        #toast{ 
+            position:fixed; bottom:26px; left:50%; transform:translateX(-50%); 
+            padding:12px 22px; border-radius:12px; background:rgba(0,0,0,0.9); 
+            color:#00eaff; display:none; z-index:1001; 
+            border: 1px solid rgba(0,255,255,0.1);
+            backdrop-filter: blur(10px);
+        }
+        #toast.show{ display:block; animation:slideUp .3s ease; }
+        @keyframes slideUp{ 
+            from{ opacity:0; transform:translate(-50%,20px) } 
+            to{ opacity:1; transform:translate(-50%,0) } 
+        }
+
+        /* DANGER ZONE */
+        .danger-zone {
+            border-left: 4px solid rgba(255,68,68,0.5);
+            background: rgba(255, 68, 68, 0.05);
+        }
+
+        /* INFO CARDS */
+        .info-card {
+            background: linear-gradient(90deg, rgba(0, 195, 255, 0.1), rgba(157, 0, 255, 0.1));
+            border: 1px solid rgba(0, 195, 255, 0.2);
+        }
+
+        /* LOADING SPINNER */
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(255,255,255,0.1);
+            border-top-color: #9D00FF;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* EMPTY STATE */
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: rgba(255,255,255,0.6);
+        }
+        
+        .empty-state i {
+            font-size: 48px;
+            margin-bottom: 20px;
+            color: rgba(255,255,255,0.3);
+        }
+
+        /* USER BADGE */
+        .user-badge {
+            background: rgba(255,255,255,0.02);
+            padding: 10px 16px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border: 1px solid rgba(0,255,255,0.06);
+        }
+        
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(90deg, #9D00FF, #00C3FF);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        /* LINK BOX */
+        .link-box {
+            background: rgba(0, 195, 255, 0.1);
+            border: 1px solid rgba(0, 195, 255, 0.3);
+            border-radius: 12px;
+            padding: 15px;
+            margin: 15px 0;
+            word-break: break-all;
+            font-family: monospace;
+            font-size: 13px;
+        }
+
+        /* BULK TEXTAREA */
+        .bulk-textarea {
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            line-height: 1.5;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(0,255,255,0.08);
+            color: white;
+            padding: 12px;
+            border-radius: 12px;
+            width: 100%;
+            min-height: 200px;
+        }
+
+        /* RESPONSIVE */
+        @media (max-width:768px){
+            .gateway-grid { grid-template-columns: 1fr; margin: 20px; }
+            .gateway-card{ margin:20px; padding:20px; }
+            .btn{ width:100%; }
+            .panel-container{ margin:20px; padding:20px; }
+            .tab-btn{ flex:1 0 45%; }
+            .app-title{ font-size:18px; }
+            .login-box { margin: 20px; padding: 20px; }
+            .auth-card { margin: 20px; padding: 20px; }
+        }
+        @media (max-width:480px){
+            .tab-btn{ flex:1 0 100%; }
+            .org-header { flex-direction: column; text-align: center; }
+            .top-nav { flex-direction: column; gap: 15px; padding: 15px; }
+            .top-nav-left, .top-nav-right { width: 100%; justify-content: center; }
+        }
+
+        /* HEADER STYLES */
+        .header-left h1 {
+            background: linear-gradient(90deg,#a855ff,#00eaff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-size: 24px;
+            font-weight: 700;
+        }
+        
+        .header-left p {
+            color: rgba(255,255,255,0.6);
+            font-size: 14px;
+        }
+
+        /* VOTING CARD */
+        .voting-card {
+            background: rgba(255,255,255,0.02);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 15px;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+        
+        .voting-card.selected {
+            border-color: rgba(157,0,255,0.5);
+            background: rgba(157, 0, 255, 0.1);
+        }
+
+        /* OTP INPUT */
+        .otp-input {
+            width: 60px;
+            height: 60px;
+            text-align: center;
+            font-size: 24px;
+            margin: 0 5px;
+            background: rgba(255,255,255,0.07);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px;
+            color: white;
+        }
+        
+        .otp-input:focus {
+            border-color: #9D00FF;
+            outline: none;
+        }
+        
+        /* TAB CONTENT */
+        .tab-content {
+            display: none;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+        
+        .tab-content.active {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+            animation: fadeIn 0.3s ease;
+        }
+    </style>
 </head>
 <body>
+    <!-- Toast Notification -->
+    <div id="toast"></div>
 
-  <!-- TOP NAV -->
-  <div class="top-nav">
-    <div class="top-nav-left">
-      <span class="app-dot"></span>
-      <div>
-        <div class="app-title">Neon Voting</div>
-        <div class="app-subtitle">Secure • Anonymous • Real-time</div>
-      </div>
-    </div>
-    <div class="top-nav-right">
-      <div class="top-badge">Firebase: neon-voting-app</div>
-      <button id="top-home" class="top-home-btn">Home</button>
-    </div>
-  </div>
-
-  <!-- GATEWAY (home) -->
-  <div id="gatewayScreen" class="screen">
-    <div class="gateway-card">
-      <h1 class="gateway-title">Neon Voting App</h1>
-      <p class="gateway-sub">Enterprise-ready voting platform — SuperAdmin, EC, Voter & public results.</p>
-
-      <div class="gateway-btn-row">
-        <button id="btn-superadmin" class="btn neon-btn-lg"><i class="fas fa-shield-alt"></i> SuperAdmin</button>
-        <button id="btn-ec" class="btn neon-btn-lg"><i class="fas fa-gavel"></i> Election Commission (EC)</button>
-        <button id="btn-voter" class="btn neon-btn"><i class="fas fa-user-check"></i> Voter</button>
-        <button id="btn-public" class="btn neon-btn-outline"><i class="fas fa-globe"></i> Public Results</button>
-        <button id="btn-guest" class="btn neon-btn-outline"><i class="fas fa-info-circle"></i> Guest</button>
-      </div>
-
-      <div class="gateway-footer">Need help? Use the Admin link bottom-right or check the console for debug logs.</div>
-    </div>
-  </div>
-
-  <!-- SUPERADMIN LOGIN -->
-  <div id="superAdminLoginScreen" class="screen">
-    <div class="auth-card">
-      <h2>SuperAdmin Login</h2>
-      <input id="super-admin-pass" class="input" type="password" placeholder="Enter SuperAdmin password">
-      <div class="auth-btn-row">
-        <button id="super-login-btn" class="btn neon-btn">Login</button>
-        <button id="super-back" class="btn neon-btn-outline">Back</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- SUPERADMIN PANEL -->
-  <div id="superAdminPanel" class="screen">
-    <div class="panel-container">
-      <div style="display:flex;justify-content:space-between;align-items:center">
-        <h2 class="section-title">SuperAdmin</h2>
-        <div>
-          <button class="btn neon-btn-outline logout-btn">Logout</button>
+    <!-- Top Navigation -->
+    <div class="top-nav">
+        <div class="top-nav-left">
+            <div class="app-dot"></div>
+            <div>
+                <div class="app-title">Neon Voting System <span class="enhanced-badge">ENHANCED</span></div>
+                <div class="app-subtitle">Secure • Modern • Efficient</div>
+            </div>
         </div>
-      </div>
-
-      <div class="tab-bar" id="superTabs">
-        <button class="tab-btn active" data-super-tab="orgs">Organizations</button>
-        <button class="tab-btn" data-super-tab="settings">Settings</button>
-      </div>
-
-      <div id="superContent-orgs" class="tab-content active"></div>
-      <div id="superContent-settings" class="tab-content"></div>
-    </div>
-  </div>
-
-  <!-- EC LOGIN -->
-  <div id="ecLoginScreen" class="screen">
-    <div class="auth-card">
-      <h2>EC Login</h2>
-      <label class="subtext">Organization ID</label>
-      <input id="ec-org-id" class="input" placeholder="Organization ID">
-      <label class="subtext">EC Password</label>
-      <input id="ec-pass" class="input" type="password" placeholder="EC password">
-      <div class="auth-btn-row">
-        <button id="ec-login-btn" class="btn neon-btn">Login</button>
-        <button id="ec-back" class="btn neon-btn-outline">Back</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- EC PANEL -->
-  <div id="ecPanel" class="screen">
-    <div class="panel-container">
-      <div class="ec-header">
-        <img id="ecOrgLogo" class="org-logo" src="" alt="Org logo">
-        <div class="ec-header-info">
-          <h3 id="ecOrgName">Organization</h3>
-          <div id="ecStatusBadge">status</div>
+        <div class="top-nav-right">
+            <div class="top-badge">Enhanced Edition</div>
+            <button class="top-home-btn" onclick="showScreen('gatewayScreen')">
+                <i class="fas fa-home"></i> Home
+            </button>
         </div>
-        <div>
-          <button class="btn neon-btn-outline logout-btn">Logout</button>
+    </div>
+
+    <!-- Gateway Screen -->
+    <div id="gatewayScreen" class="screen active">
+        <div class="auth-card">
+            <div class="text-center mb-30">
+                <h1 class="gateway-title">Welcome to Neon Voting</h1>
+                <p class="gateway-sub">Enhanced digital voting system with phone support & direct links</p>
+            </div>
+
+            <div class="gateway-grid">
+                <div class="gateway-card" id="btn-superadmin">
+                    <div class="gateway-icon">
+                        <i class="fas fa-user-shield"></i>
+                    </div>
+                    <h3>Super Admin</h3>
+                    <p class="subtext">Manage organizations, view passwords, edit settings</p>
+                    <div class="feature-highlight">
+                        <i class="fas fa-eye"></i> <span>View EC Passwords</span>
+                    </div>
+                    <div class="feature-highlight">
+                        <i class="fas fa-edit"></i> <span>Edit Organizations</span>
+                    </div>
+                    <div class="status-badge status-active mt-10">Full Access</div>
+                </div>
+
+                <div class="gateway-card" id="btn-ec">
+                    <div class="gateway-icon">
+                        <i class="fas fa-user-tie"></i>
+                    </div>
+                    <h3>Election Commissioner</h3>
+                    <p class="subtext">Manage voters, positions, candidates, and elections</p>
+                    <div class="feature-highlight">
+                        <i class="fas fa-phone"></i> <span>Phone Number Support</span>
+                    </div>
+                    <div class="feature-highlight">
+                        <i class="fas fa-users"></i> <span>Bulk Voter Import</span>
+                    </div>
+                    <div class="status-badge status-scheduled mt-10">Organization Access</div>
+                </div>
+
+                <div class="gateway-card" id="btn-voter">
+                    <div class="gateway-icon">
+                        <i class="fas fa-user-check"></i>
+                    </div>
+                    <h3>Voter</h3>
+                    <p class="subtext">Cast your vote securely with email or phone verification</p>
+                    <div class="feature-highlight">
+                        <i class="fas fa-mobile-alt"></i> <span>Phone Login Available</span>
+                    </div>
+                    <div class="feature-highlight">
+                        <i class="fas fa-link"></i> <span>Direct Voting Links</span>
+                    </div>
+                    <div class="status-badge status-scheduled mt-10">Voting Access</div>
+                </div>
+
+                <div class="gateway-card" id="btn-public">
+                    <div class="gateway-icon">
+                        <i class="fas fa-chart-bar"></i>
+                    </div>
+                    <h3>Public Results</h3>
+                    <p class="subtext">View election results with public access links</p>
+                    <div class="feature-highlight">
+                        <i class="fas fa-chart-pie"></i> <span>Live Results Display</span>
+                    </div>
+                    <div class="feature-highlight">
+                        <i class="fas fa-share-alt"></i> <span>Shareable Links</span>
+                    </div>
+                    <div class="status-badge status-declared mt-10">Read Only</div>
+                </div>
+
+                <div class="gateway-card" id="btn-guest">
+                    <div class="gateway-icon">
+                        <i class="fas fa-info-circle"></i>
+                    </div>
+                    <h3>Guest View</h3>
+                    <p class="subtext">Learn about the system and its enhanced features</p>
+                    <div class="feature-highlight">
+                        <i class="fas fa-star"></i> <span>New Features Overview</span>
+                    </div>
+                    <div class="feature-highlight">
+                        <i class="fas fa-question-circle"></i> <span>How It Works</span>
+                    </div>
+                    <div class="status-badge mt-10">Information</div>
+                </div>
+            </div>
+
+            <div class="text-center mt-40 subtext">
+                <p>
+                    <i class="fas fa-shield-alt"></i> Enhanced Security • 
+                    <i class="fas fa-phone"></i> Phone Number Support • 
+                    <i class="fas fa-link"></i> Direct Voting Links • 
+                    <i class="fas fa-users"></i> Bulk Management
+                </p>
+                <p class="mt-10">
+                    <i class="fas fa-globe"></i> Ghanaian (+233) & International Phone Support
+                </p>
+            </div>
         </div>
-      </div>
-
-      <div class="tab-bar" id="ecTabs">
-        <button class="tab-btn active" data-ec-tab="voters">Voters</button>
-        <button class="tab-btn" data-ec-tab="positions">Positions</button>
-        <button class="tab-btn" data-ec-tab="candidates">Candidates</button>
-        <button class="tab-btn" data-ec-tab="settings">Settings</button>
-      </div>
-
-      <div id="ecContent-voters" class="tab-content active"></div>
-      <div id="ecContent-positions" class="tab-content"></div>
-      <div id="ecContent-candidates" class="tab-content"></div>
-      <div id="ecContent-settings" class="tab-content"></div>
     </div>
-  </div>
 
-  <!-- VOTER LOGIN -->
-  <div id="voterLoginScreen" class="screen">
-    <div class="auth-card">
-      <div style="display:flex;gap:16px;align-items:center">
-        <img id="voterOrgLogo" class="org-logo" src="" alt="">
-        <div>
-          <h3 id="voterOrgName">Organization</h3>
+    <!-- Super Admin Login Screen -->
+    <div id="superAdminLoginScreen" class="screen">
+        <div class="top-nav">
+            <div class="top-nav-left">
+                <div class="app-dot"></div>
+                <div>
+                    <div class="app-title">Super Admin Login</div>
+                    <div class="app-subtitle">Full system administrator access</div>
+                </div>
+            </div>
+            <div class="top-nav-right">
+                <button class="top-home-btn" id="super-back">
+                    <i class="fas fa-arrow-left"></i> Back
+                </button>
+            </div>
         </div>
-      </div>
 
-      <label class="subtext">Email</label>
-      <input id="voter-email" class="input" placeholder="voter@example.com">
-      <div id="voter-otp-group" class="hidden">
-        <label class="subtext">Enter OTP</label>
-        <input id="voter-otp" class="input" placeholder="One-time code">
-      </div>
+        <div class="auth-card">
+            <div class="text-center mb-30">
+                <div style="font-size:64px;background:linear-gradient(90deg,#a855ff,#00eaff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:20px">
+                    <i class="fas fa-user-shield"></i>
+                </div>
+                <h1 class="gateway-title">Super Admin Access</h1>
+                <p class="gateway-sub">Enter your super admin password</p>
+            </div>
 
-      <div class="auth-btn-row">
-        <button id="voter-send-otp" class="btn neon-btn">Send OTP</button>
-        <button id="voter-verify-otp" class="btn neon-btn-outline">Verify OTP</button>
-        <button id="voter-back" class="btn neon-btn-outline">Back</button>
-      </div>
-    </div>
-  </div>
+            <div class="mb-20">
+                <label class="label">Super Admin Password</label>
+                <input type="password" id="super-admin-pass" class="input" placeholder="Enter super admin password">
+            </div>
 
-  <!-- VOTING SCREEN -->
-  <div id="votingScreen" class="screen">
-    <div class="panel-container">
-      <div id="votingContent"></div>
+            <button class="btn neon-btn w-full" id="super-login-btn">
+                <i class="fas fa-sign-in-alt"></i> Login as Super Admin
+            </button>
 
-      <div style="display:flex;gap:12px;justify-content:center;margin-top:18px">
-        <button id="submit-vote-btn" class="btn neon-btn">Submit Vote</button>
-        <button class="btn neon-btn-outline" onclick="showScreen('gatewayScreen')">Cancel</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- PUBLIC RESULTS -->
-  <div id="publicScreen" class="screen">
-    <div class="panel-container">
-      <div style="display:flex;gap:12px;align-items:center">
-        <img id="publicOrgLogo" class="org-logo" src="" alt="Org logo">
-        <div>
-          <h3 id="publicOrgName">Organization</h3>
+            <div class="text-center mt-30 subtext">
+                <p><i class="fas fa-exclamation-triangle"></i> First time? Try password: <code>admin123</code></p>
+            </div>
         </div>
-        <div style="margin-left:auto">
-          <button id="public-back" class="btn neon-btn-outline">Back</button>
+    </div>
+
+    <!-- Super Admin Panel -->
+    <div id="superAdminPanel" class="screen">
+        <div class="top-nav">
+            <div class="top-nav-left">
+                <div class="app-dot"></div>
+                <div>
+                    <div class="app-title">Super Admin Panel</div>
+                    <div class="app-subtitle">Manage organizations, passwords, and system settings</div>
+                </div>
+            </div>
+            <div class="top-nav-right">
+                <div class="user-badge">
+                    <div class="user-avatar">SA</div>
+                    <div>
+                        <div style="font-weight:600">Super Admin</div>
+                        <div class="subtext">Full System Access</div>
+                    </div>
+                </div>
+                <button class="btn neon-btn-outline logout-btn">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
+            </div>
         </div>
-      </div>
 
-      <div id="publicResults"></div>
+        <div class="panel-container">
+            <div class="tab-bar" id="superTabs">
+                <button class="tab-btn active" data-super-tab="orgs">
+                    <i class="fas fa-building"></i> Organizations
+                </button>
+                <button class="tab-btn" data-super-tab="settings">
+                    <i class="fas fa-cog"></i> Settings
+                </button>
+                <button class="tab-btn" data-super-tab="delete" style="color:#ff4444">
+                    <i class="fas fa-trash"></i> Delete
+                </button>
+            </div>
+
+            <!-- Organizations Tab -->
+            <div id="superContent-orgs" class="tab-content active">
+                <div class="empty-state">
+                    <i class="fas fa-building"></i>
+                    <h3>Loading Organizations...</h3>
+                    <p>Please wait while we load the organization data</p>
+                </div>
+            </div>
+
+            <!-- Settings Tab -->
+            <div id="superContent-settings" class="tab-content">
+                <div class="empty-state">
+                    <i class="fas fa-cog"></i>
+                    <h3>Loading Settings...</h3>
+                    <p>Please wait while we load the settings</p>
+                </div>
+            </div>
+
+            <!-- Delete Tab -->
+            <div id="superContent-delete" class="tab-content">
+                <div class="empty-state">
+                    <i class="fas fa-trash"></i>
+                    <h3>Delete Organizations</h3>
+                    <p>Loading organization list for deletion</p>
+                </div>
+            </div>
+        </div>
     </div>
-  </div>
 
-  <!-- GUEST -->
-  <div id="guestScreen" class="screen">
-    <div class="panel-container">
-      <div id="guestContent"></div>
-      <div style="text-align:center;margin-top:20px">
-        <button id="guest-back" class="btn neon-btn-outline">Back</button>
-      </div>
+    <!-- EC Login Screen -->
+    <div id="ecLoginScreen" class="screen">
+        <div class="top-nav">
+            <div class="top-nav-left">
+                <div class="app-dot"></div>
+                <div>
+                    <div class="app-title">EC Login</div>
+                    <div class="app-subtitle">Election Commissioner access</div>
+                </div>
+            </div>
+            <div class="top-nav-right">
+                <button class="top-home-btn" id="ec-back">
+                    <i class="fas fa-arrow-left"></i> Back
+                </button>
+            </div>
+        </div>
+
+        <div class="auth-card">
+            <div class="text-center mb-30">
+                <div style="font-size:64px;background:linear-gradient(90deg,#00C851,#00eaff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:20px">
+                    <i class="fas fa-user-tie"></i>
+                </div>
+                <h1 class="gateway-title">Election Commissioner Login</h1>
+                <p class="gateway-sub">Enter your organization ID and EC password</p>
+            </div>
+
+            <div class="mb-20">
+                <label class="label">Organization ID</label>
+                <input type="text" id="ec-org-id" class="input" placeholder="Enter organization ID">
+            </div>
+
+            <div class="mb-20">
+                <label class="label">EC Password</label>
+                <input type="password" id="ec-pass" class="input" placeholder="Enter EC password">
+            </div>
+
+            <button class="btn neon-btn w-full" id="ec-login-btn">
+                <i class="fas fa-sign-in-alt"></i> Login as EC
+            </button>
+
+            <div class="text-center mt-30 subtext">
+                <p><i class="fas fa-question-circle"></i> Need credentials? Contact your Super Admin</p>
+            </div>
+        </div>
     </div>
-  </div>
 
-  <!-- TOAST -->
-  <div id="toast"></div>
+    <!-- EC Panel -->
+    <div id="ecPanel" class="screen">
+        <div class="top-nav">
+            <div class="top-nav-left">
+                <div class="app-dot"></div>
+                <div>
+                    <div class="app-title" id="ecOrgName">Organization Name</div>
+                    <div class="app-subtext" id="ecOrgStatus">Election Commissioner Dashboard</div>
+                </div>
+            </div>
+            <div class="top-nav-right">
+                <div class="user-badge">
+                    <div class="user-avatar">EC</div>
+                    <div>
+                        <div style="font-weight:600">Election Commissioner</div>
+                        <div class="subtext" id="ecOrgIdDisplay">ID: -</div>
+                    </div>
+                </div>
+                <button class="btn neon-btn-outline logout-btn">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
+            </div>
+        </div>
 
-  <!-- ADMIN QUICK LINK (client-side demo) -->
-  <a href="#admin" class="admin-login" style="display:none">Admin</a>
+        <div class="panel-container">
+            <div class="tab-bar" id="ecTabs">
+                <button class="tab-btn active" data-ec-tab="voters">
+                    <i class="fas fa-users"></i> Voters
+                </button>
+                <button class="tab-btn" data-ec-tab="positions">
+                    <i class="fas fa-list-ol"></i> Positions
+                </button>
+                <button class="tab-btn" data-ec-tab="candidates">
+                    <i class="fas fa-user-friends"></i> Candidates
+                </button>
+                <button class="tab-btn" data-ec-tab="outcomes">
+                    <i class="fas fa-chart-line"></i> Outcomes
+                </button>
+                <button class="tab-btn" data-ec-tab="settings">
+                    <i class="fas fa-cog"></i> Settings
+                </button>
+            </div>
 
-  <!-- SCRIPTS -->
-  <script type="module" src="script.js"></script>
+            <!-- Voters Tab -->
+            <div id="ecContent-voters" class="tab-content active">
+                <div class="empty-state">
+                    <i class="fas fa-users"></i>
+                    <h3>Loading Voters...</h3>
+                    <p>Please wait while we load the voter data</p>
+                </div>
+            </div>
+
+            <!-- Positions Tab -->
+            <div id="ecContent-positions" class="tab-content">
+                <div class="empty-state">
+                    <i class="fas fa-list-ol"></i>
+                    <h3>Loading Positions...</h3>
+                    <p>Please wait while we load the positions data</p>
+                </div>
+            </div>
+
+            <!-- Candidates Tab -->
+            <div id="ecContent-candidates" class="tab-content">
+                <div class="empty-state">
+                    <i class="fas fa-user-friends"></i>
+                    <h3>Loading Candidates...</h3>
+                    <p>Please wait while we load the candidates data</p>
+                </div>
+            </div>
+
+            <!-- Outcomes Tab -->
+            <div id="ecContent-outcomes" class="tab-content">
+                <div class="empty-state">
+                    <i class="fas fa-chart-line"></i>
+                    <h3>Loading Voting Outcomes...</h3>
+                    <p>Please wait while we load the live voting results</p>
+                </div>
+            </div>
+
+            <!-- Settings Tab -->
+            <div id="ecContent-settings" class="tab-content">
+                <div class="empty-state">
+                    <i class="fas fa-cog"></i>
+                    <h3>Loading Settings...</h3>
+                    <p>Please wait while we load the settings</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Voter Login Screen -->
+    <div id="voterLoginScreen" class="screen">
+        <div class="top-nav">
+            <div class="top-nav-left">
+                <div class="app-dot"></div>
+                <div>
+                    <div class="app-title" id="voterOrgName">Organization Name</div>
+                    <div class="app-subtext">Voter Login Portal</div>
+                </div>
+            </div>
+            <div class="top-nav-right">
+                <button class="top-home-btn" id="voter-back">
+                    <i class="fas fa-arrow-left"></i> Back
+                </button>
+            </div>
+        </div>
+
+        <div class="auth-card">
+            <div class="text-center mb-30">
+                <div style="font-size:64px;background:linear-gradient(90deg,#FF9800,#00eaff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:20px">
+                    <i class="fas fa-user-check"></i>
+                </div>
+                <h1 class="gateway-title">Voter Authentication</h1>
+                <p class="gateway-sub">Enter your email or phone number to receive OTP</p>
+            </div>
+
+            <div class="mb-20">
+                <label class="label">Email or Phone Number</label>
+                <input type="text" id="voter-email" class="input" placeholder="email@example.com or +233XXXXXXXXX">
+                <small class="subtext">Use the email or phone number registered by your EC</small>
+            </div>
+
+            <button class="btn neon-btn w-full" id="voter-send-otp">
+                <i class="fas fa-paper-plane"></i> Send OTP
+            </button>
+
+            <div id="voter-otp-group" class="hidden mt-30">
+                <div class="mb-20">
+                    <label class="label">Enter 6-digit OTP</label>
+                    <input type="text" id="voter-otp" class="input" placeholder="123456" maxlength="6">
+                    <small class="subtext">Check your email or SMS for the OTP code</small>
+                </div>
+
+                <button class="btn neon-btn w-full" id="voter-verify-otp">
+                    <i class="fas fa-check-circle"></i> Verify & Vote
+                </button>
+            </div>
+
+            <div class="text-center mt-30 subtext">
+                <p><i class="fas fa-info-circle"></i> Don't have credentials? Contact your Election Commissioner</p>
+                <p class="mt-10"><i class="fas fa-mobile-alt"></i> Ghanaian numbers: +233XXXXXXXXX or 0XXXXXXXXX</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Voting Screen -->
+    <div id="votingScreen" class="screen">
+        <div class="top-nav">
+            <div class="top-nav-left">
+                <div class="app-dot"></div>
+                <div>
+                    <div class="app-title" id="votingOrgName">Organization Name</div>
+                    <div class="app-subtext">Cast Your Vote Securely</div>
+                </div>
+            </div>
+            <div class="top-nav-right">
+                <button class="btn neon-btn-outline logout-btn">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
+            </div>
+        </div>
+
+        <div class="panel-container">
+            <div id="votingContent">
+                <div class="empty-state">
+                    <div class="spinner"></div>
+                    <h3>Loading Voting Ballot...</h3>
+                    <p>Please wait while we prepare your voting ballot</p>
+                </div>
+            </div>
+
+            <div class="text-center mt-30">
+                <button class="btn neon-btn-lg" id="submit-vote-btn">
+                    <i class="fas fa-paper-plane"></i> Submit Vote
+                </button>
+                <p class="subtext mt-20">
+                    <i class="fas fa-shield-alt"></i> Your vote is encrypted and secure
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Public Results Screen -->
+    <div id="publicScreen" class="screen">
+        <div class="top-nav">
+            <div class="top-nav-left">
+                <div class="app-dot"></div>
+                <div>
+                    <div class="app-title" id="publicOrgName">Organization Name</div>
+                    <div class="app-subtext">Election Results - Public View</div>
+                </div>
+            </div>
+            <div class="top-nav-right">
+                <button class="top-home-btn" id="public-back">
+                    <i class="fas fa-arrow-left"></i> Back
+                </button>
+            </div>
+        </div>
+
+        <div class="panel-container">
+            <div id="publicResults">
+                <div class="empty-state">
+                    <div class="spinner"></div>
+                    <h3>Loading Election Results...</h3>
+                    <p>Please wait while we load the election results</p>
+                </div>
+            </div>
+
+            <div class="text-center mt-30 subtext">
+                <p><i class="fas fa-info-circle"></i> This is a public view of election results</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Guest Screen -->
+    <div id="guestScreen" class="screen">
+        <div class="top-nav">
+            <div class="top-nav-left">
+                <div class="app-dot"></div>
+                <div>
+                    <div class="app-title">Guest Information</div>
+                    <div class="app-subtext">Learn about the Enhanced Neon Voting System</div>
+                </div>
+            </div>
+            <div class="top-nav-right">
+                <button class="top-home-btn" id="guest-back">
+                    <i class="fas fa-arrow-left"></i> Back
+                </button>
+            </div>
+        </div>
+
+        <div class="panel-container">
+            <div id="guestContent">
+                <div class="card info-card">
+                    <h2><i class="fas fa-star"></i> Enhanced Neon Voting System</h2>
+                    <p class="subtext" style="margin-top:10px">A comprehensive digital voting system with enhanced security features, phone number support, and direct voting links.</p>
+                </div>
+
+                <div class="card" style="margin-top:20px">
+                    <h3><i class="fas fa-bolt"></i> New Enhanced Features</h3>
+                    <div style="margin-top:15px">
+                        <div class="feature-highlight">
+                            <i class="fas fa-eye"></i>
+                            <div>
+                                <strong>Admin Password View</strong>
+                                <div class="subtext">Super Admin can view and edit organization EC passwords</div>
+                            </div>
+                        </div>
+                        <div class="feature-highlight">
+                            <i class="fas fa-phone"></i>
+                            <div>
+                                <strong>Phone Number Support</strong>
+                                <div class="subtext">Add voters with Ghanaian (+233) or international phone numbers</div>
+                            </div>
+                        </div>
+                        <div class="feature-highlight">
+                            <i class="fas fa-link"></i>
+                            <div>
+                                <strong>Direct Voting Links</strong>
+                                <div class="subtext">Send personalized voting links via email/SMS to voters</div>
+                            </div>
+                        </div>
+                        <div class="feature-highlight">
+                            <i class="fas fa-users"></i>
+                            <div>
+                                <strong>Bulk Voter Import</strong>
+                                <div class="subtext">Import multiple voters at once with CSV-like format</div>
+                            </div>
+                        </div>
+                        <div class="feature-highlight">
+                            <i class="fas fa-user-shield"></i>
+                            <div>
+                                <strong>Enhanced Security</strong>
+                                <div class="subtext">Tab hiding for voters, secure direct links, password management</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card" style="margin-top:20px">
+                    <h3><i class="fas fa-play-circle"></i> How It Works</h3>
+                    <ol style="padding-left:20px;margin-top:15px">
+                        <li style="margin-bottom:10px">
+                            <strong>Super Admin</strong> creates organizations and manages EC passwords
+                        </li>
+                        <li style="margin-bottom:10px">
+                            <strong>Election Commissioners</strong> add voters with email/phone, create positions/candidates
+                        </li>
+                        <li style="margin-bottom:10px">
+                            <strong>Voters</strong> receive direct voting links or login with email/phone + OTP
+                        </li>
+                        <li style="margin-bottom:10px">
+                            <strong>Voting</strong> is secure, encrypted, and tamper-proof
+                        </li>
+                        <li style="margin-bottom:10px">
+                            <strong>Results</strong> can be declared and shared via public links
+                        </li>
+                    </ol>
+                </div>
+
+                <div class="card danger-zone" style="margin-top:20px">
+                    <h3><i class="fas fa-exclamation-triangle"></i> Security Features</h3>
+                    <div style="margin-top:15px">
+                        <div class="feature-highlight">
+                            <i class="fas fa-shield-alt"></i>
+                            <div>
+                                <strong>End-to-End Encryption</strong>
+                                <div class="subtext">All votes are encrypted in transit and at rest</div>
+                            </div>
+                        </div>
+                        <div class="feature-highlight">
+                            <i class="fas fa-user-check"></i>
+                            <div>
+                                <strong>OTP Verification</strong>
+                                <div class="subtext">One-time passwords for voter authentication</div>
+                            </div>
+                        </div>
+                        <div class="feature-highlight">
+                            <i class="fas fa-lock"></i>
+                            <div>
+                                <strong>Role-Based Access</strong>
+                                <div class="subtext">Different interfaces for Admin, EC, and Voters</div>
+                            </div>
+                        </div>
+                        <div class="feature-highlight">
+                            <i class="fas fa-history"></i>
+                            <div>
+                                <strong>Audit Trail</strong>
+                                <div class="subtext">Complete logging of all voting activities</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center mt-30">
+                    <button class="btn neon-btn-lg" onclick="showScreen('gatewayScreen')">
+                        <i class="fas fa-play"></i> Get Started
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script type="module" src="script.js"></script>
+    
+    <script>
+        // Initialize enhanced badges
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Neon Voting System Enhanced Edition Loaded');
+            
+            // Add hover effects to enhanced badges
+            const enhancedElements = document.querySelectorAll('.enhanced-badge');
+            enhancedElements.forEach(el => {
+                el.addEventListener('mouseenter', function() {
+                    this.style.transform = 'scale(1.05)';
+                });
+                el.addEventListener('mouseleave', function() {
+                    this.style.transform = 'scale(1)';
+                });
+            });
+        });
+        
+        // Global showScreen function for inline buttons
+        window.showScreen = function(screenId) {
+            document.querySelectorAll('.screen').forEach(s => {
+                s.classList.remove('active');
+            });
+            const screen = document.getElementById(screenId);
+            if (screen) {
+                screen.classList.add('active');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        };
+    </script>
 </body>
 </html>

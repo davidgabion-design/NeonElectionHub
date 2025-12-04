@@ -33,46 +33,9 @@ X-Frame-Options = "DENY"
 X-XSS-Protection = "1; mode=block"
 X-Content-Type-Options = "nosniff"
 Referrer-Policy = "strict-origin-when-cross-origin"
-Content-Security-Policy = "default-src 'self';\n      script-src 'self' https://www.gstatic.com https://cdnjs.cloudflare.com;\n      style-src 'self' https://cdnjs.cloudflare.com 'unsafe-inline';\n      img-src 'self' data: https: http:;\n      connect-src 'self' https://neon-voting-app.firebaseio.com https://neon-voting-app.firebasestorage.app;\n      font-src 'self' https://cdnjs.cloudflare.com;"
 
 [[redirects]]
 from = "/*"
-to = "/index.html"
-status = 200.0
-force = false
-
-[redirects.query]
-
-[redirects.conditions]
-
-[redirects.headers]
-
-[[redirects]]
-from = "/admin/*"
-to = "/index.html"
-status = 200.0
-force = false
-
-[redirects.query]
-
-[redirects.conditions]
-
-[redirects.headers]
-
-[[redirects]]
-from = "/login"
-to = "/index.html"
-status = 200.0
-force = false
-
-[redirects.query]
-
-[redirects.conditions]
-
-[redirects.headers]
-
-[[redirects]]
-from = "/dashboard"
 to = "/index.html"
 status = 200.0
 force = false

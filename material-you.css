@@ -21,7 +21,7 @@ body {
 .app-title{
   font-size:20px; font-weight:700;
   background: linear-gradient(90deg,#a855ff,#00eaff);
-  -webkit-background-clip: text; background-clip: text; /* standard included */
+  -webkit-background-clip: text; background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 .app-subtitle{ font-size:13px; opacity:0.7; margin-left:12px; }
@@ -69,9 +69,31 @@ body {
 .tab-btn{ flex:1; padding:12px 16px; background:transparent; color:rgba(255,255,255,0.7); border-radius:8px; border:none; cursor:pointer; font-weight:600; }
 .tab-btn.active{ background: linear-gradient(90deg, rgba(157,0,255,0.12), rgba(0,195,255,0.08)); color:#00eaff; box-shadow:0 0 10px rgba(0,255,255,0.06); border:1px solid rgba(0,255,255,0.06); }
 
+/* Tab Content */
+.tab-content {
+  display: none;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.tab-content.active {
+  display: block;
+  opacity: 1;
+  transform: translateY(0);
+  animation: fadeIn 0.3s ease;
+}
+
 /* CARDS */
-.card{ background:rgba(255,255,255,0.02); border-radius:16px; padding:18px; border:1px solid rgba(0,255,255,0.04); margin-bottom:16px; }
-.list-item{ display:flex; justify-content:space-between; gap:12px; align-items:center; padding:12px; border-radius:12px; background:rgba(255,255,255,0.01); border:1px solid rgba(0,255,255,0.02); }
+.card{ 
+  background:rgba(255,255,255,0.02); border-radius:16px; padding:18px; 
+  border:1px solid rgba(0,255,255,0.04); margin-bottom:16px; 
+}
+.list-item{ 
+  display:flex; justify-content:space-between; gap:12px; align-items:center; 
+  padding:12px; border-radius:12px; background:rgba(255,255,255,0.01); 
+  border:1px solid rgba(0,255,255,0.02); margin-bottom: 10px;
+}
 
 /* ORG LOGO & AVATAR */
 .org-logo{ width:82px; height:82px; border-radius:12px; object-fit:cover; border:2px solid rgba(0,255,255,0.08); background:rgba(0,0,0,0.2); }
