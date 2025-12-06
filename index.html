@@ -11,6 +11,9 @@
     <!-- Material You CSS -->
     <link rel="stylesheet" href="material-you.css">
     
+    <!-- EmailJS for Email Sending -->
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    
     <!-- Custom Styles -->
     <style>
         /* ============================================================
@@ -36,7 +39,8 @@
         .app-title{
           font-size:20px; font-weight:700;
           background: linear-gradient(90deg,#a855ff,#00eaff);
-          -webkit-background-clip: text; background-clip: text;
+          -webkit-background-clip: text; 
+          background-clip: text; /* Fixed: added standard property */
           -webkit-text-fill-color: transparent;
         }
         .app-subtitle{ font-size:13px; opacity:0.7; margin-left:12px; }
@@ -95,14 +99,16 @@
             margin-bottom: 20px;
             background: linear-gradient(90deg,#a855ff,#00eaff);
             -webkit-background-clip: text;
-            background-clip: text;
+            background-clip: text; /* Fixed: added standard property */
             -webkit-text-fill-color: transparent;
         }
         
         .gateway-title { 
             font-size:24px; font-weight:700; margin-bottom:10px;
             background: linear-gradient(90deg,#a855ff,#00eaff);
-            -webkit-background-clip: text; background-clip:text; -webkit-text-fill-color:transparent;
+            -webkit-background-clip: text; 
+            background-clip: text; /* Fixed: added standard property */
+            -webkit-text-fill-color:transparent;
         }
         .gateway-sub{ margin-top:6px; opacity:0.75; margin-bottom:20px; font-size:14px; }
 
@@ -433,7 +439,7 @@
         .header-left h1 {
             background: linear-gradient(90deg,#a855ff,#00eaff);
             -webkit-background-clip: text;
-            background-clip: text;
+            background-clip: text; /* Fixed: added standard property */
             -webkit-text-fill-color: transparent;
             font-size: 24px;
             font-weight: 700;
@@ -491,11 +497,336 @@
             transform: translateY(0);
             animation: fadeIn 0.3s ease;
         }
+        
+        /* VERSION INDICATOR */
+        .version-badge {
+            position: fixed;
+            bottom: 10px;
+            right: 10px;
+            background: linear-gradient(90deg, #FF9800, #FF5722);
+            color: white;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 10px;
+            font-weight: 600;
+            z-index: 9999;
+        }
+
+        /* NEW FEATURES - ADDED STYLES */
+        
+        /* COUNTDOWN TIMER */
+        .countdown-timer {
+            text-align: center;
+            padding: 20px;
+            background: rgba(255,255,255,0.02);
+            border-radius: 16px;
+            border: 1px solid rgba(0,255,255,0.06);
+            margin: 20px 0;
+        }
+        
+        .countdown-display {
+            font-size: 36px;
+            font-weight: bold;
+            color: #00eaff;
+            margin: 10px 0;
+            text-shadow: 0 0 20px rgba(0, 234, 255, 0.5);
+        }
+        
+        .countdown-label {
+            color: rgba(255,255,255,0.7);
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+        
+        .countdown-segments {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 10px;
+        }
+        
+        .countdown-segment {
+            text-align: center;
+        }
+        
+        .countdown-number {
+            font-size: 28px;
+            font-weight: bold;
+            color: #00ffaa;
+            background: rgba(0,255,170,0.1);
+            padding: 10px 15px;
+            border-radius: 10px;
+            min-width: 60px;
+        }
+        
+        .countdown-unit {
+            font-size: 12px;
+            color: rgba(255,255,255,0.6);
+            margin-top: 5px;
+        }
+        
+        /* MEDIA UPLOAD PREVIEW */
+        .upload-preview {
+            width: 120px;
+            height: 120px;
+            border-radius: 12px;
+            border: 2px dashed rgba(0,255,255,0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255,255,255,0.05);
+            overflow: hidden;
+            margin: 0 auto 15px auto;
+        }
+        
+        .upload-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .upload-preview i {
+            font-size: 32px;
+            color: #00eaff;
+        }
+        
+        /* FILE INPUT STYLING */
+        .file-input-wrapper {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+            width: 100%;
+        }
+        
+        .file-input-wrapper input[type=file] {
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+        
+        .file-input-label {
+            display: block;
+            padding: 12px;
+            background: rgba(255,255,255,0.05);
+            border: 1px dashed rgba(0,255,255,0.2);
+            border-radius: 10px;
+            text-align: center;
+            color: #00eaff;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .file-input-label:hover {
+            background: rgba(0,255,255,0.1);
+            border-color: #00eaff;
+        }
+        
+        /* SCHEDULE DISPLAY */
+        .schedule-info {
+            background: rgba(0,255,255,0.05);
+            border: 1px solid rgba(0,255,255,0.1);
+            border-radius: 12px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        
+        .schedule-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+        
+        .schedule-item:last-child {
+            margin-bottom: 0;
+        }
+        
+        .schedule-label {
+            color: rgba(255,255,255,0.7);
+        }
+        
+        .schedule-value {
+            color: #00ffaa;
+            font-weight: 600;
+        }
+        
+        /* ALERT STATUS */
+        .alert-status {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            background: rgba(255,255,255,0.03);
+            border-radius: 10px;
+            margin-bottom: 10px;
+        }
+        
+        .alert-status.sent {
+            border-left: 4px solid #00ffaa;
+        }
+        
+        .alert-status.pending {
+            border-left: 4px solid #ffc107;
+        }
+        
+        .alert-status.failed {
+            border-left: 4px solid #ff4444;
+        }
+        
+        .alert-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+        
+        .alert-icon.sent {
+            background: rgba(0,255,170,0.2);
+            color: #00ffaa;
+        }
+        
+        .alert-icon.pending {
+            background: rgba(255,193,7,0.2);
+            color: #ffc107;
+        }
+        
+        .alert-icon.failed {
+            background: rgba(255,68,68,0.2);
+            color: #ff4444;
+        }
+        
+        /* VOTING STATUS BADGE */
+        .voting-status {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+        
+        .voting-status.upcoming {
+            background: rgba(255,193,7,0.2);
+            color: #ffc107;
+        }
+        
+        .voting-status.live {
+            background: rgba(0,255,170,0.2);
+            color: #00ffaa;
+            animation: pulse 2s infinite;
+        }
+        
+        .voting-status.ended {
+            background: rgba(255,255,255,0.2);
+            color: rgba(255,255,255,0.7);
+        }
+        
+        /* TIME RESTRICTION MESSAGE */
+        .time-restriction {
+            background: linear-gradient(90deg, rgba(255,152,0,0.1), rgba(255,87,34,0.1));
+            border: 1px solid rgba(255,152,0,0.3);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        .time-restriction i {
+            font-size: 48px;
+            color: #FF9800;
+            margin-bottom: 15px;
+        }
+        
+        /* EDIT MODAL STYLES */
+        .edit-form-group {
+            margin-bottom: 20px;
+        }
+        
+        .edit-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        /* PHONE INPUT STYLING */
+        .phone-input-group {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .phone-prefix {
+            flex: 0 0 80px;
+            padding: 12px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(0,255,255,0.08);
+            border-radius: 10px;
+            color: #00eaff;
+            text-align: center;
+        }
+        
+        .phone-number {
+            flex: 1;
+        }
+        
+        /* EMAIL PREVIEW */
+        .email-preview {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(0,255,255,0.1);
+            border-radius: 12px;
+            padding: 15px;
+            margin: 15px 0;
+            max-height: 200px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 12px;
+            line-height: 1.5;
+        }
+        
+        /* SMS PREVIEW */
+        .sms-preview {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(0,255,255,0.1);
+            border-radius: 12px;
+            padding: 15px;
+            margin: 15px 0;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        
+        /* BATCH ACTION BAR */
+        .batch-actions {
+            display: flex;
+            gap: 10px;
+            padding: 10px;
+            background: rgba(255,255,255,0.02);
+            border-radius: 10px;
+            margin: 10px 0;
+        }
+        
+        /* SELECT ALL CHECKBOX */
+        .select-all {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px;
+            background: rgba(255,255,255,0.02);
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
     </style>
 </head>
 <body>
     <!-- Toast Notification -->
     <div id="toast"></div>
+    
+    <!-- Version Indicator -->
+    <div class="version-badge">v2.4 Enhanced</div>
 
     <!-- Top Navigation -->
     <div class="top-nav">
@@ -503,11 +834,11 @@
             <div class="app-dot"></div>
             <div>
                 <div class="app-title">Neon Voting System <span class="enhanced-badge">ENHANCED</span></div>
-                <div class="app-subtitle">Secure • Modern • Efficient</div>
+                <div class="app-subtitle">Secure • Modern • Efficient • Automated</div>
             </div>
         </div>
         <div class="top-nav-right">
-            <div class="top-badge">Enhanced Edition</div>
+            <div class="top-badge">Automated Edition</div>
             <button class="top-home-btn" onclick="showScreen('gatewayScreen')">
                 <i class="fas fa-home"></i> Home
             </button>
@@ -519,7 +850,7 @@
         <div class="auth-card">
             <div class="text-center mb-30">
                 <h1 class="gateway-title">Welcome to Neon Voting</h1>
-                <p class="gateway-sub">Enhanced digital voting system with phone support & direct links</p>
+                <p class="gateway-sub">Enhanced digital voting system with automated email & SMS</p>
             </div>
 
             <div class="gateway-grid">
@@ -530,10 +861,13 @@
                     <h3>Super Admin</h3>
                     <p class="subtext">Manage organizations, view passwords, edit settings</p>
                     <div class="feature-highlight">
-                        <i class="fas fa-eye"></i> <span>View EC Passwords</span>
+                        <i class="fas fa-paper-plane"></i> <span>Automated EC Invitations</span>
                     </div>
                     <div class="feature-highlight">
-                        <i class="fas fa-edit"></i> <span>Edit Organizations</span>
+                        <i class="fas fa-envelope"></i> <span>Email & SMS Configuration</span>
+                    </div>
+                    <div class="feature-highlight">
+                        <i class="fas fa-edit"></i> <span>Edit Organization Details</span>
                     </div>
                     <div class="status-badge status-active mt-10">Full Access</div>
                 </div>
@@ -545,10 +879,13 @@
                     <h3>Election Commissioner</h3>
                     <p class="subtext">Manage voters, positions, candidates, and elections</p>
                     <div class="feature-highlight">
-                        <i class="fas fa-phone"></i> <span>Phone Number Support</span>
+                        <i class="fas fa-paper-plane"></i> <span>Automated Voter Links</span>
                     </div>
                     <div class="feature-highlight">
-                        <i class="fas fa-users"></i> <span>Bulk Voter Import</span>
+                        <i class="fas fa-bell"></i> <span>Scheduled Alerts & Reminders</span>
+                    </div>
+                    <div class="feature-highlight">
+                        <i class="fas fa-chart-line"></i> <span>Live Outcomes Dashboard</span>
                     </div>
                     <div class="status-badge status-scheduled mt-10">Organization Access</div>
                 </div>
@@ -560,10 +897,13 @@
                     <h3>Voter</h3>
                     <p class="subtext">Cast your vote securely with email or phone verification</p>
                     <div class="feature-highlight">
-                        <i class="fas fa-mobile-alt"></i> <span>Phone Login Available</span>
+                        <i class="fas fa-sms"></i> <span>OTP via Email/SMS</span>
                     </div>
                     <div class="feature-highlight">
                         <i class="fas fa-link"></i> <span>Direct Voting Links</span>
+                    </div>
+                    <div class="feature-highlight">
+                        <i class="fas fa-bell"></i> <span>Voting Reminders</span>
                     </div>
                     <div class="status-badge status-scheduled mt-10">Voting Access</div>
                 </div>
@@ -590,7 +930,7 @@
                     <h3>Guest View</h3>
                     <p class="subtext">Learn about the system and its enhanced features</p>
                     <div class="feature-highlight">
-                        <i class="fas fa-star"></i> <span>New Features Overview</span>
+                        <i class="fas fa-paper-plane"></i> <span>Automated Features Demo</span>
                     </div>
                     <div class="feature-highlight">
                         <i class="fas fa-question-circle"></i> <span>How It Works</span>
@@ -601,13 +941,19 @@
 
             <div class="text-center mt-40 subtext">
                 <p>
-                    <i class="fas fa-shield-alt"></i> Enhanced Security • 
-                    <i class="fas fa-phone"></i> Phone Number Support • 
-                    <i class="fas fa-link"></i> Direct Voting Links • 
-                    <i class="fas fa-users"></i> Bulk Management
+                    <i class="fas fa-paper-plane"></i> Automated EC Invitations • 
+                    <i class="fas fa-sms"></i> SMS Notifications • 
+                    <i class="fas fa-envelope"></i> Email Automation • 
+                    <i class="fas fa-bell"></i> Scheduled Alerts
                 </p>
                 <p class="mt-10">
-                    <i class="fas fa-globe"></i> Ghanaian (+233) & International Phone Support
+                    <i class="fas fa-link"></i> Direct Voting Links • 
+                    <i class="fas fa-phone"></i> Phone Number Support • 
+                    <i class="fas fa-shield-alt"></i> OTP Verification
+                </p>
+                <p class="mt-10">
+                    <i class="fas fa-clock"></i> Voting Schedule & Countdown • 
+                    <i class="fas fa-users"></i> Bulk Management
                 </p>
             </div>
         </div>
@@ -632,7 +978,7 @@
 
         <div class="auth-card">
             <div class="text-center mb-30">
-                <div style="font-size:64px;background:linear-gradient(90deg,#a855ff,#00eaff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:20px">
+                <div style="font-size:64px;background:linear-gradient(90deg,#a855ff,#00eaff);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:20px">
                     <i class="fas fa-user-shield"></i>
                 </div>
                 <h1 class="gateway-title">Super Admin Access</h1>
@@ -686,6 +1032,9 @@
                 <button class="tab-btn" data-super-tab="settings">
                     <i class="fas fa-cog"></i> Settings
                 </button>
+                <button class="tab-btn" data-super-tab="email">
+                    <i class="fas fa-envelope"></i> Email/SMS
+                </button>
                 <button class="tab-btn" data-super-tab="delete" style="color:#ff4444">
                     <i class="fas fa-trash"></i> Delete
                 </button>
@@ -706,6 +1055,15 @@
                     <i class="fas fa-cog"></i>
                     <h3>Loading Settings...</h3>
                     <p>Please wait while we load the settings</p>
+                </div>
+            </div>
+
+            <!-- Email/SMS Tab -->
+            <div id="superContent-email" class="tab-content">
+                <div class="empty-state">
+                    <i class="fas fa-envelope"></i>
+                    <h3>Loading Email & SMS Settings...</h3>
+                    <p>Please wait while we load the communication settings</p>
                 </div>
             </div>
 
@@ -739,7 +1097,7 @@
 
         <div class="auth-card">
             <div class="text-center mb-30">
-                <div style="font-size:64px;background:linear-gradient(90deg,#00C851,#00eaff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:20px">
+                <div style="font-size:64px;background:linear-gradient(90deg,#00C851,#00eaff);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:20px">
                     <i class="fas fa-user-tie"></i>
                 </div>
                 <h1 class="gateway-title">Election Commissioner Login</h1>
@@ -761,7 +1119,8 @@
             </button>
 
             <div class="text-center mt-30 subtext">
-                <p><i class="fas fa-question-circle"></i> Need credentials? Contact your Super Admin</p>
+                <p><i class="fas fa-question-circle"></i> Need credentials? Check your email/SMS for EC invitation</p>
+                <p><i class="fas fa-link"></i> You may have received a direct login link</p>
             </div>
         </div>
     </div>
@@ -804,6 +1163,9 @@
                 <button class="tab-btn" data-ec-tab="outcomes">
                     <i class="fas fa-chart-line"></i> Outcomes
                 </button>
+                <button class="tab-btn" data-ec-tab="automation">
+                    <i class="fas fa-paper-plane"></i> Automation
+                </button>
                 <button class="tab-btn" data-ec-tab="settings">
                     <i class="fas fa-cog"></i> Settings
                 </button>
@@ -845,6 +1207,15 @@
                 </div>
             </div>
 
+            <!-- Automation Tab -->
+            <div id="ecContent-automation" class="tab-content">
+                <div class="empty-state">
+                    <i class="fas fa-paper-plane"></i>
+                    <h3>Loading Automation Settings...</h3>
+                    <p>Please wait while we load the automation settings</p>
+                </div>
+            </div>
+
             <!-- Settings Tab -->
             <div id="ecContent-settings" class="tab-content">
                 <div class="empty-state">
@@ -874,8 +1245,36 @@
         </div>
 
         <div class="auth-card">
+            <!-- Countdown Timer Display -->
+            <div id="voterCountdownContainer" class="countdown-timer hidden">
+                <div class="countdown-label">Voting Starts In:</div>
+                <div id="voterCountdownDisplay" class="countdown-display">00:00:00</div>
+                <div class="countdown-segments">
+                    <div class="countdown-segment">
+                        <div id="countdownHours" class="countdown-number">00</div>
+                        <div class="countdown-unit">Hours</div>
+                    </div>
+                    <div class="countdown-segment">
+                        <div id="countdownMinutes" class="countdown-number">00</div>
+                        <div class="countdown-unit">Minutes</div>
+                    </div>
+                    <div class="countdown-segment">
+                        <div id="countdownSeconds" class="countdown-number">00</div>
+                        <div class="countdown-unit">Seconds</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Time Restriction Message -->
+            <div id="timeRestrictionMessage" class="time-restriction hidden">
+                <i class="fas fa-clock"></i>
+                <h3>Voting Not Yet Started</h3>
+                <p>Please wait until the scheduled voting time begins.</p>
+                <div id="scheduleInfo" class="mt-10"></div>
+            </div>
+
             <div class="text-center mb-30">
-                <div style="font-size:64px;background:linear-gradient(90deg,#FF9800,#00eaff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:20px">
+                <div style="font-size:64px;background:linear-gradient(90deg,#FF9800,#00eaff);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:20px">
                     <i class="fas fa-user-check"></i>
                 </div>
                 <h1 class="gateway-title">Voter Authentication</h1>
@@ -895,8 +1294,21 @@
             <div id="voter-otp-group" class="hidden mt-30">
                 <div class="mb-20">
                     <label class="label">Enter 6-digit OTP</label>
-                    <input type="text" id="voter-otp" class="input" placeholder="123456" maxlength="6">
+                    <div style="display:flex;justify-content:center;gap:10px;margin:15px 0">
+                        <input type="text" class="otp-input" maxlength="1" data-index="1">
+                        <input type="text" class="otp-input" maxlength="1" data-index="2">
+                        <input type="text" class="otp-input" maxlength="1" data-index="3">
+                        <input type="text" class="otp-input" maxlength="1" data-index="4">
+                        <input type="text" class="otp-input" maxlength="1" data-index="5">
+                        <input type="text" class="otp-input" maxlength="1" data-index="6">
+                    </div>
+                    <input type="hidden" id="voter-otp">
                     <small class="subtext">Check your email or SMS for the OTP code</small>
+                    <div class="text-center mt-10">
+                        <button class="btn neon-btn-outline" id="resend-otp-btn" style="font-size:12px">
+                            <i class="fas fa-redo"></i> Resend OTP (60s)
+                        </button>
+                    </div>
                 </div>
 
                 <button class="btn neon-btn w-full" id="voter-verify-otp">
@@ -907,6 +1319,8 @@
             <div class="text-center mt-30 subtext">
                 <p><i class="fas fa-info-circle"></i> Don't have credentials? Contact your Election Commissioner</p>
                 <p class="mt-10"><i class="fas fa-mobile-alt"></i> Ghanaian numbers: +233XXXXXXXXX or 0XXXXXXXXX</p>
+                <p class="mt-10"><i class="fas fa-link"></i> You may have received a direct voting link</p>
+                <p class="mt-10"><i class="fas fa-bell"></i> You will receive alerts 30 minutes before voting starts</p>
             </div>
         </div>
     </div>
@@ -929,6 +1343,18 @@
         </div>
 
         <div class="panel-container">
+            <!-- Voting Schedule Info -->
+            <div id="votingScheduleInfo" class="schedule-info hidden">
+                <div class="schedule-item">
+                    <span class="schedule-label">Voting Period:</span>
+                    <span id="votingPeriod" class="schedule-value"></span>
+                </div>
+                <div class="schedule-item">
+                    <span class="schedule-label">Time Remaining:</span>
+                    <span id="timeRemaining" class="schedule-value"></span>
+                </div>
+            </div>
+
             <div id="votingContent">
                 <div class="empty-state">
                     <div class="spinner"></div>
@@ -976,6 +1402,7 @@
 
             <div class="text-center mt-30 subtext">
                 <p><i class="fas fa-info-circle"></i> This is a public view of election results</p>
+                <p><i class="fas fa-share-alt"></i> Share this link to show results publicly</p>
             </div>
         </div>
     </div>
@@ -1000,136 +1427,447 @@
         <div class="panel-container">
             <div id="guestContent">
                 <div class="card info-card">
-                    <h2><i class="fas fa-star"></i> Enhanced Neon Voting System</h2>
-                    <p class="subtext" style="margin-top:10px">A comprehensive digital voting system with enhanced security features, phone number support, and direct voting links.</p>
+                    <h2><i class="fas fa-star"></i> Enhanced Neon Voting System v2.4</h2>
+                    <p class="subtext" style="margin-top:10px">A comprehensive digital voting system with automated email, SMS, and communication features.</p>
                 </div>
 
                 <div class="card" style="margin-top:20px">
-                    <h3><i class="fas fa-bolt"></i> New Enhanced Features</h3>
+                    <h3><i class="fas fa-paper-plane"></i> Automated Communication Features</h3>
                     <div style="margin-top:15px">
                         <div class="feature-highlight">
-                            <i class="fas fa-eye"></i>
+                            <i class="fas fa-user-shield"></i>
                             <div>
-                                <strong>Admin Password View</strong>
-                                <div class="subtext">Super Admin can view and edit organization EC passwords</div>
-                            </div>
-                        </div>
-                        <div class="feature-highlight">
-                            <i class="fas fa-phone"></i>
-                            <div>
-                                <strong>Phone Number Support</strong>
-                                <div class="subtext">Add voters with Ghanaian (+233) or international phone numbers</div>
+                                <strong>Automated EC Invitations</strong>
+                                <div class="subtext">Send EC login links with credentials via email/SMS with tracking</div>
                             </div>
                         </div>
                         <div class="feature-highlight">
                             <i class="fas fa-link"></i>
                             <div>
-                                <strong>Direct Voting Links</strong>
-                                <div class="subtext">Send personalized voting links via email/SMS to voters</div>
+                                <strong>Automated Voter Links</strong>
+                                <div class="subtext">Send personalized voting links to voters via email/SMS</div>
                             </div>
                         </div>
                         <div class="feature-highlight">
-                            <i class="fas fa-users"></i>
+                            <i class="fas fa-sms"></i>
                             <div>
-                                <strong>Bulk Voter Import</strong>
-                                <div class="subtext">Import multiple voters at once with CSV-like format</div>
+                                <strong>OTP Authentication</strong>
+                                <div class="subtext">Secure 6-digit OTP sent via email/SMS for voter verification</div>
                             </div>
                         </div>
                         <div class="feature-highlight">
-                            <i class="fas fa-user-shield"></i>
+                            <i class="fas fa-bell"></i>
                             <div>
-                                <strong>Enhanced Security</strong>
-                                <div class="subtext">Tab hiding for voters, secure direct links, password management</div>
+                                <strong>Scheduled Alerts</strong>
+                                <div class="subtext">30-minute voting start alerts and 1-hour end alerts</div>
                             </div>
                         </div>
                     </div>
                 </div>
 
                 <div class="card" style="margin-top:20px">
-                    <h3><i class="fas fa-play-circle"></i> How It Works</h3>
-                    <ol style="padding-left:20px;margin-top:15px">
-                        <li style="margin-bottom:10px">
-                            <strong>Super Admin</strong> creates organizations and manages EC passwords
-                        </li>
-                        <li style="margin-bottom:10px">
-                            <strong>Election Commissioners</strong> add voters with email/phone, create positions/candidates
-                        </li>
-                        <li style="margin-bottom:10px">
-                            <strong>Voters</strong> receive direct voting links or login with email/phone + OTP
-                        </li>
-                        <li style="margin-bottom:10px">
-                            <strong>Voting</strong> is secure, encrypted, and tamper-proof
-                        </li>
-                        <li style="margin-bottom:10px">
-                            <strong>Results</strong> can be declared and shared via public links
-                        </li>
-                    </ol>
-                </div>
-
-                <div class="card danger-zone" style="margin-top:20px">
-                    <h3><i class="fas fa-exclamation-triangle"></i> Security Features</h3>
+                    <h3><i class="fas fa-envelope"></i> Email & SMS Configuration</h3>
                     <div style="margin-top:15px">
                         <div class="feature-highlight">
-                            <i class="fas fa-shield-alt"></i>
+                            <i class="fas fa-cog"></i>
                             <div>
-                                <strong>End-to-End Encryption</strong>
-                                <div class="subtext">All votes are encrypted in transit and at rest</div>
+                                <strong>EmailJS Integration</strong>
+                                <div class="subtext">Professional email sending with HTML templates</div>
                             </div>
                         </div>
                         <div class="feature-highlight">
-                            <i class="fas fa-user-check"></i>
+                            <i class="fas fa-sms"></i>
                             <div>
-                                <strong>OTP Verification</strong>
-                                <div class="subtext">One-time passwords for voter authentication</div>
+                                <strong>Twilio SMS Support</strong>
+                                <div class="subtext">SMS notifications for EC and voters (optional)</div>
                             </div>
                         </div>
                         <div class="feature-highlight">
-                            <i class="fas fa-lock"></i>
+                            <i class="fas fa-code"></i>
                             <div>
-                                <strong>Role-Based Access</strong>
-                                <div class="subtext">Different interfaces for Admin, EC, and Voters</div>
-                            </div>
-                        </div>
-                        <div class="feature-highlight">
-                            <i class="fas fa-history"></i>
-                            <div>
-                                <strong>Audit Trail</strong>
-                                <div class="subtext">Complete logging of all voting activities</div>
+                                <strong>Customizable Templates</strong>
+                                <div class="subtext">Edit email and SMS templates to match your brand</div>
                             </div>
                         </div>
                     </div>
                 </div>
 
+                <div class="card" style="margin-top:20px">
+                    <h3><i class="fas fa-chart-line"></i> Live Dashboard & Analytics</h3>
+                    <div style="margin-top:15px">
+                        <div class="feature-highlight">
+                            <i class="fas fa-chart-pie"></i>
+                            <div>
+                                <strong>Real-time Results</strong>
+                                <div class="subtext">Live voting outcomes with auto-refresh</div>
+                            </div>
+                        </div>
+                        <div class="feature-highlight">
+                            <i class="fas fa-users"></i>
+                            <div>
+                                <strong>Voter Analytics</strong>
+                                <div class="subtext">Track voting participation and engagement</div>
+                            </div>
+                        </div>
+                        <div class="feature-highlight">
+                            <i class="fas fa-paper-plane"></i>
+                            <div>
+                                <strong>Delivery Tracking</strong>
+                                <div class="subtext">Monitor email/SMS delivery status and open rates</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card" style="margin-top:20px">
+                    <h3><i class="fas fa-play"></i> Getting Started</h3>
+                    <ol style="padding-left:20px;margin-top:15px">
+                        <li style="margin-bottom:10px">
+                            <strong>Step 1:</strong> Super Admin creates organization and sets EC password
+                        </li>
+                        <li style="margin-bottom:10px">
+                            <strong>Step 2:</strong> Send automated EC invitation via email/SMS
+                        </li>
+                        <li style="margin-bottom:10px">
+                            <strong>Step 3:</strong> EC logs in and adds voters
+                        </li>
+                        <li style="margin-bottom:10px">
+                            <strong>Step 4:</strong> EC sends automated voting links to voters
+                        </li>
+                        <li style="margin-bottom:10px">
+                            <strong>Step 5:</strong> Voters receive OTP and cast votes securely
+                        </li>
+                    </ol>
+                </div>
+
                 <div class="text-center mt-30">
                     <button class="btn neon-btn-lg" onclick="showScreen('gatewayScreen')">
-                        <i class="fas fa-play"></i> Get Started
+                        <i class="fas fa-play"></i> Get Started Now
                     </button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- JavaScript -->
+    <!-- Enhanced Feature Modals -->
+    <div id="modalContainer">
+        
+        <!-- Edit Organization Modal -->
+        <div id="editOrgModal" class="modal-overlay hidden">
+            <div class="modal-card">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+                    <h3><i class="fas fa-edit"></i> Edit Organization</h3>
+                    <button class="btn neon-btn-outline" onclick="closeModal('editOrgModal')">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div id="editOrgContent"></div>
+            </div>
+        </div>
+        
+        <!-- EC Credentials Modal -->
+        <div id="ecCredentialsModal" class="modal-overlay hidden">
+            <div class="modal-card">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+                    <h3><i class="fas fa-user-shield"></i> EC Credentials</h3>
+                    <button class="btn neon-btn-outline" onclick="closeModal('ecCredentialsModal')">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div id="ecCredentialsContent"></div>
+            </div>
+        </div>
+        
+        <!-- EC Invitation Modal -->
+        <div id="ecInviteModal" class="modal-overlay hidden">
+            <div class="modal-card" style="max-width:700px">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+                    <h3><i class="fas fa-paper-plane"></i> Send EC Invitation</h3>
+                    <button class="btn neon-btn-outline" onclick="closeModal('ecInviteModal')">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div id="ecInviteContent"></div>
+            </div>
+        </div>
+        
+        <!-- Send Voting Links Modal -->
+        <div id="sendLinksModal" class="modal-overlay hidden">
+            <div class="modal-card" style="max-width:800px">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+                    <h3><i class="fas fa-paper-plane"></i> Send Voting Links</h3>
+                    <button class="btn neon-btn-outline" onclick="closeModal('sendLinksModal')">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div id="sendLinksContent">
+                    <div id="linksStatus"></div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Edit Voter Modal -->
+        <div id="editVoterModal" class="modal-overlay hidden">
+            <div class="modal-card">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+                    <h3><i class="fas fa-user-edit"></i> Edit Voter</h3>
+                    <button class="btn neon-btn-outline" onclick="closeModal('editVoterModal')">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div id="editVoterContent"></div>
+            </div>
+        </div>
+        
+        <!-- Add Voter Modal -->
+        <div id="addVoterModal" class="modal-overlay hidden">
+            <div class="modal-card">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+                    <h3><i class="fas fa-user-plus"></i> Add Voter</h3>
+                    <button class="btn neon-btn-outline" onclick="closeModal('addVoterModal')">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div id="addVoterContent"></div>
+            </div>
+        </div>
+        
+        <!-- Bulk Import Modal -->
+        <div id="bulkImportModal" class="modal-overlay hidden">
+            <div class="modal-card" style="max-width:800px">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+                    <h3><i class="fas fa-file-import"></i> Bulk Import Voters</h3>
+                    <button class="btn neon-btn-outline" onclick="closeModal('bulkImportModal')">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div id="bulkImportContent"></div>
+            </div>
+        </div>
+        
+        <!-- Edit Candidate Modal -->
+        <div id="editCandidateModal" class="modal-overlay hidden">
+            <div class="modal-card">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+                    <h3><i class="fas fa-user-edit"></i> Edit Candidate</h3>
+                    <button class="btn neon-btn-outline" onclick="closeModal('editCandidateModal')">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div id="editCandidateContent"></div>
+            </div>
+        </div>
+        
+        <!-- Upload Media Modal -->
+        <div id="uploadMediaModal" class="modal-overlay hidden">
+            <div class="modal-card">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+                    <h3><i class="fas fa-upload"></i> Upload Media</h3>
+                    <button class="btn neon-btn-outline" onclick="closeModal('uploadMediaModal')">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div id="uploadMediaContent"></div>
+            </div>
+        </div>
+        
+        <!-- Schedule Settings Modal -->
+        <div id="scheduleModal" class="modal-overlay hidden">
+            <div class="modal-card">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+                    <h3><i class="fas fa-calendar-alt"></i> Set Voting Schedule</h3>
+                    <button class="btn neon-btn-outline" onclick="closeModal('scheduleModal')">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div id="scheduleContent"></div>
+            </div>
+        </div>
+        
+        <!-- Alert Settings Modal -->
+        <div id="alertModal" class="modal-overlay hidden">
+            <div class="modal-card">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+                    <h3><i class="fas fa-bell"></i> Configure Alerts</h3>
+                    <button class="btn neon-btn-outline" onclick="closeModal('alertModal')">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div id="alertContent"></div>
+            </div>
+        </div>
+        
+        <!-- Create Organization Modal -->
+        <div id="createOrgModal" class="modal-overlay hidden">
+            <div class="modal-card">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+                    <h3><i class="fas fa-plus"></i> Create New Organization</h3>
+                    <button class="btn neon-btn-outline" onclick="closeModal('createOrgModal')">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div id="createOrgContent"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Script -->
     <script type="module" src="script.js"></script>
-    
+
+    <!-- Enhanced Features Script -->
     <script>
-        // Initialize enhanced badges
+        // Enhanced Features Initialization
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('Neon Voting System Enhanced Edition Loaded');
+            console.log('Enhanced features initializing...');
             
-            // Add hover effects to enhanced badges
-            const enhancedElements = document.querySelectorAll('.enhanced-badge');
-            enhancedElements.forEach(el => {
-                el.addEventListener('mouseenter', function() {
-                    this.style.transform = 'scale(1.05)';
-                });
-                el.addEventListener('mouseleave', function() {
-                    this.style.transform = 'scale(1)';
+            // Gateway card clicks
+            document.querySelectorAll('.gateway-card').forEach(card => {
+                card.addEventListener('click', function(e) {
+                    if (e.target.closest('button') || e.target.closest('input') || e.target.closest('textarea')) {
+                        return;
+                    }
+                    
+                    const id = this.id;
+                    console.log('Gateway card clicked:', id);
+                    
+                    switch(id) {
+                        case 'btn-superadmin':
+                            showScreen('superAdminLoginScreen');
+                            break;
+                        case 'btn-ec':
+                            showScreen('ecLoginScreen');
+                            break;
+                        case 'btn-voter':
+                            showScreen('voterLoginScreen');
+                            break;
+                        case 'btn-public':
+                            showScreen('publicScreen');
+                            break;
+                        case 'btn-guest':
+                            showScreen('guestScreen');
+                            break;
+                    }
                 });
             });
+            
+            // Setup back buttons
+            const backButtons = {
+                'super-back': 'gatewayScreen',
+                'ec-back': 'gatewayScreen',
+                'voter-back': 'gatewayScreen',
+                'public-back': 'gatewayScreen',
+                'guest-back': 'gatewayScreen'
+            };
+            
+            Object.entries(backButtons).forEach(([id, screen]) => {
+                const btn = document.getElementById(id);
+                if (btn) {
+                    btn.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        showScreen(screen);
+                    });
+                }
+            });
+            
+            // Setup logout buttons
+            document.querySelectorAll('.logout-btn').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    if (typeof logout === 'function') {
+                        logout();
+                    } else {
+                        showScreen('gatewayScreen');
+                        showToast('Logged out successfully', 'info');
+                    }
+                });
+            });
+            
+            // Setup home button
+            document.querySelector('.top-home-btn')?.addEventListener('click', function(e) {
+                e.preventDefault();
+                showScreen('gatewayScreen');
+            });
+            
+            // Enhanced Modal Functions
+            window.closeModal = function(modalId) {
+                const modal = document.getElementById(modalId);
+                if (modal) {
+                    modal.classList.add('hidden');
+                }
+            };
+            
+            window.openModal = function(modalId, contentHtml) {
+                const modal = document.getElementById(modalId);
+                const content = document.getElementById(modalId.replace('Modal', 'Content'));
+                
+                if (modal && content) {
+                    modal.classList.remove('hidden');
+                    if (contentHtml) {
+                        content.innerHTML = contentHtml;
+                    }
+                }
+            };
+            
+            // Close modal when clicking outside
+            document.querySelectorAll('.modal-overlay').forEach(modal => {
+                modal.addEventListener('click', function(e) {
+                    if (e.target === this) {
+                        this.classList.add('hidden');
+                    }
+                });
+            });
+            
+            // Enhanced Tab System
+            window.setupEnhancedTabs = function() {
+                // Super Admin Tabs
+                const superTabs = document.getElementById('superTabs');
+                if (superTabs) {
+                    superTabs.addEventListener('click', (e) => {
+                        const tabBtn = e.target.closest('.tab-btn');
+                        if (!tabBtn) return;
+                        
+                        // Update active tab
+                        document.querySelectorAll('#superTabs .tab-btn').forEach(btn => {
+                            btn.classList.remove('active');
+                        });
+                        tabBtn.classList.add('active');
+                        
+                        // Show content
+                        const tabId = tabBtn.dataset.superTab || tabBtn.dataset.tab;
+                        window.showSuperTab(tabId);
+                    });
+                }
+                
+                // EC Tabs
+                const ecTabs = document.getElementById('ecTabs');
+                if (ecTabs) {
+                    ecTabs.addEventListener('click', (e) => {
+                        const tabBtn = e.target.closest('.tab-btn');
+                        if (!tabBtn) return;
+                        
+                        // Update active tab
+                        document.querySelectorAll('#ecTabs .tab-btn').forEach(btn => {
+                            btn.classList.remove('active');
+                        });
+                        tabBtn.classList.add('active');
+                        
+                        // Show content
+                        const tabId = tabBtn.dataset.ecTab || tabBtn.dataset.tab;
+                        window.showECTab(tabId);
+                    });
+                }
+            };
+            
+            // Initialize enhanced tabs
+            setupEnhancedTabs();
+            
+            // Initialize OTP input handling
+            setupOTPInputs();
+            
+            console.log('Enhanced features initialized successfully!');
         });
         
-        // Global showScreen function for inline buttons
+        // Global UI Functions
         window.showScreen = function(screenId) {
             document.querySelectorAll('.screen').forEach(s => {
                 s.classList.remove('active');
@@ -1140,6 +1878,876 @@
                 window.scrollTo({ top: 0, behavior: 'smooth' });
             }
         };
+        
+        window.showToast = function(msg, type = "info", duration = 3000) {
+            let t = document.getElementById("toast");
+            if (!t) {
+                t = document.createElement('div');
+                t.id = 'toast';
+                t.style.cssText = 'position:fixed;bottom:26px;left:50%;transform:translateX(-50%);padding:12px 22px;border-radius:12px;z-index:1001;display:none;border:1px solid rgba(0,255,255,0.1);backdrop-filter:blur(10px);';
+                document.body.appendChild(t);
+            }
+            
+            t.textContent = msg;
+            t.style.background = type === "error" ? "linear-gradient(90deg, #d32f2f, #b71c1c)" :
+                               type === "success" ? "linear-gradient(90deg, #00C851, #007E33)" :
+                               type === "warning" ? "linear-gradient(90deg, #ff9800, #f57c00)" :
+                               "linear-gradient(90deg, #9D00FF, #00C3FF)";
+            t.style.border = type === "error" ? "1px solid rgba(255,68,68,0.3)" : "1px solid rgba(0,255,255,0.2)";
+            t.classList.add("show");
+            
+            setTimeout(() => {
+                t.classList.remove("show");
+            }, duration);
+            
+        };
+        
+        // Setup OTP Inputs
+        function setupOTPInputs() {
+            const otpInputs = document.querySelectorAll('.otp-input');
+            otpInputs.forEach((input, index) => {
+                input.addEventListener('input', (e) => {
+                    const value = e.target.value;
+                    if (value.length === 1 && index < otpInputs.length - 1) {
+                        otpInputs[index + 1].focus();
+                    }
+                    
+                    updateOTPValue();
+                });
+                
+                input.addEventListener('keydown', (e) => {
+                    if (e.key === 'Backspace' && index > 0 && !input.value) {
+                        otpInputs[index - 1].focus();
+                    }
+                });
+                
+                input.addEventListener('paste', (e) => {
+                    e.preventDefault();
+                    const paste = e.clipboardData.getData('text');
+                    const digits = paste.replace(/\D/g, '').split('');
+                    
+                    digits.forEach((digit, idx) => {
+                        if (otpInputs[idx]) {
+                            otpInputs[idx].value = digit;
+                        }
+                    });
+                    
+                    updateOTPValue();
+                    
+                    if (otpInputs[Math.min(digits.length, 5)]) {
+                        otpInputs[Math.min(digits.length, 5)].focus();
+                    }
+                });
+            });
+        }
+        
+        function updateOTPValue() {
+            const otpInputs = document.querySelectorAll('.otp-input');
+            let otp = '';
+            otpInputs.forEach(input => {
+                otp += input.value || '';
+            });
+            document.getElementById('voter-otp').value = otp;
+        }
+        
+        // Resend OTP Timer
+        function startResendTimer() {
+            const resendBtn = document.getElementById('resend-otp-btn');
+            if (!resendBtn) return;
+            
+            let timeLeft = 60;
+            resendBtn.disabled = true;
+            
+            const timer = setInterval(() => {
+                timeLeft--;
+                resendBtn.innerHTML = `<i class="fas fa-redo"></i> Resend OTP (${timeLeft}s)`;
+                
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    resendBtn.disabled = false;
+                    resendBtn.innerHTML = `<i class="fas fa-redo"></i> Resend OTP`;
+                }
+            }, 1000);
+        }
+        
+        // Make resend timer available globally
+        window.startResendTimer = startResendTimer;
+        
+        // Setup OTP button listeners
+        document.getElementById('voter-send-otp')?.addEventListener('click', async () => {
+            const emailOrPhone = document.getElementById('voter-email').value.trim();
+            
+            if (!emailOrPhone) {
+                showToast('Enter email or phone number', 'error');
+                return;
+            }
+            
+            // Determine if it's email or phone
+            const isEmail = emailOrPhone.includes('@');
+            const email = isEmail ? emailOrPhone : '';
+            const phone = !isEmail ? emailOrPhone : '';
+            
+            showToast('Sending OTP...', 'info');
+            
+            // Show OTP input
+            document.getElementById('voter-otp-group').classList.remove('hidden');
+            
+            // Clear any previous OTP inputs
+            document.querySelectorAll('.otp-input').forEach(input => {
+                input.value = '';
+            });
+            document.getElementById('voter-otp').value = '';
+            
+            // Start resend timer
+            startResendTimer();
+            
+            // Generate and send OTP
+            if (typeof generateAndSendOTP === 'function') {
+                const otpResult = await generateAndSendOTP(email, phone);
+                
+                if (otpResult.success) {
+                    showToast('OTP sent to your email/phone', 'success');
+                } else {
+                    showToast('Failed to send OTP: ' + otpResult.message, 'error');
+                }
+            } else {
+                // Fallback for demo
+                const demoOTP = '123456';
+                document.querySelectorAll('.otp-input').forEach((input, idx) => {
+                    input.value = demoOTP[idx];
+                });
+                document.getElementById('voter-otp').value = demoOTP;
+                showToast('Demo OTP: 123456 (for testing)', 'success');
+            }
+        });
+        
+        document.getElementById('voter-verify-otp')?.addEventListener('click', async () => {
+            const emailOrPhone = document.getElementById('voter-email').value.trim();
+            const otpCode = document.getElementById('voter-otp').value.trim();
+            
+            if (!otpCode || otpCode.length !== 6) {
+                showToast('Enter 6-digit OTP', 'error');
+                return;
+            }
+            
+            const isEmail = emailOrPhone.includes('@');
+            const email = isEmail ? emailOrPhone : '';
+            const phone = !isEmail ? emailOrPhone : '';
+            
+            showToast('Verifying OTP...', 'info');
+            
+            if (typeof verifyOTP === 'function') {
+                const verifyResult = await verifyOTP(email, phone, otpCode);
+                
+                if (verifyResult.success) {
+                    showToast('OTP verified! Loading voting ballot...', 'success');
+                    // Proceed to voting screen
+                    setTimeout(() => {
+                        showScreen('votingScreen');
+                    }, 1000);
+                } else {
+                    showToast('OTP verification failed: ' + verifyResult.message, 'error');
+                }
+            } else {
+                // Demo verification
+                if (otpCode === '123456') {
+                    showToast('OTP verified! Loading voting ballot...', 'success');
+                    setTimeout(() => {
+                        showScreen('votingScreen');
+                    }, 1000);
+                } else {
+                    showToast('Invalid OTP. Demo OTP is 123456', 'error');
+                }
+            }
+        });
+        
+        document.getElementById('resend-otp-btn')?.addEventListener('click', async () => {
+            const emailOrPhone = document.getElementById('voter-email').value.trim();
+            
+            if (!emailOrPhone) {
+                showToast('Enter email or phone number', 'error');
+                return;
+            }
+            
+            const isEmail = emailOrPhone.includes('@');
+            const email = isEmail ? emailOrPhone : '';
+            const phone = !isEmail ? emailOrPhone : '';
+            
+            showToast('Resending OTP...', 'info');
+            
+            // Start new resend timer
+            startResendTimer();
+            
+            if (typeof generateAndSendOTP === 'function') {
+                const otpResult = await generateAndSendOTP(email, phone);
+                
+                if (otpResult.success) {
+                    showToast('New OTP sent to your email/phone', 'success');
+                } else {
+                    showToast('Failed to resend OTP: ' + otpResult.message, 'error');
+                }
+            } else {
+                // Demo fallback
+                showToast('Demo: New OTP would be sent here', 'success');
+            }
+        });
+    </script>
+    
+    <!-- Fix for login and tab functionality -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Initializing login and tabs...');
+            
+            // Gateway card clicks
+            document.querySelectorAll('.gateway-card').forEach(card => {
+                card.addEventListener('click', function(e) {
+                    if (e.target.closest('button') || e.target.closest('input') || e.target.closest('textarea')) {
+                        return;
+                    }
+                    
+                    const id = this.id;
+                    
+                    switch(id) {
+                        case 'btn-superadmin':
+                            showScreen('superAdminLoginScreen');
+                            break;
+                        case 'btn-ec':
+                            showScreen('ecLoginScreen');
+                            break;
+                        case 'btn-voter':
+                            showScreen('voterLoginScreen');
+                            break;
+                        case 'btn-public':
+                            showScreen('publicScreen');
+                            break;
+                        case 'btn-guest':
+                            showScreen('guestScreen');
+                            break;
+                    }
+                });
+            });
+            
+            // Setup back buttons
+            const backButtons = {
+                'super-back': 'gatewayScreen',
+                'ec-back': 'gatewayScreen',
+                'voter-back': 'gatewayScreen',
+                'public-back': 'gatewayScreen',
+                'guest-back': 'gatewayScreen'
+            };
+            
+            Object.entries(backButtons).forEach(([id, screen]) => {
+                const btn = document.getElementById(id);
+                if (btn) {
+                    btn.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        showScreen(screen);
+                    });
+                }
+            });
+            
+            // Setup logout buttons
+            document.querySelectorAll('.logout-btn').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    showScreen('gatewayScreen');
+                    showToast('Logged out successfully', 'info');
+                });
+            });
+            
+            // Setup home button
+            document.querySelectorAll('.top-home-btn').forEach(btn => {
+                if (btn && !btn.id) { // Only if not a back button
+                    btn.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        showScreen('gatewayScreen');
+                    });
+                }
+            });
+            
+            // Initialize tabs
+            initializeTabs();
+            
+            console.log('Login and tabs initialized!');
+        });
+        
+        // Tab initialization function
+        function initializeTabs() {
+            // Super Admin Tabs
+            const superTabs = document.getElementById('superTabs');
+            if (superTabs) {
+                console.log('Setting up super tabs...');
+                superTabs.addEventListener('click', (e) => {
+                    const tabBtn = e.target.closest('.tab-btn');
+                    if (!tabBtn) return;
+                    
+                    // Update active tab
+                    document.querySelectorAll('#superTabs .tab-btn').forEach(btn => {
+                        btn.classList.remove('active');
+                    });
+                    tabBtn.classList.add('active');
+                    
+                    // Get tab ID
+                    const tabId = tabBtn.dataset.superTab || tabBtn.dataset.tab;
+                    console.log('Super tab clicked:', tabId);
+                    
+                    // Show content
+                    showSuperTab(tabId);
+                });
+            }
+            
+            // EC Tabs
+            const ecTabs = document.getElementById('ecTabs');
+            if (ecTabs) {
+                console.log('Setting up EC tabs...');
+                ecTabs.addEventListener('click', (e) => {
+                    const tabBtn = e.target.closest('.tab-btn');
+                    if (!tabBtn) return;
+                    
+                    // Update active tab
+                    document.querySelectorAll('#ecTabs .tab-btn').forEach(btn => {
+                        btn.classList.remove('active');
+                    });
+                    tabBtn.classList.add('active');
+                    
+                    // Get tab ID
+                    const tabId = tabBtn.dataset.ecTab || tabBtn.dataset.tab;
+                    console.log('EC tab clicked:', tabId);
+                    
+                    // Show content
+                    showECTab(tabId);
+                });
+            }
+        }
+        
+        // Show Super Admin Tab
+        function showSuperTab(tabId) {
+            console.log('Showing super tab:', tabId);
+            
+            // Hide all tab contents
+            document.querySelectorAll('[id^="superContent-"], [id^="tab-"]').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            // Show selected tab content
+            const tabContent = document.getElementById(`superContent-${tabId}`) || document.getElementById(`tab-${tabId}`);
+            if (tabContent) {
+                tabContent.classList.add('active');
+                
+                // Show loading state
+                tabContent.innerHTML = `
+                    <div style="text-align:center;padding:40px 20px;">
+                        <div class="spinner" style="margin:0 auto 20px auto;width:40px;height:40px;border:4px solid rgba(255,255,255,0.1);border-top-color:#9D00FF;border-radius:50%;animation:spin 1s linear infinite"></div>
+                        <h3 style="color:#fff;margin-bottom:10px;">Loading ${tabId}...</h3>
+                        <p class="subtext">Please wait...</p>
+                    </div>
+                `;
+                
+                // Load content
+                setTimeout(() => {
+                    if (typeof loadSuperOrganizations === 'function' && tabId === 'orgs') {
+                        loadSuperOrganizations();
+                    } else if (typeof loadSuperSettings === 'function' && tabId === 'settings') {
+                        loadSuperSettings();
+                    } else if (typeof loadSuperEmailConfig === 'function' && tabId === 'email') {
+                        loadSuperEmailConfig();
+                    } else if (typeof loadSuperDelete === 'function' && tabId === 'delete') {
+                        loadSuperDelete();
+                    }
+                }, 500);
+            }
+        }
+        
+        // Show EC Tab
+        function showECTab(tabId) {
+            console.log('Showing EC tab:', tabId);
+            
+            // Hide all tab contents
+            document.querySelectorAll('[id^="ecContent-"], [id^="ec-"]').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            // Show selected tab content
+            const tabContent = document.getElementById(`ecContent-${tabId}`) || document.getElementById(`ec-${tabId}`);
+            if (tabContent) {
+                tabContent.classList.add('active');
+                
+                // Show loading state
+                tabContent.innerHTML = `
+                    <div style="text-align:center;padding:40px 20px;">
+                        <div class="spinner" style="margin:0 auto 20px auto;width:40px;height:40px;border:4px solid rgba(255,255,255,0.1);border-top-color:#9D00FF;border-radius:50%;animation:spin 1s linear infinite"></div>
+                        <h3 style="color:#fff;margin-bottom:10px;">Loading ${tabId}...</h3>
+                        <p class="subtext">Please wait...</p>
+                    </div>
+                `;
+                
+                // Load content
+                setTimeout(() => {
+                    if (typeof loadECVoters === 'function' && tabId === 'voters') {
+                        loadECVoters();
+                    } else if (typeof loadECPositions === 'function' && tabId === 'positions') {
+                        loadECPositions();
+                    } else if (typeof loadECCandidates === 'function' && tabId === 'candidates') {
+                        loadECCandidates();
+                    } else if (typeof loadECOutcomes === 'function' && tabId === 'outcomes') {
+                        loadECOutcomes();
+                    } else if (typeof loadECAutomation === 'function' && tabId === 'automation') {
+                        loadECAutomation();
+                    } else if (typeof loadECSettings === 'function' && tabId === 'settings') {
+                        loadECSettings();
+                    }
+                }, 500);
+            }
+        }
+        
+        // Demo loading functions (for testing)
+        function loadSuperOrganizations() {
+            const el = document.getElementById("superContent-orgs") || document.getElementById("tab-orgs");
+            if (!el) return;
+            
+            el.innerHTML = `
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+                    <h3><i class="fas fa-building"></i> Organizations</h3>
+                    <button class="btn neon-btn" onclick="openCreateOrgModal()">
+                        <i class="fas fa-plus"></i> Create New
+                    </button>
+                </div>
+                
+                <div class="org-card">
+                    <div style="display:flex;gap:15px;align-items:center">
+                        <div style="width:80px;height:80px;border-radius:12px;background:linear-gradient(135deg,#9D00FF,#00C3FF);display:flex;align-items:center;justify-content:center;color:white;font-weight:bold;font-size:24px">
+                            UNI
+                        </div>
+                        <div style="flex:1">
+                            <strong style="font-size:18px;color:#fff">University Election</strong>
+                            <div class="subtext" style="margin-top:4px">ID: university-election-2024</div>
+                            <div class="subtext" style="margin-top:2px;color:#00eaff"><i class="fas fa-clock"></i> Voting in progress</div>
+                            <div class="subtext" style="margin-top:2px"><i class="fas fa-paper-plane"></i> EC Invitation: Sent</div>
+                        </div>
+                        <div style="display:flex;gap:10px">
+                            <button class="btn neon-btn-outline" onclick="showECInvitationModal('university-election-2024')">
+                                <i class="fas fa-paper-plane"></i> Invite EC
+                            </button>
+                            <button class="btn neon-btn" onclick="editOrganization('university-election-2024')">
+                                <i class="fas fa-edit"></i> Edit
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="org-card">
+                    <div style="display:flex;gap:15px;align-items:center">
+                        <div style="width:80px;height:80px;border-radius:12px;background:linear-gradient(135deg,#ffc107,#ff9800);display:flex;align-items:center;justify-content:center;color:white;font-weight:bold;font-size:24px">
+                            CO
+                        </div>
+                        <div style="flex:1">
+                            <strong style="font-size:18px;color:#fff">Corporate Board</strong>
+                            <div class="subtext" style="margin-top:4px">ID: corporate-board-2024</div>
+                            <div class="subtext" style="margin-top:2px;color:#ffc107"><i class="fas fa-clock"></i> Starts tomorrow</div>
+                            <div class="subtext" style="margin-top:2px"><i class="fas fa-paper-plane"></i> EC Invitation: Pending</div>
+                        </div>
+                        <div style="display:flex;gap:10px">
+                            <button class="btn neon-btn-outline" onclick="showECInvitationModal('corporate-board-2024')">
+                                <i class="fas fa-paper-plane"></i> Invite EC
+                            </button>
+                            <button class="btn neon-btn" onclick="editOrganization('corporate-board-2024')">
+                                <i class="fas fa-edit"></i> Edit
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function loadSuperSettings() {
+            const el = document.getElementById("superContent-settings") || document.getElementById("tab-settings");
+            if (!el) return;
+            
+            el.innerHTML = `
+                <div class="card">
+                    <h3><i class="fas fa-user-shield"></i> SuperAdmin Settings</h3>
+                    <p class="subtext">Manage system settings and security</p>
+                    <div class="mt-20">
+                        <button class="btn neon-btn w-full" onclick="showToast('Settings saved', 'success')">
+                            <i class="fas fa-save"></i> Save Settings
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function loadSuperEmailConfig() {
+            const el = document.getElementById("superContent-email") || document.getElementById("tab-email");
+            if (!el) return;
+            
+            el.innerHTML = `
+                <div class="card info-card">
+                    <h3><i class="fas fa-paper-plane"></i> Email & SMS Configuration</h3>
+                    <p class="subtext">Configure automated email and SMS settings</p>
+                    
+                    <div class="mt-20">
+                        <h4><i class="fas fa-envelope"></i> Email Settings</h4>
+                        <div class="edit-form-group">
+                            <label class="label">Email Service</label>
+                            <select class="input">
+                                <option>EmailJS (Recommended)</option>
+                                <option>SMTP Server</option>
+                                <option>SendGrid</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-20">
+                        <button class="btn neon-btn w-full" onclick="showToast('Email/SMS settings saved', 'success')">
+                            <i class="fas fa-save"></i> Save Configuration
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function loadSuperDelete() {
+            const el = document.getElementById("superContent-delete") || document.getElementById("tab-delete");
+            if (!el) return;
+            
+            el.innerHTML = `
+                <div class="danger-zone" style="padding:20px;border-radius:16px">
+                    <h3 style="color:#ff4444"><i class="fas fa-exclamation-triangle"></i> Delete Organizations</h3>
+                    <p class="subtext" style="color:#ff9999;margin-top:10px">
+                        Warning: This action cannot be undone. All data will be permanently deleted.
+                    </p>
+                </div>
+            `;
+        }
+        
+        function loadECVoters() {
+            const el = document.getElementById("ecContent-voters") || document.getElementById("ec-voters");
+            if (!el) return;
+            
+            el.innerHTML = `
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:10px">
+                    <h3><i class="fas fa-users"></i> Voters (150)</h3>
+                    <div style="display:flex;gap:10px">
+                        <button class="btn neon-btn-outline" onclick="showBulkVoterImport()">
+                            <i class="fas fa-file-import"></i> Bulk Import
+                        </button>
+                        <button class="btn neon-btn" onclick="showAddVoterModal()">
+                            <i class="fas fa-user-plus"></i> Add Voter
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="batch-actions">
+                    <button class="btn neon-btn-outline" onclick="selectAllVoters()">
+                        <i class="fas fa-check-square"></i> Select All
+                    </button>
+                    <button class="btn neon-btn-outline" onclick="sendBulkVoterLinks()">
+                        <i class="fas fa-paper-plane"></i> Send Voting Links
+                    </button>
+                    <button class="btn btn-danger" onclick="deleteSelectedVoters()">
+                        <i class="fas fa-trash"></i> Delete Selected
+                    </button>
+                </div>
+                
+                <div class="card">
+                    <div style="display:flex;align-items:center;gap:15px">
+                        <div style="width:50px;height:50px;border-radius:8px;background:linear-gradient(135deg,#9D00FF,#00C3FF);display:flex;align-items:center;justify-content:center;color:white;font-weight:bold">
+                            JD
+                        </div>
+                        <div style="flex:1">
+                            <strong>John Doe</strong>
+                            <div class="subtext" style="margin-top:2px">john.doe@example.com</div>
+                            <div class="subtext" style="margin-top:2px"><i class="fas fa-phone"></i> +233 501 234 567</div>
+                            <div class="subtext" style="margin-top:2px"><i class="fas fa-paper-plane"></i> Voting link: Sent</div>
+                        </div>
+                        <span style="color:#00ffaa;background:rgba(0,255,170,0.1);padding:4px 10px;border-radius:12px;font-size:12px">✅ Voted</span>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div style="display:flex;align-items:center;gap:15px">
+                        <div style="width:50px;height:50px;border-radius:8px;background:linear-gradient(135deg,#FF9800,#FF5722);display:flex;align-items:center;justify-content:center;color:white;font-weight:bold">
+                            JS
+                        </div>
+                        <div style="flex:1">
+                            <strong>Jane Smith</strong>
+                            <div class="subtext" style="margin-top:2px">jane.smith@example.com</div>
+                            <div class="subtext" style="margin-top:2px"><i class="fas fa-phone"></i> +233 502 345 678</div>
+                            <div class="subtext" style="margin-top:2px"><i class="fas fa-paper-plane"></i> Voting link: Pending</div>
+                        </div>
+                        <span style="color:#ffc107;background:rgba(255,193,7,0.1);padding:4px 10px;border-radius:12px;font-size:12px">⏳ Pending</span>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function loadECPositions() {
+            const el = document.getElementById("ecContent-positions") || document.getElementById("ec-positions");
+            if (!el) return;
+            
+            el.innerHTML = `
+                <div class="card">
+                    <h3><i class="fas fa-list-ol"></i> Positions</h3>
+                    <p class="subtext">Manage election positions</p>
+                    <div class="mt-20">
+                        <button class="btn neon-btn w-full" onclick="showToast('Add position feature loaded', 'success')">
+                            <i class="fas fa-plus"></i> Add Position
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function loadECCandidates() {
+            const el = document.getElementById("ecContent-candidates") || document.getElementById("ec-candidates");
+            if (!el) return;
+            
+            el.innerHTML = `
+                <div class="card">
+                    <h3><i class="fas fa-user-friends"></i> Candidates</h3>
+                    <p class="subtext">Manage candidates with photos and descriptions</p>
+                    <div class="mt-20">
+                        <button class="btn neon-btn w-full" onclick="showToast('Add candidate feature loaded', 'success')">
+                            <i class="fas fa-user-plus"></i> Add Candidate
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function loadECOutcomes() {
+            const el = document.getElementById("ecContent-outcomes") || document.getElementById("ec-outcomes");
+            if (!el) return;
+            
+            el.innerHTML = `
+                <div class="card info-card">
+                    <h3><i class="fas fa-chart-line"></i> Live Outcomes</h3>
+                    <p class="subtext">Real-time voting results</p>
+                    <div style="text-align:center;padding:40px 20px">
+                        <div style="font-size:48px;color:#00eaff">📊</div>
+                        <h3 style="color:#fff;margin:20px 0">Live Results Dashboard</h3>
+                        <p class="subtext">Real-time updates will appear here during voting</p>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function loadECAutomation() {
+            const el = document.getElementById("ecContent-automation") || document.getElementById("ec-automation");
+            if (!el) return;
+            
+            el.innerHTML = `
+                <div class="card info-card">
+                    <h3><i class="fas fa-paper-plane"></i> Automation Settings</h3>
+                    <p class="subtext">Configure automated email and SMS features</p>
+                    
+                    <div class="mt-20">
+                        <h4><i class="fas fa-bell"></i> Scheduled Alerts</h4>
+                        <div class="edit-form-group">
+                            <label class="label">
+                                <input type="checkbox" checked>
+                                Send 30-minute voting start alerts
+                            </label>
+                        </div>
+                        <div class="edit-form-group">
+                            <label class="label">
+                                <input type="checkbox" checked>
+                                Send 1-hour voting end alerts
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-20">
+                        <h4><i class="fas fa-link"></i> Voting Links</h4>
+                        <div class="edit-form-group">
+                            <label class="label">
+                                <input type="checkbox" checked>
+                                Send voting links automatically to new voters
+                            </label>
+                        </div>
+                        <div class="edit-form-group">
+                            <label class="label">
+                                <input type="checkbox">
+                                Send reminders to voters who haven't voted
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-20">
+                        <button class="btn neon-btn w-full" onclick="showToast('Automation settings saved', 'success')">
+                            <i class="fas fa-save"></i> Save Automation Settings
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function loadECSettings() {
+            const el = document.getElementById("ecContent-settings") || document.getElementById("ec-settings");
+            if (!el) return;
+            
+            el.innerHTML = `
+                <div class="card">
+                    <h3><i class="fas fa-cog"></i> Settings</h3>
+                    <p class="subtext">Configure election settings</p>
+                    
+                    <div class="mt-20">
+                        <label class="label">Voting Schedule</label>
+                        <input type="datetime-local" class="input" value="2024-01-20T09:00">
+                    </div>
+                    
+                    <div class="mt-20">
+                        <button class="btn neon-btn w-full" onclick="showToast('Settings saved successfully', 'success')">
+                            <i class="fas fa-save"></i> Save Settings
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+        
+        // Demo functions for UI interaction
+        function showECInvitationModal(orgId) {
+            const modalContent = `
+                <div style="padding:20px">
+                    <h3 style="color:#00eaff;margin-bottom:20px">
+                        <i class="fas fa-paper-plane"></i> Send EC Invitation - ${orgId}
+                    </h3>
+                    
+                    <div class="edit-form-group">
+                        <label class="label">EC Email Address</label>
+                        <input type="email" class="input" placeholder="ec@example.com">
+                    </div>
+                    
+                    <div class="edit-form-group">
+                        <label class="label">EC Phone Number (Optional)</label>
+                        <input type="tel" class="input" placeholder="+233501234567">
+                    </div>
+                    
+                    <div class="edit-actions mt-20">
+                        <button class="btn neon-btn" onclick="sendECInvitationDemo('${orgId}')">
+                            <i class="fas fa-paper-plane"></i> Send Invitation
+                        </button>
+                        <button class="btn neon-btn-outline" onclick="closeModal('ecInviteModal')">
+                            Cancel
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('ecInviteContent').innerHTML = modalContent;
+            openModal('ecInviteModal');
+        }
+        
+        function sendECInvitationDemo(orgId) {
+            showToast(`EC invitation sent for ${orgId} (demo)`, 'success');
+            closeModal('ecInviteModal');
+        }
+        
+        function sendBulkVoterLinks() {
+            openModal('sendLinksModal');
+            
+            const content = `
+                <div style="padding:20px">
+                    <h3 style="color:#00eaff;margin-bottom:20px">
+                        <i class="fas fa-paper-plane"></i> Send Voting Links to Selected Voters
+                    </h3>
+                    
+                    <div id="linksStatus">
+                        <div class="alert-status pending">
+                            <div class="alert-icon pending"><i class="fas fa-spinner fa-spin"></i></div>
+                            <div>
+                                <strong>Sending voting links...</strong>
+                                <div class="subtext">Processing 150 voter records</div>
+                            </div>
+                        </div>
+                        
+                        <div style="margin-top:20px;max-height:300px;overflow-y:auto">
+                            <div class="alert-status sent">
+                                <div class="alert-icon sent"><i class="fas fa-check-circle"></i></div>
+                                <div>
+                                    <strong>John Doe</strong>
+                                    <div class="subtext">john.doe@example.com • ✓ Email sent</div>
+                                </div>
+                            </div>
+                            
+                            <div class="alert-status sent">
+                                <div class="alert-icon sent"><i class="fas fa-check-circle"></i></div>
+                                <div>
+                                    <strong>Jane Smith</strong>
+                                    <div class="subtext">jane.smith@example.com • ✓ Email sent</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-20 text-center">
+                            <button class="btn neon-btn" onclick="closeModal('sendLinksModal'); showToast('Voting links sent successfully!', 'success')">
+                                <i class="fas fa-check"></i> Done
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('sendLinksContent').innerHTML = content;
+        }
+        
+        // Make functions globally available
+        window.showScreen = function(screenId) {
+            console.log('Showing screen:', screenId);
+            document.querySelectorAll('.screen').forEach(s => {
+                s.classList.remove('active');
+            });
+            const screen = document.getElementById(screenId);
+            if (screen) {
+                screen.classList.add('active');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        };
+        
+        window.showToast = function(msg, type = "info", duration = 3000) {
+            let t = document.getElementById("toast");
+            if (!t) {
+                t = document.createElement('div');
+                t.id = 'toast';
+                t.style.cssText = 'position:fixed;bottom:26px;left:50%;transform:translateX(-50%);padding:12px 22px;border-radius:12px;z-index:1001;display:none;border:1px solid rgba(0,255,255,0.1);backdrop-filter:blur(10px);';
+                document.body.appendChild(t);
+            }
+            
+            t.textContent = msg;
+            t.style.background = type === "error" ? "linear-gradient(90deg, #d32f2f, #b71c1c)" :
+                               type === "success" ? "linear-gradient(90deg, #00C851, #007E33)" :
+                               type === "warning" ? "linear-gradient(90deg, #ff9800, #f57c00)" :
+                               "linear-gradient(90deg, #9D00FF, #00C3FF)";
+            t.style.border = type === "error" ? "1px solid rgba(255,68,68,0.3)" : "1px solid rgba(0,255,255,0.2)";
+            t.classList.add("show");
+            
+            setTimeout(() => {
+                t.classList.remove("show");
+            }, duration);
+        };
+        
+        window.showSuperTab = showSuperTab;
+        window.showECTab = showECTab;
+        window.loadSuperOrganizations = loadSuperOrganizations;
+        window.loadSuperSettings = loadSuperSettings;
+        window.loadSuperEmailConfig = loadSuperEmailConfig;
+        window.loadSuperDelete = loadSuperDelete;
+        window.loadECVoters = loadECVoters;
+        window.loadECPositions = loadECPositions;
+        window.loadECCandidates = loadECCandidates;
+        window.loadECOutcomes = loadECOutcomes;
+        window.loadECAutomation = loadECAutomation;
+        window.loadECSettings = loadECSettings;
+        window.showECInvitationModal = showECInvitationModal;
+        window.sendBulkVoterLinks = sendBulkVoterLinks;
+        window.openModal = function(modalId) {
+            document.getElementById(modalId)?.classList.remove('hidden');
+        };
+        window.closeModal = function(modalId) {
+            document.getElementById(modalId)?.classList.add('hidden');
+        };
+        
+        console.log('All UI functions loaded!');
     </script>
 </body>
 </html>

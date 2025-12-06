@@ -1,6 +1,6 @@
-headersOrigin = "config"
 redirectsOrigin = "config"
 plugins = []
+headers = []
 
 [functions]
 
@@ -9,6 +9,8 @@ plugins = []
 [build]
 publish = "C:\\Users\\Realtime IT\\Desktop\\voting-app"
 publishOrigin = "config"
+commandOrigin = "config"
+command = "echo 'No build needed'"
 
 [build.environment]
 NODE_VERSION = "18"
@@ -24,15 +26,6 @@ NODE_VERSION = "18"
 [build.processing.js]
 
 [build.services]
-
-[[headers]]
-for = "/*"
-
-[headers.values]
-X-Frame-Options = "DENY"
-X-XSS-Protection = "1; mode=block"
-X-Content-Type-Options = "nosniff"
-Referrer-Policy = "strict-origin-when-cross-origin"
 
 [[redirects]]
 from = "/*"
