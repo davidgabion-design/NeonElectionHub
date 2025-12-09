@@ -1,0 +1,52 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>Firebase Test</title>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+        import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+        
+        const firebaseConfig = {
+            apiKey: "",
+            authDomain: ".firebaseapp.com",
+            projectId: "",
+            storageBucket: ".firebasestorage.app",
+            messagingSenderId: "406871836482",
+            appId: "1:406871836482:web:b25063cd3829cd3dc6aadb",
+            measurementId: "G-VGW2Z3FR8M"
+        };
+        
+        console.log("Starting Firebase test...");
+        
+        try {
+            const app = initializeApp(firebaseConfig);
+            const db = getFirestore(app);
+            console.log("✅ Firebase initialized successfully");
+            
+            // Test reading organizations
+            const orgsRef = collection(db, "organizations");
+            const snapshot = await getDocs(orgsRef);
+            console.log(\📊 Found \ organizations\);
+            
+            snapshot.forEach((doc) => {
+                console.log(\- Organization: \\, doc.data());
+            });
+            
+            // If no organizations, try to create one
+            if (snapshot.size === 0) {
+                console.log("No organizations found. You may need to create one.");
+                console.log("Use Super Admin login with password: admin123");
+            }
+            
+        } catch (error) {
+            console.error("❌ Firebase error:", error);
+            console.error("Error details:", error.message);
+            console.error("Error code:", error.code);
+        }
+    </script>
+</head>
+<body>
+    <h1>Firebase Test</h1>
+    <p>Open browser console (F12) to see results.</p>
+</body>
+</html>

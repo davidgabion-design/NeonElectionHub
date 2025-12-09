@@ -1,0 +1,49 @@
+﻿<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+    import { getFirestore, doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+    
+    const firebaseConfig = {
+        apiKey: "AIzaSyBNuIYfcsi2NWkK1Ua4Tnycaf_qM3oix1s",
+        authDomain: "neon-voting-app.firebaseapp.com",
+        projectId: "neon-voting-app",
+        storageBucket: "neon-voting-app.firebasestorage.app",
+        messagingSenderId: "406871836482",
+        appId: "1:406871836482:web:b25063cd3829cd3dc6aadb",
+        measurementId: "G-VGW2Z3FR8M"
+    };
+    
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    
+    async function createDemoOrganization() {
+        try {
+            const orgId = "demo-university-2024";
+            const orgRef = doc(db, "organizations", orgId);
+            
+            await setDoc(orgRef, {
+                id: orgId,
+                name: "Demo University",
+                description: "Student Council Elections 2024",
+                ecPassword: "ec123456",
+                voterCount: 0,
+                voteCount: 0,
+                electionStatus: "active",
+                createdAt: serverTimestamp(),
+                updatedAt: serverTimestamp()
+            });
+            
+            console.log("✅ Organization created successfully!");
+            console.log("Organization ID: " + orgId);
+            console.log("EC Password: ec123456");
+            
+            alert("Demo organization created!\\n\\nOrg ID: " + orgId + "\\nPassword: ec123456");
+            
+        } catch (error) {
+            console.error("❌ Error creating organization:", error);
+            alert("Error: " + error.message);
+        }
+    }
+    
+    // Run the function
+    createDemoOrganization();
+</script>

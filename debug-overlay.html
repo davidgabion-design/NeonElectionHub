@@ -1,0 +1,174 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>EC Login Debug Overlay</title>
+    <style>
+        #debug-overlay {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            width: 300px;
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            border: 2px solid #00eaff;
+            border-radius: 10px;
+            padding: 15px;
+            z-index: 9999;
+            font-family: monospace;
+            font-size: 12px;
+            box-shadow: 0 0 20px rgba(0, 234, 255, 0.5);
+        }
+        
+        #debug-overlay h3 {
+            margin: 0 0 10px 0;
+            color: #00eaff;
+            text-align: center;
+        }
+        
+        .debug-item {
+            margin: 5px 0;
+            padding: 5px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+        }
+        
+        .debug-label {
+            color: #a0a0c0;
+        }
+        
+        .debug-value {
+            color: #00ffaa;
+            font-weight: bold;
+        }
+        
+        .debug-error {
+            color: #ff4444;
+            background: rgba(255, 68, 68, 0.1);
+            padding: 5px;
+            border-radius: 4px;
+            margin-top: 5px;
+        }
+        
+        #toggle-debug {
+            position: fixed;
+            bottom: 10px;
+            right: 10px;
+            background: #9D00FF;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            z-index: 10000;
+        }
+    </style>
+    <script>
+        function updateDebugOverlay() {
+            const overlay = document.getElementById('debug-overlay');
+            
+            // Get current localStorage values
+            const orgId = localStorage.getItem('currentOrgId') || 'NOT SET';
+            const ecPassword = localStorage.getItem('currentECPassword') || 'NOT SET';
+            const isLoggedIn = localStorage.getItem('isECLoggedIn') || 'false';
+            
+            // Update display
+            overlay.innerHTML = `
+                <h3>🔍 EC Login Debug</h3>
+                <div class="debug-item">
+                    <span class="debug-label">Organization ID:</span><br>
+                    <span class="debug-value" id="debug-org">${orgId}</span>
+                </div>
+                <div class="debug-item">
+                    <span class="debug-label">EC Password:</span><br>
+                    <span class="debug-value" id="debug-pass">${ecPassword ? 'SET' : 'NOT SET'}</span>
+                </div>
+                <div class="debug-item">
+                    <span class="debug-label">Logged In:</span><br>
+                    <span class="debug-value" id="debug-login">${isLoggedIn}</span>
+                </div>
+                <div class="debug-item">
+                    <span class="debug-label">Current Time:</span><br>
+                    <span class="debug-value">${new Date().toLocaleTimeString()}</span>
+                </div>
+                <button onclick="fixLogin()" style="width:100%;margin-top:10px;padding:8px;background:#00C3FF;color:white;border:none;border-radius:4px;cursor:pointer">
+                    🔧 Fix Login
+                </button>
+                <button onclick="clearLogin()" style="width:100%;margin-top:5px;padding:8px;background:#ff4444;color:white;border:none;border-radius:4px;cursor:pointer">
+                    🗑️ Clear Login
+                </button>
+            `;
+        }
+        
+        function fixLogin() {
+            // Try different organizations
+            const orgs = [
+                { id: 'demo.university.2024', pass: 'cc123456' },
+                { id: 'ark-ig0a', pass: 'ARK123456' },
+                { id: 'lava.1980-b8m', pass: 'LC-123456' },
+                { id: 'rrgent.0485e', pass: 'LC-123456' }
+            ];
+            
+            const choice = prompt(`Which organization?\n1. demo.university.2024\n2. ark-ig0a\n3. lava.1980-b8m\n4. rrgent.0485e\n\nEnter number (1-4):`);
+            
+            if (choice && choice >= 1 && choice <= 4) {
+                const org = orgs[choice - 1];
+                localStorage.setItem('currentOrgId', org.id);
+                localStorage.setItem('currentECPassword', org.pass);
+                localStorage.setItem('isECLoggedIn', 'true');
+                alert(`✅ Set to:\nOrg: ${org.id}\nPass: ${org.pass}`);
+                updateDebugOverlay();
+            }
+        }
+        
+        function clearLogin() {
+            localStorage.removeItem('currentOrgId');
+            localStorage.removeItem('currentECPassword');
+            localStorage.removeItem('isECLoggedIn');
+            alert('🗑️ Login cleared!');
+            updateDebugOverlay();
+        }
+        
+        // Create overlay
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add toggle button
+            const toggleBtn = document.createElement('button');
+            toggleBtn.id = 'toggle-debug';
+            toggleBtn.innerHTML = '🔧 Debug';
+            toggleBtn.onclick = function() {
+                const overlay = document.getElementById('debug-overlay');
+                overlay.style.display = overlay.style.display === 'none' ? 'block' : 'none';
+            };
+            document.body.appendChild(toggleBtn);
+            
+            // Add overlay
+            const overlay = document.createElement('div');
+            overlay.id = 'debug-overlay';
+            document.body.appendChild(overlay);
+            
+            // Initial update
+            updateDebugOverlay();
+            
+            // Update every 2 seconds
+            setInterval(updateDebugOverlay, 2000);
+        });
+    </script>
+</head>
+<body>
+    <h1>EC Login Debug Page</h1>
+    <p>This page adds a debug overlay to any page. Add this to your app's HTML head:</p>
+    <pre style="background:#1a1a2e;padding:15px;border-radius:8px;">
+&lt;!-- Add this to debug EC login --&gt;
+&lt;link rel="stylesheet" href="debug-overlay.css"&gt;
+&lt;script src="debug-overlay.js"&gt;&lt;/script&gt;
+    </pre>
+    
+    <div style="background:#16213e;padding:20px;border-radius:10px;margin:20px 0;">
+        <h3>Quick Test Links:</h3>
+        <p>
+            <a href="index.html" style="color:#00eaff;margin-right:15px;">🔗 Main App</a>
+            <a href="clean-test.html" style="color:#00eaff;margin-right:15px;">🔗 Clean Test</a>
+            <a href="direct-query.html" style="color:#00eaff;">🔗 Direct Query</a>
+        </p>
+    </div>
+</body>
+</html>

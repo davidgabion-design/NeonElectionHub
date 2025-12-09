@@ -1,0 +1,881 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Neon Voting System</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- Firebase SDK (Module) -->
+  <script type="module">
+    import { 
+      initializeApp 
+    } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+    import {
+      getFirestore,
+      collection,
+      doc,
+      getDoc,
+      getDocs,
+      setDoc,
+      addDoc,
+      updateDoc,
+      serverTimestamp,
+      increment
+    } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+
+    // 🔥 YOUR FIREBASE CONFIG
+    const firebaseConfig = {
+      apiKey: "AIzaSyBNuIYfcsi2NWkK1Ua4Tnycaf_qM3oix1s",
+      authDomain: "neon-voting-app.firebaseapp.com",
+      projectId: "neon-voting-app",
+      storageBucket: "neon-voting-app.firebasestorage.app",
+      messagingSenderId: "406871836482",
+      appId: "1:406871836482:web:b25063cd3829cd3dc6aadb",
+      measurementId: "G-VGW2Z3FR8M"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    // Expose to normal script
+    window.db = db;
+    window.firebaseModules = {
+      collection,
+      doc,
+      getDoc,
+      getDocs,
+      setDoc,
+      addDoc,
+      updateDoc,
+      serverTimestamp,
+      increment
+    };
+
+    console.log("✅ Firebase initialized");
+  </script>
+
+  <style>
+    :root {
+      --bg: #020617;
+      --card: #020b25;
+      --accent: #22d3ee;
+      --accent2: #a855f7;
+      --danger: #f97373;
+      --success: #22c55e;
+      --text: #e5e7eb;
+      --muted: #9ca3af;
+    }
+    * { box-sizing:border-box; margin:0; padding:0; font-family: system-ui, sans-serif; }
+    body {
+      background: radial-gradient(circle at top, #0f172a, #020617);
+      color: var(--text);
+      padding: 24px;
+      min-height: 100vh;
+    }
+    h1 { text-align:center; margin-bottom:12px; font-size:26px; }
+    h2 { font-size:20px; margin-bottom:10px; }
+    h3 { font-size:18px; margin-bottom:8px; }
+    .subtitle { text-align:center; color:var(--muted); margin-bottom:24px; }
+
+    .grid {
+      display:grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap:18px;
+      max-width:1200px;
+      margin:0 auto;
+    }
+    .card {
+      background:linear-gradient(145deg,#020617,#020b25);
+      border:1px solid rgba(34,211,238,0.2);
+      border-radius:16px;
+      padding:18px 16px 20px;
+      box-shadow:0 12px 30px rgba(15,23,42,0.6);
+    }
+    .card-header {
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      margin-bottom:12px;
+    }
+    .badge {
+      padding:3px 10px;
+      border-radius:999px;
+      font-size:11px;
+      text-transform:uppercase;
+      letter-spacing:0.05em;
+      border:1px solid rgba(148,163,184,0.4);
+      color:var(--muted);
+    }
+    .badge-success { border-color:rgba(34,197,94,0.6); color:var(--success); }
+    .badge-danger { border-color:rgba(248,113,113,0.6); color:var(--danger); }
+
+    label {
+      display:block;
+      font-size:13px;
+      margin-top:8px;
+      margin-bottom:3px;
+      color:var(--muted);
+    }
+    input, select {
+      width:100%;
+      padding:8px 10px;
+      border-radius:8px;
+      border:1px solid rgba(148,163,184,0.4);
+      background:#020617;
+      color:var(--text);
+      font-size:14px;
+      outline:none;
+    }
+    input:focus, select:focus {
+      border-color:var(--accent);
+      box-shadow:0 0 0 1px rgba(34,211,238,0.4);
+    }
+
+    .btn {
+      border:none;
+      border-radius:999px;
+      padding:8px 14px;
+      font-size:14px;
+      font-weight:600;
+      cursor:pointer;
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      margin-top:10px;
+      background:linear-gradient(90deg,var(--accent2),var(--accent));
+      color:#0b1120;
+    }
+    .btn-secondary {
+      background:transparent;
+      border:1px solid rgba(148,163,184,0.5);
+      color:var(--text);
+    }
+    .btn-block { width:100%; justify-content:center; }
+
+    .candidate-card {
+      padding:8px 10px;
+      border-radius:10px;
+      border:1px solid rgba(148,163,184,0.3);
+      margin-bottom:6px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      cursor:pointer;
+      transition:all .15s;
+    }
+    .candidate-card.selected {
+      border-color:var(--accent);
+      background:rgba(34,211,238,0.1);
+    }
+    .candidate-meta {
+      font-size:12px;
+      color:var(--muted);
+    }
+
+    .timer-display {
+      font-size:22px;
+      font-weight:700;
+      margin-top:6px;
+    }
+
+    table {
+      width:100%;
+      border-collapse:collapse;
+      font-size:13px;
+      margin-top:8px;
+    }
+    th,td {
+      padding:6px 4px;
+      border-bottom:1px solid rgba(31,41,55,0.8);
+      text-align:left;
+    }
+    th { color:var(--muted); font-weight:600; }
+
+    .small { font-size:12px; color:var(--muted); margin-top:6px; }
+    .pill {
+      font-size:11px;
+      padding:2px 8px;
+      border-radius:999px;
+      border:1px solid rgba(148,163,184,0.5);
+      color:var(--muted);
+    }
+    .toast {
+      position:fixed; right:16px; bottom:16px;
+      background:#020617;
+      border-radius:10px;
+      border:1px solid rgba(148,163,184,0.7);
+      padding:8px 12px;
+      font-size:13px;
+      z-index:9999;
+    }
+    .toast-success { border-color:rgba(34,197,94,0.7); }
+    .toast-error { border-color:rgba(248,113,113,0.7); }
+    .toast-info { border-color:rgba(56,189,248,0.7); }
+
+    @media (max-width:600px){
+      body{ padding:14px; }
+      h1{ font-size:22px; }
+    }
+  </style>
+</head>
+<body>
+  <h1>Neon Voting System</h1>
+  <p class="subtitle">Phone OTP • WhatsApp Confirm • Auto Winner • Printable Register • Timer</p>
+
+  <div class="grid">
+    <!-- VOTER LOGIN / OTP -->
+    <div class="card">
+      <div class="card-header">
+        <h2>📲 Voter Login (Phone OTP)</h2>
+        <span class="badge badge-success">Demo SMS Ready</span>
+      </div>
+      <label>Email Address</label>
+      <input id="voterEmail" type="email" placeholder="your.email@example.com" />
+
+      <label>Local Phone (e.g. 0551234567)</label>
+      <input id="voterLocalPhone" type="tel" placeholder="Local Phone Number" />
+
+      <label>Foreign Phone (with country code)</label>
+      <input id="voterForeignPhone" type="tel" placeholder="+447911123456 (optional)" />
+
+      <button class="btn btn-block" onclick="sendSMSOTP()">Send SMS OTP</button>
+
+      <label style="margin-top:10px;">Enter 6-digit OTP</label>
+      <input id="voterOTP" type="text" placeholder="123456" maxlength="6" />
+
+      <button class="btn btn-block btn-secondary" onclick="verifyOTP()">Verify OTP & Continue</button>
+      <p class="small">Demo mode: OTP is stored in Firestore and also shown on screen (no real SMS yet).</p>
+    </div>
+
+    <!-- VOTING AREA -->
+    <div class="card" id="votingCard">
+      <div class="card-header">
+        <h2>🗳 Cast Vote</h2>
+        <span class="badge" id="voteStatusBadge">Locked</span>
+      </div>
+      <p id="votingIntro" class="small">Verify OTP to unlock ballot.</p>
+      <div id="candidateList"></div>
+      <button class="btn btn-block" onclick="submitVote()">Submit Vote</button>
+      <p class="small">After submission, WhatsApp will open with a confirmation message (you can cancel sending if you want).</p>
+    </div>
+
+    <!-- ADMIN: CANDIDATES / POSITIONS -->
+    <div class="card">
+      <div class="card-header">
+        <h2>👔 Manage Positions & Candidates</h2>
+        <span class="badge">Admin Helper</span>
+      </div>
+      <label>Position Name (e.g. President)</label>
+      <input id="positionName" placeholder="Position Name" />
+
+      <label>Candidate Full Name</label>
+      <input id="candidateName" placeholder="Candidate Name" />
+
+      <button class="btn btn-block" onclick="addCandidate()">Add Candidate</button>
+      <p class="small">
+        Candidate document ID will include position, e.g. <code>president-john-doe</code>.
+      </p>
+
+      <hr style="margin:12px 0;border-color:#111827;" />
+
+      <label>Quick Add Voter (optional)</label>
+      <input id="adminVoterEmail" placeholder="Email" />
+      <input id="adminVoterLocal" placeholder="Local Phone" style="margin-top:6px;" />
+      <input id="adminVoterForeign" placeholder="Foreign Phone" style="margin-top:6px;" />
+      <button class="btn btn-block btn-secondary" onclick="adminAddVoter()">Add Voter</button>
+      <p class="small">Admin voter creation is optional. Voters can also register themselves via OTP login.</p>
+    </div>
+
+    <!-- WINNER & TIMER -->
+    <div class="card">
+      <div class="card-header">
+        <h2>🏆 Winner & ⏳ Timer</h2>
+        <span class="badge badge-success">Live</span>
+      </div>
+
+      <h3>Election Timer</h3>
+      <label>Duration (minutes)</label>
+      <input id="timerMinutes" type="number" placeholder="e.g. 30" />
+      <button class="btn btn-block" onclick="startElectionTimer()">Start / Update Timer</button>
+      <div class="timer-display" id="timerDisplay">Not started</div>
+      <p class="small">When timer ends, voting automatically locks on all screens that reload data.</p>
+
+      <hr style="margin:12px 0;border-color:#111827;" />
+
+      <h3>Current Winner</h3>
+      <div id="winnerBox">No votes yet</div>
+      <p class="small">Winner auto-refreshes every 5 seconds based on candidate vote counts.</p>
+    </div>
+
+    <!-- VOTER REGISTER -->
+    <div class="card">
+      <div class="card-header">
+        <h2>🖨 Voter Register</h2>
+        <span class="badge">Printable</span>
+      </div>
+      <button class="btn btn-block" onclick="openVoterRegister()">Open Printable Register</button>
+      <p class="small">
+        Shows Email + Local Phone + Foreign Phone + Voting Status. Use browser print (Ctrl+P) to export to PDF.
+      </p>
+
+      <div style="margin-top:10px;">
+        <h3 style="font-size:14px;margin-bottom:4px;">Quick Preview</h3>
+        <div id="voterPreview" style="max-height:160px;overflow:auto;border-radius:8px;border:1px solid #111827;padding:4px;font-size:12px;">
+          Loading...
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST -->
+  <div id="toastContainer"></div>
+
+  <script>
+    // ===== GLOBAL STATE =====
+    let currentVoterId = null;          // email-based ID
+    let currentVoterData = null;
+    let currentOTP = null;
+    let votingUnlocked = false;
+    let electionClosed = false;
+    let timerIntervalId = null;
+
+    // ===== SIMPLE TOAST SYSTEM =====
+    function showToast(msg, type = "info", duration = 2500) {
+      const container = document.getElementById("toastContainer");
+      const div = document.createElement("div");
+      div.className = "toast toast-" + (type === "success" ? "success" : type === "error" ? "error" : "info");
+      div.textContent = msg;
+      container.appendChild(div);
+      setTimeout(() => {
+        div.remove();
+      }, duration);
+    }
+
+    // ===== HELPERS =====
+    function normalizeId(str) {
+      return (str || "")
+        .toLowerCase()
+        .trim()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-+|-+$/g, "");
+    }
+
+    // ===== OTP FLOW =====
+    async function sendSMSOTP() {
+      const email = document.getElementById("voterEmail").value.trim();
+      const localPhone = document.getElementById("voterLocalPhone").value.trim();
+      const foreignPhone = document.getElementById("voterForeignPhone").value.trim();
+
+      if (!email || !localPhone) {
+        showToast("Email and local phone are required", "error");
+        return;
+      }
+
+      const voterId = normalizeId(email);
+
+      // Generate 6-digit OTP (demo)
+      currentOTP = String(Math.floor(100000 + Math.random() * 900000));
+      const { doc, setDoc, serverTimestamp } = window.firebaseModules;
+      const db = window.db;
+
+      try {
+        await setDoc(doc(db, "voters", voterId), {
+          email,
+          localPhone,
+          foreignPhone,
+          hasVoted: false,
+          lastOTP: currentOTP,
+          lastOTPAt: serverTimestamp()
+        }, { merge: true });
+
+        currentVoterId = voterId;
+
+        // DEMO: "Send" OTP via alert
+        showToast("Demo SMS OTP generated: " + currentOTP, "info", 5000);
+        alert("📲 DEMO SMS: your OTP is " + currentOTP + "\n\n(Real SMS requires a backend + SMS provider)");
+      } catch (err) {
+        console.error(err);
+        showToast("Error saving OTP: " + err.message, "error");
+      }
+    }
+
+    async function verifyOTP() {
+      const otpInput = document.getElementById("voterOTP").value.trim();
+      if (!currentVoterId || !otpInput) {
+        showToast("Missing OTP or voter", "error");
+        return;
+      }
+
+      if (!currentOTP) {
+        showToast("OTP not generated. Click 'Send SMS OTP' first.", "error");
+        return;
+      }
+
+      if (otpInput !== currentOTP) {
+        showToast("Incorrect OTP", "error");
+        return;
+      }
+
+      const { doc, getDoc } = window.firebaseModules;
+      const db = window.db;
+
+      try {
+        const snap = await getDoc(doc(db, "voters", currentVoterId));
+        if (!snap.exists()) {
+          showToast("Voter record not found", "error");
+          return;
+        }
+
+        const data = snap.data();
+
+        if (data.hasVoted) {
+          showToast("You have already voted", "error");
+          return;
+        }
+
+        currentVoterData = data;
+        votingUnlocked = true;
+
+        document.getElementById("voteStatusBadge").textContent = "Unlocked";
+        document.getElementById("voteStatusBadge").classList.add("badge-success");
+        document.getElementById("votingIntro").textContent = "Select your preferred candidate and submit.";
+
+        showToast("OTP verified. You can now vote.", "success");
+        // Load candidates
+        await loadCandidates();
+      } catch (err) {
+        console.error(err);
+        showToast("Error verifying OTP: " + err.message, "error");
+      }
+    }
+
+    // ===== CANDIDATES =====
+    async function addCandidate() {
+      const positionName = document.getElementById("positionName").value.trim();
+      const candidateName = document.getElementById("candidateName").value.trim();
+
+      if (!positionName || !candidateName) {
+        showToast("Enter position and candidate name", "error");
+        return;
+      }
+
+      const id = normalizeId(positionName) + "-" + normalizeId(candidateName);
+      const { doc, setDoc, serverTimestamp } = window.firebaseModules;
+      const db = window.db;
+
+      try {
+        await setDoc(doc(db, "candidates", id), {
+          id,
+          name: candidateName,
+          position: positionName,
+          votes: 0,
+          createdAt: serverTimestamp()
+        }, { merge: true });
+
+        showToast("Candidate added", "success");
+        document.getElementById("candidateName").value = "";
+        await loadCandidates();
+      } catch (err) {
+        console.error(err);
+        showToast("Error adding candidate: " + err.message, "error");
+      }
+    }
+
+    async function loadCandidates() {
+      const { collection, getDocs } = window.firebaseModules;
+      const db = window.db;
+      const listEl = document.getElementById("candidateList");
+      listEl.innerHTML = "Loading candidates...";
+
+      try {
+        const snap = await getDocs(collection(db, "candidates"));
+        if (snap.empty) {
+          listEl.innerHTML = "<p class='small'>No candidates yet. Add some in the Admin panel.</p>";
+          return;
+        }
+
+        // Group by position
+        const byPosition = {};
+        snap.forEach(d => {
+          const data = d.data();
+          const pos = data.position || "Other";
+          if (!byPosition[pos]) byPosition[pos] = [];
+          byPosition[pos].push({ id: d.id, ...data });
+        });
+
+        let html = "";
+        Object.keys(byPosition).forEach(pos => {
+          html += `<h3 style="margin-top:8px;">${pos}</h3>`;
+          byPosition[pos].forEach(c => {
+            html += `
+              <div class="candidate-card" data-candidate-id="${c.id}" onclick="selectCandidate('${c.id}')">
+                <div>
+                  <div>${c.name}</div>
+                  <div class="candidate-meta">ID: ${c.id}</div>
+                </div>
+                <div class="candidate-meta">Votes: ${c.votes || 0}</div>
+              </div>
+            `;
+          });
+        });
+
+        listEl.innerHTML = html;
+      } catch (err) {
+        console.error(err);
+        listEl.innerHTML = "<p class='small'>Error loading candidates.</p>";
+      }
+    }
+
+    function selectCandidate(id) {
+      if (!votingUnlocked || electionClosed) {
+        showToast("Voting is locked", "error");
+        return;
+      }
+      const cards = document.querySelectorAll(".candidate-card");
+      cards.forEach(c => c.classList.remove("selected"));
+
+      const selected = document.querySelector(`.candidate-card[data-candidate-id="${id}"]`);
+      if (selected) selected.classList.add("selected");
+      window.selectedCandidateId = id;
+    }
+
+    // ===== SUBMIT VOTE + WHATSAPP CONFIRM =====
+    async function submitVote() {
+      if (!votingUnlocked) {
+        showToast("Verify OTP first", "error");
+        return;
+      }
+      if (electionClosed) {
+        showToast("Election is closed", "error");
+        return;
+      }
+      const cid = window.selectedCandidateId;
+      if (!cid) {
+        showToast("Select a candidate", "error");
+        return;
+      }
+
+      const { doc, getDoc, updateDoc, serverTimestamp } = window.firebaseModules;
+      const db = window.db;
+
+      try {
+        // Double-check if voter already voted
+        const voterRef = doc(db, "voters", currentVoterId);
+        const voterSnap = await getDoc(voterRef);
+        if (!voterSnap.exists()) {
+          showToast("Voter record missing", "error");
+          return;
+        }
+        const vData = voterSnap.data();
+        if (vData.hasVoted) {
+          showToast("You already voted", "error");
+          return;
+        }
+
+        // Increment candidate votes
+        const candRef = doc(db, "candidates", cid);
+        await updateDoc(candRef, { votes: increment(1) });
+
+        // Update voter
+        await updateDoc(voterRef, {
+          hasVoted: true,
+          votedAt: serverTimestamp(),
+          votedFor: cid
+        });
+
+        showToast("Vote submitted", "success");
+        votingUnlocked = false;
+        document.getElementById("voteStatusBadge").textContent = "Used";
+        document.getElementById("voteStatusBadge").classList.remove("badge-success");
+
+        // WhatsApp confirmation (demo)
+        const phoneForWhatsApp =
+          (currentVoterData && currentVoterData.foreignPhone) ||
+          (currentVoterData && currentVoterData.localPhone) ||
+          document.getElementById("voterForeignPhone").value.trim() ||
+          document.getElementById("voterLocalPhone").value.trim();
+
+        const cleanPhone = (phoneForWhatsApp || "").replace(/\D/g, "");
+        const candSnap = await getDoc(candRef);
+        const candData = candSnap.data();
+
+        const msg = encodeURIComponent(
+          `✅ Neon Voting: Your vote has been recorded.\n\nCandidate: ${candData.name}\nPosition: ${candData.position}\nThank you for voting!`
+        );
+
+        if (cleanPhone) {
+          const waUrl = `https://wa.me/${cleanPhone}?text=${msg}`;
+          window.open(waUrl, "_blank");
+        } else {
+          showToast("No WhatsApp phone number found (confirmation skipped)", "info");
+        }
+      } catch (err) {
+        console.error(err);
+        showToast("Error submitting vote: " + err.message, "error");
+      }
+    }
+
+    // ===== ADMIN ADD VOTER =====
+    async function adminAddVoter() {
+      const email = document.getElementById("adminVoterEmail").value.trim();
+      const localPhone = document.getElementById("adminVoterLocal").value.trim();
+      const foreignPhone = document.getElementById("adminVoterForeign").value.trim();
+
+      if (!email || !localPhone) {
+        showToast("Email & local phone required", "error");
+        return;
+      }
+
+      const id = normalizeId(email);
+      const { doc, setDoc, serverTimestamp } = window.firebaseModules;
+      const db = window.db;
+
+      try {
+        await setDoc(doc(db, "voters", id), {
+          email,
+          localPhone,
+          foreignPhone,
+          hasVoted: false,
+          createdAt: serverTimestamp()
+        }, { merge: true });
+
+        showToast("Voter added", "success");
+        document.getElementById("adminVoterEmail").value = "";
+        document.getElementById("adminVoterLocal").value = "";
+        document.getElementById("adminVoterForeign").value = "";
+        loadVoterPreview();
+      } catch (err) {
+        console.error(err);
+        showToast("Error adding voter: " + err.message, "error");
+      }
+    }
+
+    // ===== WINNER AUTO-DETECTION =====
+    async function updateWinner() {
+      const { collection, getDocs } = window.firebaseModules;
+      const db = window.db;
+      const box = document.getElementById("winnerBox");
+
+      try {
+        const snap = await getDocs(collection(db, "candidates"));
+        if (snap.empty) {
+          box.textContent = "No candidates yet";
+          return;
+        }
+
+        let maxVotes = -1;
+        let winners = [];
+
+        snap.forEach(d => {
+          const data = d.data();
+          const votes = data.votes || 0;
+          if (votes > maxVotes) {
+            maxVotes = votes;
+            winners = [data];
+          } else if (votes === maxVotes) {
+            winners.push(data);
+          }
+        });
+
+        if (maxVotes <= 0) {
+          box.textContent = "No votes yet";
+          return;
+        }
+
+        if (winners.length === 1) {
+          box.innerHTML = `<strong>${winners[0].name}</strong> (${winners[0].position}) - ${maxVotes} vote(s)`;
+        } else {
+          const names = winners.map(w => `${w.name} (${w.position})`).join(", ");
+          box.innerHTML = `Tie: ${names} with ${maxVotes} vote(s)`;
+        }
+      } catch (err) {
+        console.error(err);
+        box.textContent = "Error loading results";
+      }
+    }
+
+    // ===== VOTER REGISTER (PRINTABLE) =====
+    async function loadVoterPreview() {
+      const { collection, getDocs } = window.firebaseModules;
+      const db = window.db;
+      const box = document.getElementById("voterPreview");
+      box.textContent = "Loading...";
+
+      try {
+        const snap = await getDocs(collection(db, "voters"));
+        if (snap.empty) {
+          box.textContent = "No voters yet.";
+          return;
+        }
+
+        let html = "<table><thead><tr><th>Email</th><th>Local</th><th>Foreign</th><th>Status</th></tr></thead><tbody>";
+        snap.forEach(d => {
+          const v = d.data();
+          html += `<tr>
+            <td>${v.email || ""}</td>
+            <td>${v.localPhone || ""}</td>
+            <td>${v.foreignPhone || ""}</td>
+            <td>${v.hasVoted ? "Voted" : "Not Voted"}</td>
+          </tr>`;
+        });
+        html += "</tbody></table>";
+        box.innerHTML = html;
+      } catch (err) {
+        console.error(err);
+        box.textContent = "Error loading voters";
+      }
+    }
+
+    async function openVoterRegister() {
+      const { collection, getDocs } = window.firebaseModules;
+      const db = window.db;
+
+      try {
+        const snap = await getDocs(collection(db, "voters"));
+        const win = window.open("", "_blank");
+        win.document.write(`
+          <html>
+          <head>
+            <title>Voter Register</title>
+            <style>
+              body { font-family: Arial, sans-serif; padding:20px; }
+              h2 { margin-bottom:10px; }
+              table { width:100%; border-collapse:collapse; font-size:13px; }
+              th, td { border:1px solid #ccc; padding:6px 4px; text-align:left; }
+              th { background:#f3f4f6; }
+            </style>
+          </head>
+          <body>
+            <h2>Voter Register</h2>
+            <table>
+              <thead>
+                <tr><th>Email</th><th>Local Phone</th><th>Foreign Phone</th><th>Status</th></tr>
+              </thead>
+              <tbody>
+        `);
+
+        snap.forEach(d => {
+          const v = d.data();
+          win.document.write(`
+            <tr>
+              <td>${v.email || ""}</td>
+              <td>${v.localPhone || ""}</td>
+              <td>${v.foreignPhone || ""}</td>
+              <td>${v.hasVoted ? "Voted" : "Not Voted"}</td>
+            </tr>
+          `);
+        });
+
+        win.document.write(`
+              </tbody>
+            </table>
+            <p style="margin-top:16px;font-size:12px;">Generated by Neon Voting System</p>
+          </body>
+          </html>
+        `);
+        win.document.close();
+        win.focus();
+      } catch (err) {
+        console.error(err);
+        showToast("Error opening register: " + err.message, "error");
+      }
+    }
+
+    // ===== ELECTION TIMER =====
+    async function startElectionTimer() {
+      const minutes = parseInt(document.getElementById("timerMinutes").value || "0", 10);
+      if (!minutes || minutes <= 0) {
+        showToast("Enter minutes > 0", "error");
+        return;
+      }
+
+      const endTime = Date.now() + minutes * 60 * 1000;
+      const { doc, setDoc } = window.firebaseModules;
+      const db = window.db;
+
+      try {
+        await setDoc(doc(db, "settings", "election"), {
+          endTimeMs: endTime,
+          status: "active"
+        }, { merge: true });
+
+        showToast("Election timer updated", "success");
+        setupLocalTimer(endTime);
+        electionClosed = false;
+      } catch (err) {
+        console.error(err);
+        showToast("Error setting timer: " + err.message, "error");
+      }
+    }
+
+    async function loadElectionTimer() {
+      const { doc, getDoc } = window.firebaseModules;
+      const db = window.db;
+
+      try {
+        const snap = await getDoc(doc(db, "settings", "election"));
+        if (!snap.exists()) {
+          document.getElementById("timerDisplay").textContent = "Not started";
+          electionClosed = false;
+          return;
+        }
+        const data = snap.data();
+        if (!data.endTimeMs) {
+          document.getElementById("timerDisplay").textContent = "Not started";
+          electionClosed = false;
+          return;
+        }
+        if (data.status === "closed") {
+          document.getElementById("timerDisplay").textContent = "Closed";
+          electionClosed = true;
+          return;
+        }
+        setupLocalTimer(data.endTimeMs);
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    function setupLocalTimer(endTimeMs) {
+      if (timerIntervalId) clearInterval(timerIntervalId);
+      function tick() {
+        const now = Date.now();
+        const diff = endTimeMs - now;
+        if (diff <= 0) {
+          document.getElementById("timerDisplay").textContent = "Closed";
+          electionClosed = true;
+          clearInterval(timerIntervalId);
+          return;
+        }
+        const mins = Math.floor(diff / 60000);
+        const secs = Math.floor((diff % 60000) / 1000);
+        document.getElementById("timerDisplay").textContent =
+          mins.toString().padStart(2, "0") + ":" + secs.toString().padStart(2, "0");
+      }
+      tick();
+      timerIntervalId = setInterval(tick, 1000);
+      electionClosed = false;
+    }
+
+    // ===== INIT =====
+    document.addEventListener("DOMContentLoaded", async () => {
+      loadVoterPreview();
+      loadElectionTimer();
+      loadCandidates();
+      updateWinner();
+      // Auto refresh winner every 5s
+      setInterval(updateWinner, 5000);
+    });
+
+    // ===== EXPOSE GLOBAL FUNCTIONS =====
+    window.sendSMSOTP = sendSMSOTP;
+    window.verifyOTP = verifyOTP;
+    window.addCandidate = addCandidate;
+    window.selectCandidate = selectCandidate;
+    window.submitVote = submitVote;
+    window.adminAddVoter = adminAddVoter;
+    window.openVoterRegister = openVoterRegister;
+    window.startElectionTimer = startElectionTimer;
+  </script>
+</body>
+</html>

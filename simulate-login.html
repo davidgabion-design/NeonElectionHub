@@ -1,0 +1,197 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>EC Login Simulation</title>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+        import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBNuIYfcsi2NWkK1Ua4Tnycaf_qM3oix1s",
+            authDomain: "neon-voting-app.firebaseapp.com",
+            projectId: "neon-voting-app",
+            storageBucket: "neon-voting-app.firebasestorage.app",
+            messagingSenderId: "406871836482",
+            appId: "1:406871836482:web:b25063cd3829cd3dc6aadb",
+            measurementId: "G-VGW2Z3FR8M"
+        };
+
+        async function simulateECLogin() {
+            const log = document.getElementById("log");
+            const result = document.getElementById("result");
+            
+            log.innerHTML = "<div class='step'>1. Setting up test...</div>";
+            
+            // Step 1: Set test credentials (like user would enter)
+            localStorage.setItem("currentOrgId", "demo.university.2024");
+            localStorage.setItem("currentECPassword", "cc123456");
+            
+            const orgId = localStorage.getItem("currentOrgId");
+            const password = localStorage.getItem("currentECPassword");
+            
+            log.innerHTML += `<div class='step'>2. Using credentials:<br>
+                • Organization ID: ${orgId}<br>
+                • Password: ${password}</div>`;
+            
+            // Step 2: Initialize Firebase
+            log.innerHTML += "<div class='step'>3. Initializing Firebase...</div>";
+            try {
+                const app = initializeApp(firebaseConfig);
+                const db = getFirestore(app);
+                log.innerHTML += "<div class='step success'>✓ Firebase initialized</div>";
+                
+                // Step 3: Check organization exists
+                log.innerHTML += `<div class='step'>4. Checking organization: ${orgId}</div>`;
+                const orgRef = doc(db, "organizations", orgId);
+                const orgSnap = await getDoc(orgRef);
+                
+                if (orgSnap.exists()) {
+                    const org = orgSnap.data();
+                    log.innerHTML += `<div class='step success'>✓ Organization found: ${org.name || orgId}</div>`;
+                    
+                    // Step 4: Verify password
+                    log.innerHTML += `<div class='step'>5. Verifying password...</div>`;
+                    log.innerHTML += `<div class='step'>• Entered: ${password}</div>`;
+                    log.innerHTML += `<div class='step'>• Stored: ${org.ecPassword}</div>`;
+                    
+                    if (password === org.ecPassword) {
+                        log.innerHTML += "<div class='step success'>✓ Password matches!</div>";
+                        
+                        // Step 5: Set logged in state
+                        localStorage.setItem("isECLoggedIn", "true");
+                        log.innerHTML += "<div class='step success'>✓ EC Login successful!</div>";
+                        
+                        result.innerHTML = `
+                            <div class="success-box">
+                                <h2>✅ EC LOGIN SUCCESSFUL!</h2>
+                                <p>You can now access EC Dashboard.</p>
+                                <button onclick="goToDashboard()" class="btn-success">Go to EC Dashboard</button>
+                                <button onclick="goToMain()" class="btn-secondary">Go to Main App</button>
+                            </div>
+                        `;
+                    } else {
+                        log.innerHTML += "<div class='step error'>✗ Password does not match!</div>";
+                        result.innerHTML = `
+                            <div class="error-box">
+                                <h2>❌ PASSWORD MISMATCH</h2>
+                                <p>Entered: <code>${password}</code></p>
+                                <p>Expected: <code>${org.ecPassword}</code></p>
+                                <button onclick="retryWithCorrectPassword('${org.ecPassword}')" class="btn-fix">
+                                    🔧 Use Correct Password
+                                </button>
+                            </div>
+                        `;
+                    }
+                } else {
+                    log.innerHTML += `<div class='step error'>✗ Organization not found!</div>`;
+                    result.innerHTML = `
+                        <div class="error-box">
+                            <h2>❌ ORGANIZATION NOT FOUND</h2>
+                            <p>Organization ID <code>${orgId}</code> does not exist.</p>
+                            <p>Available organizations:</p>
+                            <ul>
+                                <li>demo.university.2024</li>
+                                <li>ark-ig0a</li>
+                                <li>lava.1980-b8m</li>
+                                <li>rrgent.0485e</li>
+                                <li>salamn-1y1r</li>
+                            </ul>
+                        </div>
+                    `;
+                }
+                
+            } catch (error) {
+                log.innerHTML += `<div class='step error'>✗ Error: ${error.message}</div>`;
+                result.innerHTML = `
+                    <div class="error-box">
+                        <h2>❌ FIRESTORE ERROR</h2>
+                        <p>${error.message}</p>
+                        <p>Check Firestore rules and internet connection.</p>
+                    </div>
+                `;
+            }
+        }
+        
+        window.goToDashboard = function() {
+            window.location.href = "ec-dashboard.html";
+        };
+        
+        window.goToMain = function() {
+            window.location.href = "index.html";
+        };
+        
+        window.retryWithCorrectPassword = function(correctPassword) {
+            localStorage.setItem("currentECPassword", correctPassword);
+            alert(`Password updated to: ${correctPassword}\nRe-running login simulation...`);
+            location.reload();
+        };
+        
+        // Run simulation on load
+        document.addEventListener("DOMContentLoaded", simulateECLogin);
+    </script>
+    <style>
+        body { font-family: Arial, sans-serif; background: linear-gradient(135deg, #0a0a1a, #1a1a2e); color: white; padding: 20px; }
+        .container { max-width: 800px; margin: 0 auto; }
+        h1 { color: #00eaff; text-align: center; margin-bottom: 10px; }
+        .subtitle { text-align: center; color: #a0a0c0; margin-bottom: 30px; }
+        
+        #log { background: rgba(255, 255, 255, 0.05); border-radius: 10px; padding: 20px; margin-bottom: 20px; 
+              max-height: 400px; overflow-y: auto; font-family: monospace; font-size: 14px; }
+        
+        .step { margin-bottom: 10px; padding: 8px 12px; border-left: 3px solid #444; background: rgba(255,255,255,0.03); }
+        .step.success { border-left-color: #00ffaa; color: #a0ffd0; }
+        .step.error { border-left-color: #ff4444; color: #ffaaaa; }
+        
+        #result { margin-top: 20px; }
+        .success-box, .error-box { padding: 25px; border-radius: 10px; text-align: center; }
+        .success-box { background: rgba(0, 255, 170, 0.1); border: 2px solid #00ffaa; }
+        .error-box { background: rgba(255, 68, 68, 0.1); border: 2px solid #ff4444; }
+        
+        button { background: linear-gradient(135deg, #00C3FF, #9D00FF); color: white; border: none; 
+                padding: 12px 24px; border-radius: 6px; cursor: pointer; margin: 10px 5px; font-size: 16px; }
+        .btn-success { background: linear-gradient(135deg, #00ffaa, #00C3FF); }
+        .btn-fix { background: linear-gradient(135deg, #ffaa00, #ff4444); }
+        .btn-secondary { background: rgba(255, 255, 255, 0.1); }
+        
+        button:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0, 195, 255, 0.3); }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔬 EC Login Process Simulation</h1>
+        <p class="subtitle">Step-by-step test of your EC login workflow</p>
+        
+        <div id="log">
+            <div class="step">Starting simulation...</div>
+        </div>
+        
+        <div id="result">
+            <!-- Results will appear here -->
+        </div>
+        
+        <div style="text-align:center; margin-top:40px; padding:20px; background:rgba(255,255,255,0.05); border-radius:10px;">
+            <h3>📋 Expected Organizations</h3>
+            <p>Based on your create-organization.html screenshot:</p>
+            <div style="display:flex; flex-wrap:wrap; gap:10px; justify-content:center; margin-top:15px;">
+                <div style="background:rgba(0,195,255,0.1); padding:10px 15px; border-radius:6px;">
+                    <strong>demo.university.2024</strong><br>
+                    <small>Pass: cc123456</small>
+                </div>
+                <div style="background:rgba(157,0,255,0.1); padding:10px 15px; border-radius:6px;">
+                    <strong>ark-ig0a</strong><br>
+                    <small>Pass: ARK123456</small>
+                </div>
+                <div style="background:rgba(255,170,0,0.1); padding:10px 15px; border-radius:6px;">
+                    <strong>lava.1980-b8m</strong><br>
+                    <small>Pass: LC-123456</small>
+                </div>
+                <div style="background:rgba(255,68,68,0.1); padding:10px 15px; border-radius:6px;">
+                    <strong>rrgent.0485e</strong><br>
+                    <small>Pass: LC-123456</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+

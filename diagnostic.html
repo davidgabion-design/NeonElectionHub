@@ -1,0 +1,232 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>EC Login Diagnostic Tool</title>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+        import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBNuIYfcsi2NWkK1Ua4Tnycaf_qM3oix1s",
+            authDomain: "neon-voting-app.firebaseapp.com",
+            projectId: "neon-voting-app",
+            storageBucket: "neon-voting-app.firebasestorage.app",
+            messagingSenderId: "406871836482",
+            appId: "1:406871836482:web:b25063cd3829cd3dc6aadb",
+            measurementId: "G-VGW2Z3FR8M"
+        };
+
+        async function runDiagnostics() {
+            const resultsDiv = document.getElementById("results");
+            resultsDiv.innerHTML = '<div class="loading">🔄 Running diagnostics...</div>';
+            
+            let results = [];
+            
+            // Test 1: Check localStorage
+            results.push(await testLocalStorage());
+            
+            // Test 2: Check Firebase connection
+            results.push(await testFirebase());
+            
+            // Test 3: Check specific organization
+            results.push(await testOrganization("demo.university.2024"));
+            
+            // Display results
+            displayResults(results);
+        }
+        
+        async function testLocalStorage() {
+            const org = localStorage.getItem("currentOrgId");
+            const pass = localStorage.getItem("currentECPassword");
+            const loggedIn = localStorage.getItem("isECLoggedIn");
+            
+            return {
+                name: "LocalStorage Test",
+                status: org && pass ? "✅" : "⚠️",
+                details: `Org ID: ${org || "NOT SET"} | Password: ${pass ? "SET" : "NOT SET"} | Logged In: ${loggedIn || "false"}`,
+                fix: org ? null : "Click 'Set Test Credentials' below"
+            };
+        }
+        
+        async function testFirebase() {
+            try {
+                const app = initializeApp(firebaseConfig);
+                const db = getFirestore(app);
+                return {
+                    name: "Firebase Connection",
+                    status: "✅",
+                    details: "Connected successfully to neon-voting-app",
+                    fix: null
+                };
+            } catch (error) {
+                return {
+                    name: "Firebase Connection",
+                    status: "❌",
+                    details: `Error: ${error.message}`,
+                    fix: "Check Firebase configuration"
+                };
+            }
+        }
+        
+        async function testOrganization(orgId) {
+            try {
+                const app = initializeApp(firebaseConfig);
+                const db = getFirestore(app);
+                const orgRef = doc(db, "organizations", orgId);
+                const orgSnap = await getDoc(orgRef);
+                
+                if (orgSnap.exists()) {
+                    const org = orgSnap.data();
+                    return {
+                        name: `Organization: ${orgId}`,
+                        status: "✅",
+                        details: `Exists! Name: ${org.name || "Unnamed"}, Password: ${org.ecPassword}, Status: ${org.electionStatus || "active"}`,
+                        fix: null
+                    };
+                } else {
+                    return {
+                        name: `Organization: ${orgId}`,
+                        status: "❌",
+                        details: "Organization not found in Firestore",
+                        fix: "Create this organization first"
+                    };
+                }
+            } catch (error) {
+                return {
+                    name: `Organization: ${orgId}`,
+                    status: "❌",
+                    details: `Error: ${error.message}`,
+                    fix: "Check Firestore rules/permissions"
+                };
+            }
+        }
+        
+        function displayResults(results) {
+            const resultsDiv = document.getElementById("results");
+            let html = '<h2>📋 Diagnostic Results</h2>';
+            
+            results.forEach(result => {
+                html += `
+                    <div class="result-card ${result.status === '✅' ? 'success' : result.status === '⚠️' ? 'warning' : 'error'}">
+                        <div class="result-header">
+                            <span class="status">${result.status}</span>
+                            <span class="test-name">${result.name}</span>
+                        </div>
+                        <div class="result-details">${result.details}</div>
+                        ${result.fix ? `<div class="result-fix">💡 ${result.fix}</div>` : ''}
+                    </div>
+                `;
+            });
+            
+            // Add quick actions
+            html += `
+                <div class="actions">
+                    <h3>🚀 Quick Actions</h3>
+                    <button onclick="setCredentials()">Set Test Credentials</button>
+                    <button onclick="clearCredentials()">Clear Credentials</button>
+                    <button onclick="testECLogin()">Test EC Login</button>
+                    <button onclick="goToApp()">Go to Main App</button>
+                </div>
+            `;
+            
+            resultsDiv.innerHTML = html;
+        }
+        
+        // Expose functions to window
+        window.setCredentials = function() {
+            localStorage.setItem("currentOrgId", "demo.university.2024");
+            localStorage.setItem("currentECPassword", "cc123456");
+            localStorage.setItem("isECLoggedIn", "true");
+            alert("✅ Credentials set!\nOrg: demo.university.2024\nPass: cc123456");
+            runDiagnostics(); // Refresh diagnostics
+        };
+        
+        window.clearCredentials = function() {
+            localStorage.removeItem("currentOrgId");
+            localStorage.removeItem("currentECPassword");
+            localStorage.removeItem("isECLoggedIn");
+            alert("🗑️ Credentials cleared!");
+            runDiagnostics(); // Refresh diagnostics
+        };
+        
+        window.testECLogin = function() {
+            // Simulate the actual EC login process
+            const orgId = localStorage.getItem("currentOrgId");
+            const password = localStorage.getItem("currentECPassword");
+            
+            if (!orgId || !password) {
+                alert("❌ Please set credentials first!");
+                return;
+            }
+            
+            // This is what your app should do
+            alert(`Testing EC Login:\n\nOrganization ID: ${orgId}\nPassword: ${password}\n\nIf login fails, check:\n1. Organization exists in Firestore\n2. Password matches\n3. Firestore rules allow access`);
+            
+            // Redirect to test the actual login
+            window.location.href = `index.html?org=${encodeURIComponent(orgId)}&pass=${encodeURIComponent(password)}`;
+        };
+        
+        window.goToApp = function() {
+            window.location.href = "index.html";
+        };
+        
+        // Run diagnostics on load
+        document.addEventListener("DOMContentLoaded", runDiagnostics);
+    </script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: linear-gradient(135deg, #0a0a1a, #1a1a2e); color: white; padding: 20px; min-height: 100vh; }
+        .container { max-width: 900px; margin: 0 auto; }
+        h1 { color: #00eaff; text-align: center; margin-bottom: 10px; font-size: 2.5em; }
+        .subtitle { text-align: center; color: #a0a0c0; margin-bottom: 30px; font-size: 1.1em; }
+        
+        .result-card { background: rgba(255, 255, 255, 0.05); border-radius: 12px; padding: 20px; margin-bottom: 15px; 
+                      border-left: 5px solid; backdrop-filter: blur(10px); }
+        .result-card.success { border-left-color: #00ffaa; background: rgba(0, 255, 170, 0.05); }
+        .result-card.warning { border-left-color: #ffaa00; background: rgba(255, 170, 0, 0.05); }
+        .result-card.error { border-left-color: #ff4444; background: rgba(255, 68, 68, 0.05); }
+        
+        .result-header { display: flex; align-items: center; margin-bottom: 10px; font-size: 1.2em; }
+        .status { font-size: 1.5em; margin-right: 15px; }
+        .test-name { font-weight: bold; color: #ffffff; }
+        .result-details { color: #b0b0d0; margin-bottom: 10px; font-size: 0.95em; }
+        .result-fix { color: #ffd700; font-size: 0.9em; padding: 8px 12px; background: rgba(255, 215, 0, 0.1); 
+                     border-radius: 6px; margin-top: 10px; }
+        
+        .actions { background: rgba(255, 255, 255, 0.03); border-radius: 12px; padding: 25px; margin-top: 30px; }
+        .actions h3 { color: #9D00FF; margin-bottom: 20px; font-size: 1.3em; }
+        .actions button { background: linear-gradient(135deg, #00C3FF, #9D00FF); color: white; border: none; 
+                         padding: 12px 24px; border-radius: 8px; cursor: pointer; font-size: 1em; 
+                         margin-right: 10px; margin-bottom: 10px; transition: transform 0.2s, box-shadow 0.2s; }
+        .actions button:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(157, 0, 255, 0.3); }
+        
+        .loading { text-align: center; padding: 40px; font-size: 1.2em; color: #00eaff; }
+        
+        @media (max-width: 768px) {
+            .actions button { width: 100%; margin-right: 0; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 EC Login Diagnostic Tool</h1>
+        <p class="subtitle">Comprehensive troubleshooting for Election Commission login issues</p>
+        
+        <div id="results">
+            <!-- Results will appear here -->
+        </div>
+        
+        <div class="actions">
+            <h3>📝 Manual Testing</h3>
+            <p style="color: #a0a0c0; margin-bottom: 15px; font-size: 0.95em;">
+                Try these manual tests if automatic diagnostics don't solve the issue:
+            </p>
+            <div style="background: rgba(255, 255, 255, 0.05); padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                <p><strong>Test 1:</strong> Open browser console (F12 → Console) and check for errors</p>
+                <p><strong>Test 2:</strong> Verify Firestore rules allow read access</p>
+                <p><strong>Test 3:</strong> Check if organization password matches exactly (case-sensitive)</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,57 @@
+﻿<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+    import { getFirestore, doc, getDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+    
+    const firebaseConfig = {
+        apiKey: "AIzaSyBNuIYfcsi2NWkK1Ua4Tnycaf_qM3oix1s",
+        authDomain: "neon-voting-app.firebaseapp.com",
+        projectId: "neon-voting-app",
+        storageBucket: "neon-voting-app.firebasestorage.app",
+        messagingSenderId: "406871836482",
+        appId: "1:406871836482:web:b25063cd3829cd3dc6aadb",
+        measurementId: "G-VGW2Z3FR8M"
+    };
+    
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    
+    async function checkOrganizations() {
+        console.log("🔍 Checking organizations in Firestore...");
+        
+        try {
+            // Check all organizations
+            const orgsRef = collection(db, "organizations");
+            const orgsSnap = await getDocs(orgsRef);
+            
+            console.log(`Found ${orgsSnap.size} organizations:`);
+            
+            if (orgsSnap.size === 0) {
+                console.log("❌ No organizations found!");
+                console.log("Create one using Super Admin login");
+            } else {
+                orgsSnap.forEach(doc => {
+                    console.log(`- ${doc.id}:`, doc.data());
+                });
+                
+                // Check for demo organization
+                const demoRef = doc(db, "organizations", "demo-university-2024");
+                const demoSnap = await getDoc(demoRef);
+                
+                if (demoSnap.exists()) {
+                    console.log("✅ Demo organization exists!");
+                    const org = demoSnap.data();
+                    console.log("   Name:", org.name);
+                    console.log("   EC Password:", org.ecPassword);
+                } else {
+                    console.log("❌ Demo organization not found");
+                }
+            }
+            
+        } catch (error) {
+            console.error("Error checking organizations:", error);
+        }
+    }
+    
+    // Run check
+    checkOrganizations();
+</script>
