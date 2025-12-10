@@ -9,6 +9,7 @@
 // 6. PREVENT DUPLICATE VOTER DETAILS - No repeating emails, phones, voter IDs
 // 7. SYNCED VOTER COUNTS - Consistent across Voters tab, Outcomes tab, and organization data
 // 8. COMPLETE MODAL FUNCTIONS - All modal functions implemented
+// 9. FIXED TAB MANAGEMENT - EC tabs now working properly
 
 // ---------------- Firebase imports ----------------
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
@@ -181,10 +182,12 @@ function setupTabs() {
     }
   }
   
-  // EC Tabs
+  // EC Tabs - FIXED: This was the main issue
   const ecTabs = document.getElementById('ecTabs');
   if (ecTabs) {
     console.log("Found EC tabs");
+    
+    // Set up click handler for EC tabs
     ecTabs.addEventListener('click', (e) => {
       const tabBtn = e.target.closest('.tab-btn');
       if (!tabBtn) return;
@@ -250,7 +253,7 @@ function showSuperTab(tabId) {
 async function showECTab(tabId) {
   console.log("Showing EC tab:", tabId);
   
-  // Hide all tab contents
+  // Hide all EC tab contents
   document.querySelectorAll('[id^="ecContent-"]').forEach(content => {
     content.classList.remove('active');
   });
@@ -498,7 +501,7 @@ async function loadSuperSettings() {
       
       <label class="label">Organization Logo (Optional)</label>
       <div style="margin-bottom:15px">
-        <div id="orgLogoPreview" style="width:100px;height:100px;border-radius:12px;border:2px dashed rgba(0,255,255,0.3);display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,0.05);margin-bottom:10px;overflow:hidden">
+        <div id="orgLogoPreview" style="width:100px;height:100px;border-radius:12px;border:2px dashed rgba(0,255,255,0.3);display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,0.05);margin-bottom:10px">
           <i class="fas fa-building" style="font-size:32px;color:#00eaff"></i>
         </div>
         <input type="file" id="orgLogoFile" accept="image/*" class="input" onchange="previewOrgLogo()">
@@ -2590,7 +2593,7 @@ window.editCandidateModal = async function(candidateId) {
           <div>
             <label class="label">Candidate Photo</label>
             <div style="margin-bottom: 10px;">
-              <div id="editCandidatePhotoPreview" style="width: 100px; height: 100px; border-radius: 8px; border: 2px solid rgba(0,255,255,0.3); display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.05); overflow: hidden; margin-bottom: 10px;">
+              <div id="editCandidatePhotoPreview" style="width: 100px; height: 100px;border-radius: 8px; border: 2px solid rgba(0,255,255,0.3); display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.05); overflow: hidden; margin-bottom: 10px;">
                 <img src="${candidate.photo || getDefaultAvatar(candidate.name)}" style="width:100%;height:100%;object-fit:cover;">
               </div>
               <input type="file" id="editCandidatePhotoFile" accept="image/*" class="input" onchange="previewEditCandidatePhoto()">
@@ -2721,6 +2724,8 @@ window.updateCandidate = async function(candidateId) {
         console.error('Error uploading photo:', photoError);
         showToast('Error uploading photo, keeping current photo', 'warning');
       }
+    } else {
+      photoUrl = currentCandidate.photo;
     }
     
     await updateDoc(candidateRef, {
@@ -3852,7 +3857,7 @@ window.showECInviteModal = function(orgId, orgName, ecPassword) {
             <i class="fas fa-link"></i> EC Login Link:
           </div>
           <div style="font-size: 12px; color: #9beaff; word-break: break-all;">
-            ${window.location.origin}${window.location.pathname}?org=${orgId}&role=ec
+            ${window.location.origin}${window.location.pathname}?org=${orgId}&role=ec}
           </div>
         </div>
       </div>
@@ -4092,3 +4097,8 @@ style.textContent = `
   }
 `;
 document.head.appendChild(style);
+// Import the voters routes
+const votersRoutes = require('./routes/voters');
+
+// Use the routes
+app.use('/api/voters', votersRoutes);
