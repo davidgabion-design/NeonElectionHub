@@ -35,7 +35,7 @@
           min-height:100vh; color:#fff; overflow-x:hidden;
         }
 
-        /* AD CONTAINER STYLES */
+        /* AD CONTAINER STYLES - ENHANCED FOR SAFETY */
         .ad-container {
             margin: 20px auto;
             text-align: center;
@@ -48,6 +48,27 @@
             align-items: center;
             justify-content: center;
             overflow: hidden;
+            position: relative;
+            z-index: 1;
+            /* Add clear visual indicator */
+            border-left: 4px solid rgba(0, 195, 255, 0.1);
+            border-right: 4px solid rgba(0, 195, 255, 0.1);
+        }
+        
+        /* Advertisement label */
+        .ad-container::before {
+            content: "ADVERTISEMENT";
+            font-size: 9px;
+            color: rgba(255, 255, 255, 0.3);
+            position: absolute;
+            top: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            letter-spacing: 1px;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 2px 8px;
+            border-radius: 3px;
+            z-index: 2;
         }
         
         .ad-container.horizontal {
@@ -79,7 +100,7 @@
             min-height: 90px;
         }
         
-        /* NEW: RIGHT SIDE AD CONTAINER FOR EC AND VOTER */
+        /* RIGHT SIDE AD CONTAINERS - With safety margins */
         .ad-container.right-side-ad {
             width: 300px;
             min-height: 600px;
@@ -89,13 +110,17 @@
             align-self: flex-start;
         }
         
-        /* NEW: RIGHT SIDE AD CONTAINER FOR VOTING SCREEN */
         .ad-container.voting-right-ad {
             width: 250px;
             min-height: 400px;
             margin: 10px;
             position: sticky;
             top: 100px;
+        }
+        
+        /* Special class for critical screens - NO ADS */
+        .no-ads-mode .ad-container {
+            display: none !important;
         }
         
         .ad-label {
@@ -126,11 +151,26 @@
             margin-bottom: 10px;
         }
 
+        /* Protect interactive elements from ad interference */
+        .btn, .input, .voting-card, .list-item, .tab-btn, .gateway-card {
+            position: relative;
+            z-index: 10;
+        }
+        
+        /* Extra safety margin around buttons near ads */
+        .btn + .ad-container,
+        .input + .ad-container,
+        .voting-card + .ad-container {
+            margin-top: 40px !important;
+        }
+
         /* TOP NAV */
         .top-nav {
           width:100%; padding:18px 26px; display:flex; justify-content:space-between; align-items:center;
           background: rgba(0,0,0,0.2); backdrop-filter: blur(10px);
           border-bottom: 1px solid rgba(0,255,255,0.08);
+          position: relative;
+          z-index: 100;
         }
         .top-nav-left{ display:flex; gap:12px; align-items:center; }
         .app-dot{ width:14px;height:14px;border-radius:50%;background:#00ffaa;box-shadow:0 0 12px #00ffaa;animation:pulse 2s infinite; }
@@ -237,6 +277,8 @@
             border:none; cursor:pointer; padding:12px 24px; border-radius:14px; 
             font-weight:600; transition:all .25s; display:inline-flex; gap:8px; 
             min-width:140px; align-items:center; justify-content:center; 
+            position: relative;
+            z-index: 20;
         }
         .neon-btn-lg { 
             background: linear-gradient(90deg,#b023ff,#00d4ff); color:#fff; 
@@ -285,6 +327,8 @@
             width:100%; padding:14px 16px; margin:10px 0; border-radius:12px; 
             background:rgba(255,255,255,0.03); border:1px solid rgba(0,255,255,0.08); color:#fff; 
             font-size: 16px;
+            position: relative;
+            z-index: 20;
         }
         .input:focus{ 
             outline:none; border-color:#00eaff; 
@@ -317,24 +361,23 @@
             min-width: 300px;
         }
         
-        /* VOTING PANEL WITH RIGHT SIDE AD */
+        /* VOTING PANEL - NO ADS IN SIDEBAR */
         .voting-panel-container {
             display: flex;
             gap: 20px;
-            max-width: 1300px;
+            max-width: 1200px;
             margin: 40px auto;
             padding: 0 20px;
         }
         
         .voting-content {
-            flex: 4;
+            flex: 1;
             min-width: 0;
         }
         
+        /* Voting sidebar removed - No ads during voting */
         .voting-sidebar {
-            flex: 1;
-            max-width: 280px;
-            min-width: 250px;
+            display: none;
         }
         
         .org-header {
@@ -636,6 +679,8 @@
             margin-bottom: 15px;
             border: 2px solid transparent;
             transition: all 0.3s ease;
+            position: relative;
+            z-index: 10;
         }
         
         .voting-card.selected {
@@ -693,8 +738,14 @@
     
     <!-- AdSense Auto Ads Configuration -->
     <script>
-        // Initialize Auto Ads
+        // Initialize Auto Ads with safety controls
         window.addEventListener('load', function() {
+            // Store original adsbygoogle
+            window._originalAdsByGoogle = window.adsbygoogle || [];
+            window._adSafetyEnabled = true;
+            window._criticalScreens = ['votingScreen', 'voterLoginScreen'];
+            window._adLoadPaused = false;
+            
             // Push ad config with your publisher ID
             (adsbygoogle = window.adsbygoogle || []).push({
                 google_ad_client: "ca-pub-8506300385320623",
@@ -703,6 +754,7 @@
             });
             
             console.log('AdSense initialized with publisher ID: ca-pub-8506300385320623');
+            console.log('Ad safety controls enabled');
         });
     </script>
 </head>
@@ -721,15 +773,15 @@
     <div id="toast"></div>
     
     <!-- Version Indicator -->
-    <div class="version-badge">v2.1 Enhanced • Ads Enabled</div>
+    <div class="version-badge">v2.1 Enhanced • Safe Ads</div>
 
     <!-- Top Navigation -->
     <div class="top-nav">
         <div class="top-nav-left">
             <div class="app-dot"></div>
             <div>
-                <div class="app-title">Neon Voting System <span class="enhanced-badge">ENHANCED</span></div>
-                <div class="app-subtitle">Secure • Modern • Efficient</div>
+                <div class="app-title">Neon Voting System <span class="enhanced-badge">SAFE ADS</span></div>
+                <div class="app-subtitle">Secure • Modern • Non-Intrusive Ads</div>
             </div>
         </div>
         <div class="top-nav-right">
@@ -867,7 +919,7 @@
                     <i class="fas fa-paper-plane"></i> Automated EC & Voter Invitations
                 </p>
                 <p class="mt-10">
-                    <i class="fas fa-ad"></i> Ad-supported free service
+                    <i class="fas fa-ad"></i> <strong>Non-intrusive</strong> ad-supported free service
                 </p>
             </div>
         </div>
@@ -1279,14 +1331,14 @@
         </div>
     </div>
 
-    <!-- Voting Screen -->
-    <div id="votingScreen" class="screen">
+    <!-- Voting Screen - NO ADS -->
+    <div id="votingScreen" class="screen no-ads-mode">
         <div class="top-nav">
             <div class="top-nav-left">
                 <div class="app-dot"></div>
                 <div>
                     <div class="app-title" id="votingOrgName">Organization Name</div>
-                    <div class="app-subtext">Cast Your Vote Securely</div>
+                    <div class="app-subtext">Cast Your Vote Securely • Ad-Free Experience</div>
                 </div>
             </div>
             <div class="top-nav-right">
@@ -1312,26 +1364,12 @@
                         <i class="fas fa-paper-plane"></i> Submit Vote
                     </button>
                     <p class="subtext mt-20">
-                        <i class="fas fa-shield-alt"></i> Your vote is encrypted and secure
+                        <i class="fas fa-shield-alt"></i> Your vote is encrypted and secure • <i class="fas fa-ban"></i> No ads during voting
                     </p>
                 </div>
             </div>
             
-            <!-- RIGHT SIDE AD FOR VOTING SCREEN (Less intrusive) -->
-            <div class="voting-sidebar">
-                <div class="ad-container voting-right-ad">
-                    <span class="ad-label">Advertisement</span>
-                    <ins class="adsbygoogle"
-                         style="display:block"
-                         data-ad-client="ca-pub-8506300385320623"
-                         data-ad-slot="9900112233"
-                         data-ad-format="vertical"
-                         data-full-width-responsive="false"></ins>
-                    <script>
-                        (adsbygoogle = window.adsbygoogle || []).push({});
-                    </script>
-                </div>
-            </div>
+            <!-- NO RIGHT SIDE AD FOR VOTING SCREEN - Critical user flow -->
         </div>
     </div>
 
@@ -1389,7 +1427,7 @@
                 <div>
                     <div class="app-title">Guest Information</div>
                     <div class="app-subtext">Learn about the Enhanced Neon Voting System</div>
-                </div>
+            </div>
             </div>
             <div class="top-nav-right">
                 <button class="top-home-btn" id="guest-back">
@@ -1551,23 +1589,142 @@
                         <i class="fas fa-play"></i> Get Started
                     </button>
                     <p class="subtext mt-20">
-                        <i class="fas fa-ad"></i> This free service is supported by advertisements
+                        <i class="fas fa-ad"></i> Non-intrusive ad-supported free service • <i class="fas fa-ban"></i> No ads during voting
                     </p>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Non-module JavaScript for front-end clicks -->
+    <!-- Non-module JavaScript for front-end clicks and ad safety -->
     <script>
+        // ==================== AD SAFETY CONTROLS ====================
+        
+        // Global ad safety state
+        window.adSafety = {
+            criticalScreens: ['votingScreen', 'voterLoginScreen'],
+            adLoadPaused: false,
+            originalAdsByGoogle: null,
+            
+            // Pause ads during critical actions
+            pauseAds: function() {
+                if (this.adLoadPaused) return;
+                
+                console.log('Pausing ad loading for critical action');
+                this.adLoadPaused = true;
+                this.originalAdsByGoogle = window.adsbygoogle;
+                window.adsbygoogle = [];
+                
+                // Also hide existing ads
+                document.querySelectorAll('.ad-container').forEach(ad => {
+                    ad.style.opacity = '0.3';
+                    ad.style.pointerEvents = 'none';
+                });
+            },
+            
+            // Resume ads after critical actions
+            resumeAds: function() {
+                if (!this.adLoadPaused) return;
+                
+                console.log('Resuming ad loading');
+                this.adLoadPaused = false;
+                
+                if (this.originalAdsByGoogle) {
+                    window.adsbygoogle = this.originalAdsByGoogle;
+                    // Reload ads if needed
+                    setTimeout(() => {
+                        try {
+                            (adsbygoogle = window.adsbygoogle || []).push({});
+                        } catch(e) {
+                            console.log('Ad resume error:', e);
+                        }
+                    }, 1000);
+                }
+                
+                // Show existing ads
+                document.querySelectorAll('.ad-container').forEach(ad => {
+                    ad.style.opacity = '1';
+                    ad.style.pointerEvents = 'auto';
+                });
+            },
+            
+            // Check if current screen is critical
+            isCriticalScreen: function() {
+                const activeScreen = document.querySelector('.screen.active');
+                return activeScreen && this.criticalScreens.includes(activeScreen.id);
+            },
+            
+            // Adjust ads for current screen
+            adjustAdsForScreen: function(screenId) {
+                const isCritical = this.criticalScreens.includes(screenId);
+                const ads = document.querySelectorAll('.ad-container');
+                
+                if (isCritical) {
+                    // Minimize ads during critical screens
+                    ads.forEach(ad => {
+                        ad.style.opacity = '0.3';
+                        ad.style.pointerEvents = 'none';
+                    });
+                    
+                    // Add no-ads-mode class
+                    document.querySelector('.screen.active').classList.add('no-ads-mode');
+                } else {
+                    // Normal ads for non-critical screens
+                    ads.forEach(ad => {
+                        ad.style.opacity = '1';
+                        ad.style.pointerEvents = 'auto';
+                    });
+                    
+                    // Remove no-ads-mode class
+                    document.querySelector('.screen.active').classList.remove('no-ads-mode');
+                }
+            }
+        };
+        
+        // ==================== CLICK GUARDS ====================
+        
+        // Prevent accidental ad clicks during voting
+        document.addEventListener('click', function(e) {
+            // Check if click is on or near an ad
+            const isAd = e.target.closest('.adsbygoogle') || 
+                         e.target.closest('[class*="ad"]') ||
+                         e.target.closest('ins') ||
+                         e.target.closest('iframe[src*="ads"]');
+            
+            if (isAd && window.adSafety.isCriticalScreen()) {
+                e.preventDefault();
+                e.stopPropagation();
+                showToast('Please complete your vote first', 'warning');
+                return false;
+            }
+            
+            // Special handling for voting actions
+            const isVotingAction = e.target.closest('#submit-vote-btn') || 
+                                  e.target.closest('.voting-card') ||
+                                  e.target.closest('#voter-verify-otp');
+            
+            if (isVotingAction) {
+                // Pause ads during voting action
+                window.adSafety.pauseAds();
+                
+                // Resume ads after a delay
+                setTimeout(() => {
+                    window.adSafety.resumeAds();
+                }, 5000); // 5 seconds
+            }
+        }, true); // Use capture phase for better prevention
+        
         // ==================== FRONT-END CLICK HANDLERS ====================
         
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('Front-end click handlers initialized');
+            console.log('Front-end click handlers initialized with ad safety');
             console.log('AdSense Publisher ID: ca-pub-8506300385320623');
             
-            // Initialize all AdSense ads
-            function initializeAds() {
+            // Initialize ad safety
+            window.adSafety.originalAdsByGoogle = window.adsbygoogle || [];
+            
+            // Initialize all AdSense ads with safety
+            function initializeSafeAds() {
                 try {
                     // Push ads to window.adsbygoogle array
                     (adsbygoogle = window.adsbygoogle || []).push({
@@ -1576,25 +1733,14 @@
                         overlays: {bottom: true}
                     });
                     
-                    // Refresh ads when switching screens
-                    document.addEventListener('screenChange', function() {
-                        setTimeout(() => {
-                            try {
-                                (adsbygoogle = window.adsbygoogle || []).push({});
-                            } catch(e) {
-                                console.log('Ad refresh error:', e);
-                            }
-                        }, 500);
-                    });
-                    
-                    console.log('AdSense ads initialized successfully');
+                    console.log('AdSense ads initialized with safety controls');
                 } catch(e) {
                     console.error('AdSense initialization error:', e);
                 }
             }
             
             // Call ad initialization
-            initializeAds();
+            initializeSafeAds();
             
             // Gateway card clicks
             document.querySelectorAll('.gateway-card').forEach(card => {
@@ -1624,14 +1770,11 @@
                             break;
                     }
                     
-                    // Trigger ad refresh after screen change
+                    // Adjust ads for new screen
                     setTimeout(() => {
-                        try {
-                            (adsbygoogle = window.adsbygoogle || []).push({});
-                        } catch(e) {
-                            console.log('Ad refresh after screen change error:', e);
-                        }
-                    }, 300);
+                        const activeScreen = document.querySelector('.screen.active').id;
+                        window.adSafety.adjustAdsForScreen(activeScreen);
+                    }, 100);
                 });
             });
             
@@ -1651,14 +1794,10 @@
                         e.preventDefault();
                         showScreen(screen);
                         
-                        // Refresh ads when going back
+                        // Adjust ads for new screen
                         setTimeout(() => {
-                            try {
-                                (adsbygoogle = window.adsbygoogle || []).push({});
-                            } catch(e) {
-                                console.log('Ad refresh error:', e);
-                            }
-                        }, 300);
+                            window.adSafety.adjustAdsForScreen(screen);
+                        }, 100);
                     });
                 }
             });
@@ -1674,14 +1813,10 @@
                         showToast('Logged out successfully', 'info');
                     }
                     
-                    // Refresh ads after logout
+                    // Adjust ads after logout
                     setTimeout(() => {
-                        try {
-                            (adsbygoogle = window.adsbygoogle || []).push({});
-                        } catch(e) {
-                            console.log('Ad refresh after logout error:', e);
-                        }
-                    }, 300);
+                        window.adSafety.adjustAdsForScreen('gatewayScreen');
+                    }, 100);
                 });
             });
             
@@ -1690,14 +1825,10 @@
                 e.preventDefault();
                 showScreen('gatewayScreen');
                 
-                // Refresh ads when going home
+                // Adjust ads when going home
                 setTimeout(() => {
-                    try {
-                        (adsbygoogle = window.adsbygoogle || []).push({});
-                    } catch(e) {
-                        console.log('Ad refresh error:', e);
-                    }
-                }, 300);
+                    window.adSafety.adjustAdsForScreen('gatewayScreen');
+                }, 100);
             });
             
             // Setup voter OTP buttons (fallback)
@@ -1711,6 +1842,9 @@
                 
                 showToast('OTP would be sent to ' + email, 'info');
                 document.getElementById('voter-otp-group').classList.remove('hidden');
+                
+                // Pause ads during OTP process
+                window.adSafety.pauseAds();
             });
             
             document.getElementById('voter-verify-otp')?.addEventListener('click', function(e) {
@@ -1723,14 +1857,35 @@
                 
                 showToast('OTP verified successfully', 'success');
                 showScreen('votingScreen');
+                
+                // Adjust ads for voting screen
+                setTimeout(() => {
+                    window.adSafety.adjustAdsForScreen('votingScreen');
+                }, 100);
             });
             
             // Setup submit vote button
             document.getElementById('submit-vote-btn')?.addEventListener('click', function(e) {
                 e.preventDefault();
+                
+                // Pause ads during vote submission
+                window.adSafety.pauseAds();
+                
                 showToast('Vote submitted successfully!', 'success');
-                setTimeout(() => showScreen('gatewayScreen'), 2000);
+                
+                // Resume ads after vote submission
+                setTimeout(() => {
+                    window.adSafety.resumeAds();
+                    showScreen('gatewayScreen');
+                    window.adSafety.adjustAdsForScreen('gatewayScreen');
+                }, 3000);
             });
+            
+            // Initialize ads for current screen
+            setTimeout(() => {
+                const activeScreen = document.querySelector('.screen.active').id;
+                window.adSafety.adjustAdsForScreen(activeScreen);
+            }, 500);
         });
         
         // ==================== BASIC UI FUNCTIONS ====================
@@ -1739,13 +1894,19 @@
             console.log('Showing screen:', screenId);
             document.querySelectorAll('.screen').forEach(s => {
                 s.classList.remove('active');
+                s.classList.remove('no-ads-mode');
             });
             const screen = document.getElementById(screenId);
             if (screen) {
                 screen.classList.add('active');
                 window.scrollTo({ top: 0, behavior: 'smooth' });
                 
-                // Dispatch screen change event for ad refresh
+                // Adjust ads for new screen
+                setTimeout(() => {
+                    window.adSafety.adjustAdsForScreen(screenId);
+                }, 50);
+                
+                // Dispatch screen change event
                 const event = new Event('screenChange');
                 document.dispatchEvent(event);
             }
@@ -1777,7 +1938,7 @@
         window.showScreen = showScreen;
         window.showToast = showToast;
         
-        console.log('Basic UI functions loaded');
+        console.log('UI functions with ad safety loaded');
     </script>
     
     <!-- Main Firebase JavaScript -->
