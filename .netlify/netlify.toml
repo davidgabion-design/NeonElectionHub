@@ -1,3 +1,5 @@
+headersOrigin = "config"
+redirectsOrigin = "config"
 plugins = []
 headers = []
 redirects = []
@@ -8,7 +10,7 @@ redirects = []
 
 [build]
 publish = "C:\\Users\\Realtime IT\\Desktop\\voting-app"
-publishOrigin = "default"
+publishOrigin = "config"
 
 [build.environment]
 
