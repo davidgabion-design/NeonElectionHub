@@ -1,15 +1,7 @@
-// script.js — Complete Neon Voting System with ALL Tabs Working
-// Enhanced with full tab functionality, real-time updates, and date validation
-// FIXES APPLIED:
-// 1. Date of Birth is now optional
-// 2. Fixed date validation for voters
-// 3. Fixed image upload for candidates
-// 4. Prevent duplicate positions
-// 5. FIXED VOTER LOADING ERRORS - All voter functions corrected
-// 6. PREVENT DUPLICATE VOTER DETAILS - No repeating emails, phones, voter IDs
-// 7. SYNCED VOTER COUNTS - Consistent across Voters tab, Outcomes tab, and organization data
-// 8. COMPLETE MODAL FUNCTIONS - All modal functions implemented
-// 9. FIXED TAB MANAGEMENT - EC tabs now working properly
+// script.js — Complete Neon Voting System with Email History Subcollection Fix & WhatsApp Integration
+// FIXED: Email change now uses separate subcollection to avoid serverTimestamp() in arrays
+// ADDED: WhatsApp invite functionality for voters
+// FIXED: EC refresh tab and invite functionality issues
 
 // ---------------- Firebase imports ----------------
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
@@ -30,44 +22,7 @@ const firebaseConfig = {
   appId: "1:406871836482:web:b25063cd3829cd3dc6aadb",
   measurementId: "G-VGW2Z3FR8M"
 };
-// ---------------- Enhanced Mobile Support ----------------
-function setupMobileEnhancements() {
-    // Prevent zoom on input focus (iOS)
-    document.addEventListener('touchstart', function() {}, {passive: true});
-    
-    // Improve touch feedback
-    document.querySelectorAll('.btn, .gateway-card, .tab-btn, .list-item').forEach(el => {
-        el.style.webkitTapHighlightColor = 'transparent';
-    });
-    
-    // Handle iOS input zoom
-    document.querySelectorAll('input, select, textarea').forEach(el => {
-        el.addEventListener('focus', function() {
-            this.style.fontSize = '16px';
-        });
-    });
-    
-    // Adjust viewport for mobile
-    if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
-        const viewport = document.querySelector('meta[name="viewport"]');
-        if (viewport) {
-            viewport.content = "width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no";
-        }
-        
-        // Add mobile-specific class
-        document.body.classList.add('is-mobile');
-    }
-}
 
-// Call this in DOMContentLoaded
-document.addEventListener('DOMContentLoaded', function() {
-    // ... existing code ...
-    
-    // Add mobile enhancements
-    setupMobileEnhancements();
-    
-    // ... rest of your code ...
-});
 const app = initializeApp(firebaseConfig);
 try { getAnalytics(app); } catch(e){}
 const db = getFirestore(app);
@@ -85,7 +40,7 @@ let voterCountdownInterval = null;
 let refreshIntervals = {};
 
 // ---------------- Session Management ----------------
-const SESSION_KEY = "neon_voting_session_v5";
+const SESSION_KEY = "neon_voting_session_v6";
 let session = JSON.parse(localStorage.getItem(SESSION_KEY) || "{}");
 
 function saveSession() { 
@@ -116,7 +71,6 @@ function showToast(msg, type = "info", duration = 3000) {
 }
 
 function showScreen(screenId) {
-  // Clear intervals
   if (countdownInterval) {
     clearInterval(countdownInterval);
     countdownInterval = null;
@@ -126,7 +80,6 @@ function showScreen(screenId) {
     voterCountdownInterval = null;
   }
   
-  // Clear all refresh intervals
   Object.values(refreshIntervals).forEach(interval => {
     clearInterval(interval);
   });
@@ -141,7 +94,6 @@ function showScreen(screenId) {
     screen.classList.add('active');
     window.scrollTo({ top: 0, behavior: 'smooth' });
     
-    // Start countdown if voting screen
     if (screenId === 'votingScreen' && currentOrgData) {
       startVoterCountdown();
     }
@@ -152,7 +104,6 @@ function showScreen(screenId) {
 function setupTabs() {
   console.log("Setting up tabs...");
   
-  // Super Admin Tabs
   const superTabs = document.getElementById('superTabs');
   if (superTabs) {
     console.log("Found super tabs");
@@ -162,18 +113,15 @@ function setupTabs() {
       
       console.log("Super tab clicked:", tabBtn.dataset.superTab);
       
-      // Update active tab button
       document.querySelectorAll('#superTabs .tab-btn').forEach(btn => {
         btn.classList.remove('active');
       });
       tabBtn.classList.add('active');
       
-      // Show corresponding content
       const tabId = tabBtn.dataset.superTab;
       showSuperTab(tabId);
     });
     
-    // Load default tab
     const defaultTab = document.querySelector('#superTabs .tab-btn.active') || 
                       document.querySelector('#superTabs .tab-btn');
     if (defaultTab) {
@@ -182,31 +130,26 @@ function setupTabs() {
     }
   }
   
-  // EC Tabs - FIXED: This was the main issue
   const ecTabs = document.getElementById('ecTabs');
   if (ecTabs) {
     console.log("Found EC tabs");
     
-    // Set up click handler for EC tabs
     ecTabs.addEventListener('click', (e) => {
       const tabBtn = e.target.closest('.tab-btn');
       if (!tabBtn) return;
       
       console.log("EC tab clicked:", tabBtn.dataset.ecTab);
       
-      // Update active tab button
       document.querySelectorAll('#ecTabs .tab-btn').forEach(btn => {
         btn.classList.remove('active');
       });
       tabBtn.classList.add('active');
       
-      // Show corresponding content
       const tabId = tabBtn.dataset.ecTab;
       activeTab = tabId;
       showECTab(tabId);
     });
     
-    // Load default tab
     const defaultTab = document.querySelector('#ecTabs .tab-btn.active') || 
                       document.querySelector('#ecTabs .tab-btn');
     if (defaultTab) {
@@ -222,17 +165,14 @@ function setupTabs() {
 function showSuperTab(tabId) {
   console.log("Showing super tab:", tabId);
   
-  // Hide all tab contents
   document.querySelectorAll('[id^="superContent-"]').forEach(content => {
     content.classList.remove('active');
   });
   
-  // Show selected tab content
   const tabContent = document.getElementById(`superContent-${tabId}`);
   if (tabContent) {
     tabContent.classList.add('active');
     
-    // Load content if needed
     const shouldLoad = tabContent.innerHTML.includes('Loading') || 
                       tabContent.innerHTML.trim() === '' ||
                       tabContent.innerHTML.includes('empty-state');
@@ -253,17 +193,14 @@ function showSuperTab(tabId) {
 async function showECTab(tabId) {
   console.log("Showing EC tab:", tabId);
   
-  // Hide all EC tab contents
   document.querySelectorAll('[id^="ecContent-"]').forEach(content => {
     content.classList.remove('active');
   });
   
-  // Show selected tab content
   const tabContent = document.getElementById(`ecContent-${tabId}`);
   if (tabContent) {
     tabContent.classList.add('active');
     
-    // Load content based on tab
     if (currentOrgData) {
       console.log(`Loading content for EC tab: ${tabId}`);
       if (tabId === 'voters') {
@@ -397,7 +334,6 @@ async function loadSuperOrganizations() {
           </button>
         </div>
       </div>
-      <div class="org-grid" style="display:grid;grid-template-columns:repeat(auto-fill, minmax(350px, 1fr));gap:20px;">
     `;
     
     orgs.forEach(org => {
@@ -413,7 +349,6 @@ async function loadSuperOrganizations() {
         'ended': { color: '#888', label: 'Ended', icon: 'fa-stop-circle' }
       }[status] || { color: '#888', label: status, icon: 'fa-question-circle' };
       
-      // Check voting schedule
       let scheduleInfo = '';
       if (org.electionSettings?.startTime) {
         const startTime = new Date(org.electionSettings.startTime);
@@ -663,7 +598,6 @@ async function loginEC() {
 async function openECPanel(orgId) {
   currentOrgId = orgId;
   
-  // Stop any existing listener
   if (currentOrgUnsub) {
     currentOrgUnsub();
     currentOrgUnsub = null;
@@ -681,19 +615,15 @@ async function openECPanel(orgId) {
     
     currentOrgData = snap.data();
     
-    // Update UI
     updateECUI();
     
-    // Load the active tab
     await showECTab(activeTab);
     
-    // Setup real-time listener
     currentOrgUnsub = onSnapshot(ref, (snap) => {
       if (snap.exists()) {
         currentOrgData = snap.data();
         updateECUI();
         
-        // Auto-refresh active tab
         if (activeTab === 'outcomes') {
           loadECOutcomes();
         } else if (activeTab === 'voters') {
@@ -730,7 +660,7 @@ function updateECUI() {
   }
 }
 
-// ---------------- Voters Tab - FIXED ----------------
+// ---------------- Voters Tab with FIXED Email Change ----------------
 async function loadECVoters() {
   const el = document.getElementById("ecContent-voters");
   if (!el || !currentOrgId) return;
@@ -752,8 +682,11 @@ async function loadECVoters() {
           <button class="btn neon-btn-outline" onclick="showBulkVoterModal()">
             <i class="fas fa-users"></i> Bulk Add
           </button>
-          <button class="btn neon-btn-outline" onclick="refreshVoters()">
-            <i class="fas fa-redo"></i>
+          <button class="btn neon-btn-outline" onclick="refreshECData()">
+            <i class="fas fa-redo"></i> Refresh
+          </button>
+          <button class="btn neon-btn-outline" onclick="showBulkWhatsAppInviteModal()" title="Bulk WhatsApp Invites">
+            <i class="fab fa-whatsapp"></i> Bulk Invite
           </button>
         </div>
       </div>
@@ -771,15 +704,16 @@ async function loadECVoters() {
         </div>
       `;
     } else {
-      let votedCount = voters.filter(v => v.hasVoted).length;
-      let pendingCount = voters.length - votedCount;
+      let votedCount = voters.filter(v => v.hasVoted && !v.isReplaced).length;
+      let pendingCount = voters.filter(v => !v.hasVoted && !v.isReplaced).length;
+      let replacedCount = voters.filter(v => v.isReplaced).length;
       
       html += `
         <div class="card info-card" style="margin-bottom:20px">
           <div style="display:flex;justify-content:space-around;text-align:center">
             <div>
-              <div class="label">Total Voters</div>
-              <div style="font-size:24px;font-weight:bold;color:#00eaff">${voters.length}</div>
+              <div class="label">Active Voters</div>
+              <div style="font-size:24px;font-weight:bold;color:#00eaff">${votedCount + pendingCount}</div>
             </div>
             <div>
               <div class="label">Voted</div>
@@ -789,6 +723,12 @@ async function loadECVoters() {
               <div class="label">Pending</div>
               <div style="font-size:24px;font-weight:bold;color:#ffc107">${pendingCount}</div>
             </div>
+            ${replacedCount > 0 ? `
+            <div>
+              <div class="label">Replaced</div>
+              <div style="font-size:24px;font-weight:bold;color:#888">${replacedCount}</div>
+            </div>
+            ` : ''}
           </div>
         </div>
         
@@ -803,6 +743,11 @@ async function loadECVoters() {
       `;
       
       voters.forEach(v => {
+        if (v.isReplaced) {
+          // Skip displaying replaced voters in main list
+          return;
+        }
+        
         const email = decodeURIComponent(v.id);
         const phoneDisplay = v.phone ? formatPhoneForDisplay(v.phone) : 'No phone';
         const dobDisplay = v.dateOfBirth ? formatDateForDisplay(new Date(v.dateOfBirth)) : 'Not provided';
@@ -810,7 +755,6 @@ async function loadECVoters() {
           '<span style="color:#00ffaa;background:rgba(0,255,170,0.1);padding:4px 10px;border-radius:12px;font-size:12px">✅ Voted</span>' :
           '<span style="color:#ffc107;background:rgba(255,193,7,0.1);padding:4px 10px;border-radius:12px;font-size:12px">⏳ Pending</span>';
         
-        // FIXED: Safely handle Firestore Timestamps and dates
         const addedDate = v.addedAt ? formatFirestoreTimestamp(v.addedAt) : 'N/A';
         const votedDate = v.hasVoted && v.votedAt ? formatFirestoreTimestamp(v.votedAt) : null;
         
@@ -833,6 +777,7 @@ async function loadECVoters() {
                 <div class="subtext" style="margin-top:4px">
                   Added: ${addedDate}
                   ${votedDate ? ` • Voted: ${votedDate}` : ''}
+                  ${v.previousEmail ? `<br><span style="color:#ffc107"><i class="fas fa-history"></i> Previous email: ${v.previousEmail}</span>` : ''}
                 </div>
               </div>
             </div>
@@ -840,8 +785,14 @@ async function loadECVoters() {
               <button class="btn neon-btn-outline" onclick="editVoterModal('${escapeHtml(v.id)}')" title="Edit">
                 <i class="fas fa-edit"></i>
               </button>
-              <button class="btn neon-btn-outline" onclick="sendVoterInvite('${escapeHtml(email)}', '${escapeHtml(v.name || email)}', '${escapeHtml(v.phone || '')}')" title="Send Invite">
+              <button class="btn neon-btn-outline email-change-btn" data-voter-id="${escapeHtml(v.id)}" data-email="${escapeHtml(email)}" data-name="${escapeHtml(v.name || email)}" title="Change Email">
+                <i class="fas fa-at"></i>
+              </button>
+              <button class="btn neon-btn-outline" onclick="sendVoterInvite('${escapeHtml(email)}', '${escapeHtml(v.name || email)}', '${escapeHtml(v.phone || '')}')" title="Send Email Invite">
                 <i class="fas fa-paper-plane"></i>
+              </button>
+              <button class="btn neon-btn-outline" onclick="sendWhatsAppInvite('${escapeHtml(email)}', '${escapeHtml(v.name || email)}', '${escapeHtml(v.phone || '')}')" title="Send WhatsApp">
+                <i class="fab fa-whatsapp"></i>
               </button>
               <button class="btn btn-danger" onclick="removeVoter('${escapeHtml(v.id)}', '${escapeHtml(v.name || email)}')" title="Delete">
                 <i class="fas fa-trash"></i>
@@ -856,7 +807,20 @@ async function loadECVoters() {
     
     el.innerHTML = html;
     
-    // Setup auto-refresh for voters tab
+    // Attach event listeners for email change buttons
+    setTimeout(() => {
+      document.querySelectorAll('.email-change-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.preventDefault();
+          const voterId = btn.getAttribute('data-voter-id');
+          const email = btn.getAttribute('data-email');
+          const name = btn.getAttribute('data-name');
+          changeVoterEmailModal(voterId, email, name);
+        });
+      });
+    }, 100);
+    
+    // Set up auto-refresh for voters tab
     if (refreshIntervals.voters) {
       clearInterval(refreshIntervals.voters);
     }
@@ -872,10 +836,35 @@ async function loadECVoters() {
   }
 }
 
-function refreshVoters() {
-  loadECVoters();
-  showToast("Voters list refreshed", "success");
-}
+// FIXED: Unified refresh function for all EC tabs
+window.refreshECData = function() {
+  if (!currentOrgId || !activeTab) {
+    showToast("No organization loaded", "error");
+    return;
+  }
+  
+  console.log("Refreshing EC data for tab:", activeTab);
+  
+  // Clear any existing intervals
+  Object.values(refreshIntervals).forEach(interval => {
+    if (interval) clearInterval(interval);
+  });
+  
+  // Refresh the current tab
+  if (activeTab === 'voters') {
+    loadECVoters();
+  } else if (activeTab === 'positions') {
+    loadECPositions();
+  } else if (activeTab === 'candidates') {
+    loadECCandidates();
+  } else if (activeTab === 'outcomes') {
+    loadECOutcomes();
+  } else if (activeTab === 'settings') {
+    loadECSettings();
+  }
+  
+  showToast(`${activeTab} data refreshed`, "success");
+};
 
 // ---------------- Positions Tab ----------------
 async function loadECPositions() {
@@ -896,8 +885,8 @@ async function loadECPositions() {
           <button class="btn neon-btn" onclick="showAddPositionModal()">
             <i class="fas fa-plus-circle"></i> Add Position
           </button>
-          <button class="btn neon-btn-outline" onclick="refreshPositions()">
-            <i class="fas fa-redo"></i>
+          <button class="btn neon-btn-outline" onclick="refreshECData()">
+            <i class="fas fa-redo"></i> Refresh
           </button>
         </div>
       </div>
@@ -954,11 +943,6 @@ async function loadECPositions() {
   }
 }
 
-function refreshPositions() {
-  loadECPositions();
-  showToast("Positions refreshed", "success");
-}
-
 // ---------------- Candidates Tab ----------------
 async function loadECCandidates() {
   const el = document.getElementById("ecContent-candidates");
@@ -985,8 +969,8 @@ async function loadECCandidates() {
           <button class="btn neon-btn" onclick="showAddCandidateModal()">
             <i class="fas fa-user-plus"></i> Add Candidate
           </button>
-          <button class="btn neon-btn-outline" onclick="refreshCandidates()">
-            <i class="fas fa-redo"></i>
+          <button class="btn neon-btn-outline" onclick="refreshECData()">
+            <i class="fas fa-redo"></i> Refresh
           </button>
         </div>
       </div>
@@ -1004,7 +988,6 @@ async function loadECCandidates() {
         </div>
       `;
     } else {
-      // Group candidates by position
       const grouped = {};
       candidates.forEach(c => {
         grouped[c.positionId] = grouped[c.positionId] || [];
@@ -1070,12 +1053,7 @@ async function loadECCandidates() {
   }
 }
 
-function refreshCandidates() {
-  loadECCandidates();
-  showToast("Candidates refreshed", "success");
-}
-
-// ---------------- Outcomes Tab - UPDATED WITH PROPER SYNC ----------------
+// ---------------- Outcomes Tab ----------------
 async function loadECOutcomes() {
   const el = document.getElementById("ecContent-outcomes");
   if (!el || !currentOrgId || !currentOrgData) return;
@@ -1083,7 +1061,6 @@ async function loadECOutcomes() {
   showQuickLoading("ecContent-outcomes", "Loading Voting Outcomes");
   
   try {
-    // Get fresh data for accurate counts
     const [votesSnap, positionsSnap, candidatesSnap, votersSnap] = await Promise.all([
       getDocs(collection(db, "organizations", currentOrgId, "votes")),
       getDocs(collection(db, "organizations", currentOrgId, "positions")),
@@ -1103,20 +1080,17 @@ async function loadECOutcomes() {
     const voters = [];
     votersSnap.forEach(s => voters.push({ id: s.id, ...s.data() }));
     
-    // Calculate accurate counts from actual data
-    const totalVoters = voters.length;
+    const totalVoters = voters.filter(v => !v.isReplaced).length;
     const votesCast = votes.length;
     const participationRate = totalVoters ? Math.round((votesCast / totalVoters) * 100) : 0;
     const remainingVoters = totalVoters - votesCast;
     
-    // Update organization data with accurate voter count
     const orgRef = doc(db, "organizations", currentOrgId);
     await updateDoc(orgRef, {
       voterCount: totalVoters,
       voteCount: votesCast
     });
     
-    // Refresh current organization data
     const orgSnap = await getDoc(orgRef);
     if (orgSnap.exists()) {
       currentOrgData = orgSnap.data();
@@ -1127,9 +1101,9 @@ async function loadECOutcomes() {
       <div class="card info-card" style="margin-bottom:20px">
         <div style="display:flex;justify-content:space-around;text-align:center;gap:20px">
           <div>
-            <div class="label">Total Voters</div>
+            <div class="label">Active Voters</div>
             <div style="font-weight:bold;font-size:28px;color:#00eaff">${totalVoters}</div>
-            <div class="subtext" style="font-size:12px">From voters list</div>
+            <div class="subtext" style="font-size:12px">Excluding replaced</div>
           </div>
           <div>
             <div class="label">Votes Cast</div>
@@ -1152,7 +1126,7 @@ async function loadECOutcomes() {
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
         <h3><i class="fas fa-chart-bar"></i> Results by Position</h3>
         <div style="display:flex;gap:8px">
-          <button class="btn neon-btn-outline" onclick="refreshOutcomes()">
+          <button class="btn neon-btn-outline" onclick="refreshECData()">
             <i class="fas fa-redo"></i> Refresh
           </button>
           <button class="btn neon-btn" onclick="exportResultsCSV()">
@@ -1176,7 +1150,6 @@ async function loadECOutcomes() {
         const posCandidates = candidates.filter(c => c.positionId === pos.id);
         if (posCandidates.length === 0) return;
         
-        // Calculate votes for this position
         const counts = {};
         votes.forEach(v => {
           if (v.choices && v.choices[pos.id]) {
@@ -1195,7 +1168,6 @@ async function loadECOutcomes() {
             </h4>
         `;
         
-        // Sort candidates by votes
         const sortedCandidates = [...posCandidates].sort((a, b) => {
           return (counts[b.id] || 0) - (counts[a.id] || 0);
         });
@@ -1232,7 +1204,7 @@ async function loadECOutcomes() {
           const lead = leadingVotes - secondVotes;
           
           html += `
-            <div style="margin-top:15px;padding:12px;border-radius:8px;background:rgba(0,255,255,0.05);border:1px solid rgba(0,255,255,0.1)">
+            <div style="margin-top:15px;padding:12px;border-radius:8px;background:rgba(0,255,255,0.05);border:1px solid rgba(0,255,255,0.1);">
               <div style="display:flex;justify-content:space-between;align-items:center">
                 <div>
                   <strong style="color:#00eaff">Current Leader:</strong>
@@ -1255,7 +1227,6 @@ async function loadECOutcomes() {
     
     el.innerHTML = html;
     
-    // Setup auto-refresh for outcomes tab
     if (refreshIntervals.outcomes) {
       clearInterval(refreshIntervals.outcomes);
     }
@@ -1269,11 +1240,6 @@ async function loadECOutcomes() {
     console.error("Error loading outcomes:", e);
     renderError("ecContent-outcomes", "Error loading outcomes", "loadECOutcomes()");
   }
-}
-
-function refreshOutcomes() {
-  loadECOutcomes();
-  showToast("Outcomes refreshed", "success");
 }
 
 // ---------------- Settings Tab ----------------
@@ -1371,10 +1337,8 @@ async function loadECSettings() {
 document.addEventListener('DOMContentLoaded', async function() {
   console.log('Neon Voting System Initialized');
   
-  // Setup tab navigation FIRST
   setupTabs();
   
-  // Setup gateway buttons
   document.getElementById('btn-superadmin')?.addEventListener('click', () => {
     showScreen('superAdminLoginScreen');
   });
@@ -1395,7 +1359,6 @@ document.addEventListener('DOMContentLoaded', async function() {
     showScreen('guestScreen');
   });
   
-  // Setup back buttons
   const backButtons = {
     'super-back': 'gatewayScreen',
     'ec-back': 'gatewayScreen',
@@ -1410,11 +1373,9 @@ document.addEventListener('DOMContentLoaded', async function() {
     });
   });
   
-  // Setup login buttons
   document.getElementById('super-login-btn')?.addEventListener('click', loginSuperAdmin);
   document.getElementById('ec-login-btn')?.addEventListener('click', loginEC);
   
-  // Setup voter OTP
   document.getElementById('voter-send-otp')?.addEventListener('click', async () => {
     const email = document.getElementById('voter-email').value.trim();
     if (!email) {
@@ -1437,12 +1398,52 @@ document.addEventListener('DOMContentLoaded', async function() {
     showScreen('votingScreen');
   });
   
-  // Setup logout buttons
   document.querySelectorAll('.logout-btn').forEach(btn => {
     btn.addEventListener('click', logout);
   });
   
-  // Check URL parameters for direct access
+  // Add event delegation for dynamically loaded invite buttons
+  document.addEventListener('click', function(e) {
+    // Check if click is on a voter invite button
+    const inviteBtn = e.target.closest('[onclick*="sendVoterInvite"]');
+    if (inviteBtn) {
+      e.preventDefault();
+      const onclickAttr = inviteBtn.getAttribute('onclick');
+      // Extract parameters from onclick string
+      const match = onclickAttr.match(/sendVoterInvite\('([^']+)',\s*'([^']*)',\s*'([^']*)'\)/);
+      if (match) {
+        const email = match[1];
+        const name = match[2];
+        const phone = match[3];
+        sendVoterInvite(email, name, phone);
+      }
+    }
+    
+    // Check if click is on a WhatsApp invite button
+    const whatsappBtn = e.target.closest('[onclick*="sendWhatsAppInvite"]');
+    if (whatsappBtn) {
+      e.preventDefault();
+      const onclickAttr = whatsappBtn.getAttribute('onclick');
+      const match = onclickAttr.match(/sendWhatsAppInvite\('([^']+)',\s*'([^']*)',\s*'([^']*)'\)/);
+      if (match) {
+        const email = match[1];
+        const name = match[2];
+        const phone = match[3];
+        sendWhatsAppInvite(email, name, phone);
+      }
+    }
+    
+    // Check if click is on an email change button
+    const emailChangeBtn = e.target.closest('.email-change-btn');
+    if (emailChangeBtn) {
+      e.preventDefault();
+      const voterId = emailChangeBtn.getAttribute('data-voter-id');
+      const email = emailChangeBtn.getAttribute('data-email');
+      const name = emailChangeBtn.getAttribute('data-name');
+      changeVoterEmailModal(voterId, email, name);
+    }
+  });
+  
   const params = new URLSearchParams(window.location.search);
   const orgId = params.get('org');
   const role = params.get('role');
@@ -1473,7 +1474,6 @@ document.addEventListener('DOMContentLoaded', async function() {
     }
   }
   
-  // Check existing session
   if (session.role === 'superadmin') {
     showScreen('superAdminPanel');
   } else if (session.role === 'ec' && session.orgId) {
@@ -1488,16 +1488,13 @@ function logout() {
     currentOrgUnsub();
     currentOrgUnsub = null;
   }
-  // Clear all intervals
   if (countdownInterval) clearInterval(countdownInterval);
   if (voterCountdownInterval) clearInterval(voterCountdownInterval);
   Object.values(refreshIntervals).forEach(interval => clearInterval(interval));
   refreshIntervals = {};
   
-  // Remove countdown container
   document.getElementById('countdown-container')?.remove();
   
-  // Clear state
   currentOrgId = null;
   currentOrgData = null;
   voterSession = null;
@@ -1575,38 +1572,29 @@ function escapeHtml(text) {
   return div.innerHTML;
 }
 
-// Validate email
 function validateEmail(email) {
   const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   return re.test(email);
 }
 
-// FIXED: Improved Firestore timestamp formatting function
 function formatFirestoreTimestamp(timestamp) {
   if (!timestamp) return 'N/A';
   
   try {
     let date;
     
-    // Check if it's a Firestore Timestamp object
     if (timestamp.toDate && typeof timestamp.toDate === 'function') {
       date = timestamp.toDate();
-    } 
-    // Check if it's already a Date object
-    else if (timestamp instanceof Date) {
+    } else if (timestamp instanceof Date) {
       date = timestamp;
-    } 
-    // Try to parse as string/number
-    else {
+    } else {
       date = new Date(timestamp);
     }
     
-    // Validate date
     if (isNaN(date.getTime())) {
       return 'Invalid Date';
     }
     
-    // Format as readable date
     const day = String(date.getDate()).padStart(2, '0');
     const month = String(date.getMonth() + 1).padStart(2, '0');
     const year = date.getFullYear();
@@ -1620,39 +1608,28 @@ function formatFirestoreTimestamp(timestamp) {
   }
 }
 
-// FIXED: Improved date validation function for voters (Now Optional)
 function validateDateOfBirth(dateStr) {
   if (!dateStr || dateStr.trim() === '') {
-    return { valid: true }; // Empty is valid (optional field)
+    return { valid: true };
   }
   
-  // Remove any whitespace
   dateStr = dateStr.trim();
   
-  // Try multiple date formats
   let date;
   
-  // Format 1: YYYY-MM-DD
   if (/^\d{4}-\d{1,2}-\d{1,2}$/.test(dateStr)) {
     const parts = dateStr.split('-');
     date = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
-  }
-  // Format 2: DD/MM/YYYY
-  else if (/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(dateStr)) {
+  } else if (/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(dateStr)) {
     const parts = dateStr.split('/');
     date = new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]));
-  }
-  // Format 3: MM/DD/YYYY
-  else if (/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(dateStr) && dateStr.includes('/')) {
+  } else if (/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(dateStr) && dateStr.includes('/')) {
     const parts = dateStr.split('/');
     date = new Date(parseInt(parts[2]), parseInt(parts[0]) - 1, parseInt(parts[1]));
-  }
-  // Try direct date parsing
-  else {
+  } else {
     date = new Date(dateStr);
   }
   
-  // Check if date is valid
   if (isNaN(date.getTime())) {
     return { 
       valid: false, 
@@ -1660,7 +1637,6 @@ function validateDateOfBirth(dateStr) {
     };
   }
   
-  // Check if date is in the future
   const today = new Date();
   if (date > today) {
     return { 
@@ -1669,7 +1645,6 @@ function validateDateOfBirth(dateStr) {
     };
   }
   
-  // Check if person is too old (over 150 years)
   const ageInYears = (today - date) / (1000 * 60 * 60 * 24 * 365.25);
   if (ageInYears > 150) {
     return { 
@@ -1680,13 +1655,12 @@ function validateDateOfBirth(dateStr) {
   
   return { 
     valid: true, 
-    date: date.toISOString().split('T')[0] // Return in YYYY-MM-DD format
+    date: date.toISOString().split('T')[0]
   };
 }
 
 // ---------------- Modal Functions ----------------
 function createModal(title, content, buttons = null) {
-  // Remove any existing modal
   document.querySelectorAll('.modal-overlay').forEach(el => el.remove());
   
   const overlay = document.createElement('div');
@@ -1744,7 +1718,6 @@ function createModal(title, content, buttons = null) {
   overlay.appendChild(modal);
   document.body.appendChild(overlay);
   
-  // Close modal when clicking outside
   overlay.addEventListener('click', (e) => {
     if (e.target === overlay) {
       overlay.remove();
@@ -1753,6 +1726,526 @@ function createModal(title, content, buttons = null) {
   
   return overlay;
 }
+
+// ---------------- FIXED Email Change Function with History Subcollection ----------------
+window.changeVoterEmail = async function(oldVoterId, oldEmail, voterName) {
+  const newEmailInput = document.getElementById('newVoterEmail');
+  const confirmEmailInput = document.getElementById('confirmNewVoterEmail');
+  const reasonInput = document.getElementById('emailChangeReason');
+  
+  if (!newEmailInput || !confirmEmailInput) {
+    showToast('Email inputs not found', 'error');
+    return;
+  }
+  
+  const newEmail = newEmailInput.value.trim().toLowerCase();
+  const confirmEmail = confirmEmailInput.value.trim().toLowerCase();
+  const reason = reasonInput?.value.trim();
+  
+  if (!newEmail || !confirmEmail) {
+    showToast('Please enter and confirm the new email address', 'error');
+    return;
+  }
+  
+  if (newEmail !== confirmEmail) {
+    showToast('Email addresses do not match', 'error');
+    return;
+  }
+  
+  if (!validateEmail(newEmail)) {
+    showToast('Please enter a valid email address', 'error');
+    return;
+  }
+  
+  if (newEmail === oldEmail.toLowerCase()) {
+    showToast('New email is the same as the current email', 'error');
+    return;
+  }
+  
+  try {
+    const newVoterRef = doc(db, "organizations", currentOrgId, "voters", encodeURIComponent(newEmail));
+    const newVoterSnap = await getDoc(newVoterRef);
+    
+    if (newVoterSnap.exists()) {
+      showToast('A voter with this email already exists', 'error');
+      return;
+    }
+  } catch(e) {
+    console.error('Error checking duplicate email:', e);
+    showToast('Error checking email availability', 'error');
+    return;
+  }
+  
+  try {
+    const batch = writeBatch(db);
+    
+    // 1. Record email change in history subcollection
+    const emailHistoryRef = doc(
+      collection(db, "organizations", currentOrgId, "voters", oldVoterId, "emailHistory")
+    );
+    
+    await setDoc(emailHistoryRef, {
+      oldEmail: oldEmail,
+      newEmail: newEmail,
+      reason: reason || '',
+      changedBy: 'ec-admin',
+      changedAt: serverTimestamp(),
+      organizationId: currentOrgId,
+      voterName: voterName
+    });
+    
+    // 2. Get the old voter data
+    const oldVoterRef = doc(db, "organizations", currentOrgId, "voters", oldVoterId);
+    const oldVoterSnap = await getDoc(oldVoterRef);
+    
+    if (!oldVoterSnap.exists()) {
+      showToast('Voter not found', 'error');
+      return;
+    }
+    
+    const oldVoterData = oldVoterSnap.data();
+    const hasVoted = oldVoterData.hasVoted || false;
+    
+    // 3. Create NEW voter document with new email
+    const newVoterRef = doc(db, "organizations", currentOrgId, "voters", encodeURIComponent(newEmail));
+    
+    const newVoterData = {
+      ...oldVoterData,
+      email: newEmail,
+      name: oldVoterData.name || voterName,
+      previousEmail: oldEmail,
+      emailUpdatedAt: new Date().toISOString(),
+      hasVoted: hasVoted,
+      votedAt: oldVoterData.votedAt || null,
+      isActive: true,
+      isReplaced: false,
+      lastUpdated: serverTimestamp()
+    };
+    
+    batch.set(newVoterRef, newVoterData);
+    
+    // 4. Mark OLD voter as inactive/replaced
+    batch.update(oldVoterRef, {
+      isActive: false,
+      isReplaced: true,
+      replacedBy: newEmail,
+      replacedAt: new Date().toISOString(),
+      replacementReason: reason || '',
+      lastUpdated: serverTimestamp()
+    });
+    
+    // 5. Update vote records if the voter has voted
+    if (hasVoted && oldVoterData.votedAt) {
+      try {
+        const votesQuery = query(
+          collection(db, "organizations", currentOrgId, "votes"),
+          where("voterEmail", "==", oldEmail)
+        );
+        const votesSnap = await getDocs(votesQuery);
+        
+        if (!votesSnap.empty) {
+          votesSnap.forEach(voteDoc => {
+            batch.update(voteDoc.ref, {
+              voterEmail: newEmail,
+              emailUpdatedAt: new Date().toISOString()
+            });
+          });
+        }
+      } catch(voteError) {
+        console.error('Error updating vote records:', voteError);
+      }
+    }
+    
+    await batch.commit();
+    
+    showToast(`Email changed from ${oldEmail} to ${newEmail}`, 'success');
+    document.querySelector('.modal-overlay')?.remove();
+    
+    loadECVoters();
+    
+  } catch(e) {
+    console.error('Error changing voter email:', e);
+    showToast('Error changing email: ' + e.message, 'error');
+  }
+};
+
+// ---------------- FIXED Voter Invite Functions (Email & WhatsApp) ----------------
+window.sendVoterInvite = async function(email, name, phone) {
+  try {
+    // Check if we're in the EC panel
+    if (!currentOrgId) {
+      showToast("Organization not loaded", "error");
+      return;
+    }
+    
+    // Decode the email if it's encoded
+    const decodedEmail = decodeURIComponent(email);
+    
+    const voterLink = `${window.location.origin}${window.location.pathname}?org=${currentOrgId}&voter=${encodeURIComponent(decodedEmail)}`;
+    const orgName = currentOrgData?.name || 'Election';
+    
+    const subject = `Invitation to Vote in ${orgName}`;
+    const body = `Hello ${name || 'Voter'},\n\nYou have been invited to vote in the ${orgName} election.\n\nPlease use this link to vote:\n${voterLink}\n\nThis link is unique to you. Do not share it with others.\n\nThank you,\n${orgName} Election Committee`;
+    
+    // Create mailto link
+    const mailtoLink = `mailto:${decodedEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    
+    // Open in new tab
+    window.open(mailtoLink, '_blank');
+    showToast(`Email invite opened for ${name || decodedEmail}`, 'success');
+    
+  } catch(e) {
+    console.error('Error sending email invite:', e);
+    showToast('Error opening email client: ' + e.message, 'error');
+  }
+};
+
+// FIXED WhatsApp invite function
+window.sendWhatsAppInvite = async function(email, name, phone) {
+  try {
+    if (!currentOrgId) {
+      showToast("Organization not loaded", "error");
+      return;
+    }
+    
+    const decodedEmail = decodeURIComponent(email);
+    const voterLink = `${window.location.origin}${window.location.pathname}?org=${currentOrgId}&voter=${encodeURIComponent(decodedEmail)}`;
+    const orgName = currentOrgData?.name || 'Election';
+    
+    if (!phone || phone.trim() === '') {
+      showToast(`No phone number available for ${name || decodedEmail}`, 'warning');
+      
+      // Open a modal to ask for phone number
+      showAddPhoneModal(decodedEmail, name);
+      return;
+    }
+    
+    // Clean phone number
+    const cleanPhone = phone.replace(/\D/g, '');
+    let whatsappNumber = cleanPhone;
+    
+    // Handle Ghanaian numbers
+    if (cleanPhone.startsWith('233') && cleanPhone.length === 12) {
+      whatsappNumber = cleanPhone;
+    } else if (cleanPhone.length === 10 && cleanPhone.startsWith('0')) {
+      whatsappNumber = '233' + cleanPhone.substring(1);
+    } else if (cleanPhone.length === 9) {
+      whatsappNumber = '233' + cleanPhone;
+    } else if (cleanPhone.length === 12 && cleanPhone.startsWith('+233')) {
+      whatsappNumber = cleanPhone.substring(1);
+    } else {
+      // If it doesn't match any pattern, use as-is
+      whatsappNumber = cleanPhone.replace('+', '');
+    }
+    
+    // WhatsApp message
+    const message = `Hello ${name || 'Voter'}!
+
+You're invited to vote in *${orgName}* election.
+
+🔗 *Voting Link:* ${voterLink}
+
+📝 *Instructions:*
+1. Click the link above
+2. Use your email to log in
+3. Cast your vote
+
+⏰ *Important:* This link is unique to you. Do not share it.
+
+Thank you!
+*${orgName} Election Committee*`;
+    
+    // Create WhatsApp link
+    const whatsappLink = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
+    
+    // Open in new tab
+    window.open(whatsappLink, '_blank', 'noopener,noreferrer');
+    
+    showToast(`WhatsApp invite opened for ${name || decodedEmail}`, 'success');
+    
+  } catch(e) {
+    console.error('Error sending WhatsApp invite:', e);
+    showToast('Error creating WhatsApp link: ' + e.message, 'error');
+  }
+};
+
+// Helper function to add phone number if missing
+function showAddPhoneModal(email, name) {
+  const modal = createModal(
+    '<i class="fas fa-phone"></i> Add Phone Number',
+    `
+      <div style="display: flex; flex-direction: column; gap: 15px;">
+        <div>
+          <label class="label">Voter: ${name || email}</label>
+          <input class="input" value="${email}" disabled style="background: rgba(255,255,255,0.05);">
+        </div>
+        <div>
+          <label class="label">Phone Number *</label>
+          <input id="voterPhoneInput" class="input" placeholder="+233XXXXXXXXX" required>
+          <div class="subtext" style="margin-top: 5px;">Required for WhatsApp invites</div>
+        </div>
+        <div style="background: rgba(0, 255, 255, 0.05); padding: 12px; border-radius: 8px; border: 1px solid rgba(0, 255, 255, 0.1);">
+          <div style="color: #00eaff; font-size: 12px; margin-bottom: 5px;">
+            <i class="fas fa-info-circle"></i> Format:
+          </div>
+          <div style="font-size: 12px; color: #9beaff;">
+            • Ghana: +233XXXXXXXXX or 0XXXXXXXXX<br>
+            • Other: Include country code (+1, +44, etc.)
+          </div>
+        </div>
+      </div>
+    `,
+    `
+      <button class="btn neon-btn-outline" onclick="document.querySelector('.modal-overlay').remove()">
+        <i class="fas fa-times"></i> Cancel
+      </button>
+      <button class="btn neon-btn" onclick="saveVoterPhone('${encodeURIComponent(email)}', '${escapeHtml(name || '')}')">
+        <i class="fas fa-save"></i> Save & Send
+      </button>
+    `
+  );
+}
+
+// Function to save phone number and send WhatsApp
+async function saveVoterPhone(email, name) {
+  const phoneInput = document.getElementById('voterPhoneInput')?.value.trim();
+  
+  if (!phoneInput) {
+    showToast('Phone number is required', 'error');
+    return;
+  }
+  
+  try {
+    // Save phone number to voter
+    const voterRef = doc(db, "organizations", currentOrgId, "voters", email);
+    await updateDoc(voterRef, {
+      phone: phoneInput,
+      updatedAt: serverTimestamp()
+    });
+    
+    // Reload voters to show updated phone
+    loadECVoters();
+    
+    // Close modal
+    document.querySelector('.modal-overlay')?.remove();
+    
+    // Now send WhatsApp invite
+    setTimeout(() => {
+      sendWhatsAppInvite(email, name, phoneInput);
+    }, 500);
+    
+  } catch(e) {
+    console.error('Error saving phone:', e);
+    showToast('Error saving phone number: ' + e.message, 'error');
+  }
+}
+
+// ---------------- Bulk WhatsApp Invite Functions ----------------
+window.showBulkWhatsAppInviteModal = function() {
+  const modal = createModal(
+    '<i class="fab fa-whatsapp"></i> Bulk WhatsApp Invites',
+    `
+      <div style="display: flex; flex-direction: column; gap: 15px;">
+        <div>
+          <label class="label">Select Voters to Invite</label>
+          <div id="bulkWhatsAppVoterList" style="max-height: 300px; overflow-y: auto; border: 1px solid rgba(0,255,255,0.2); border-radius: 8px; padding: 10px;">
+            <div style="text-align: center; padding: 20px; color: #9beaff;">
+              <i class="fas fa-spinner fa-spin"></i> Loading voters...
+            </div>
+          </div>
+        </div>
+        <div>
+          <label class="label">Custom Message (Optional)</label>
+          <textarea id="bulkWhatsAppMessage" class="input" rows="4" placeholder="Add a custom message for all invites..."></textarea>
+        </div>
+        <div style="background: rgba(0, 255, 170, 0.05); padding: 12px; border-radius: 8px; border: 1px solid rgba(0, 255, 170, 0.1);">
+          <div style="color: #00ffaa; font-size: 12px; margin-bottom: 5px;">
+            <i class="fas fa-info-circle"></i> Note:
+          </div>
+          <div style="font-size: 12px; color: #9beaff;">
+            • Only voters with phone numbers will be included<br>
+            • WhatsApp will open in multiple tabs for selected voters<br>
+            • You'll need to confirm sending on each WhatsApp tab
+          </div>
+        </div>
+        <div id="bulkWhatsAppStats" style="display: none; background: rgba(0, 255, 255, 0.05); padding: 12px; border-radius: 8px; border: 1px solid rgba(0, 255, 255, 0.1);">
+          <div style="color: #00eaff; font-size: 12px; margin-bottom: 5px;">
+            <i class="fas fa-chart-bar"></i> Selection Stats:
+          </div>
+          <div style="font-size: 12px; color: #9beaff;">
+            <span id="selectedVoterCount">0</span> voters selected • 
+            <span id="eligibleVoterCount">0</span> with phone numbers
+          </div>
+        </div>
+      </div>
+    `,
+    `
+      <button class="btn neon-btn-outline" onclick="document.querySelector('.modal-overlay').remove()">
+        <i class="fas fa-times"></i> Cancel
+      </button>
+      <button class="btn neon-btn" id="sendBulkWhatsAppBtn" disabled>
+        <i class="fab fa-whatsapp"></i> Send Invites
+      </button>
+    `
+  );
+  
+  // Load voters for bulk selection
+  loadVotersForBulkWhatsApp();
+};
+
+async function loadVotersForBulkWhatsApp() {
+  try {
+    const votersSnap = await getDocs(collection(db, "organizations", currentOrgId, "voters"));
+    const voters = [];
+    votersSnap.forEach(s => voters.push({ id: s.id, ...s.data() }));
+    
+    const activeVoters = voters.filter(v => !v.isReplaced && !v.hasVoted);
+    
+    let html = '';
+    if (activeVoters.length === 0) {
+      html = `<div style="text-align: center; padding: 20px; color: #ffc107;">
+                <i class="fas fa-users-slash"></i><br>
+                No eligible voters found. All voters have either voted or been replaced.
+              </div>`;
+    } else {
+      html = `<div style="margin-bottom: 10px;">
+                <label style="display: flex; align-items: center; gap: 8px; margin-bottom: 10px;">
+                  <input type="checkbox" id="selectAllWhatsAppVoters" onchange="toggleAllWhatsAppVoters(this.checked)">
+                  <span>Select All Eligible Voters (${activeVoters.filter(v => v.phone).length} with phones)</span>
+                </label>
+              </div>`;
+      
+      activeVoters.forEach(voter => {
+        const email = decodeURIComponent(voter.id);
+        const hasPhone = voter.phone && voter.phone.trim() !== '';
+        
+        html += `
+          <div style="display: flex; align-items: center; gap: 10px; padding: 8px; border-bottom: 1px solid rgba(255,255,255,0.05);">
+            <input type="checkbox" 
+                   class="whatsapp-voter-checkbox" 
+                   value="${voter.id}" 
+                   data-name="${escapeHtml(voter.name || email)}" 
+                   data-phone="${escapeHtml(voter.phone || '')}"
+                   ${!hasPhone ? 'disabled' : ''}
+                   onchange="updateBulkWhatsAppStats()">
+            <div style="flex: 1;">
+              <div style="font-weight: 500; color: ${hasPhone ? '#fff' : '#888'}">${voter.name || email}</div>
+              <div style="font-size: 12px; color: #9beaff;">${email}</div>
+              <div style="font-size: 11px; color: ${hasPhone ? '#00ffaa' : '#ffc107'};">
+                <i class="fas fa-phone"></i> ${hasPhone ? formatPhoneForDisplay(voter.phone) : 'No phone number'}
+              </div>
+            </div>
+          </div>
+        `;
+      });
+    }
+    
+    document.getElementById('bulkWhatsAppVoterList').innerHTML = html;
+    updateBulkWhatsAppStats();
+    
+  } catch(e) {
+    console.error('Error loading voters for bulk WhatsApp:', e);
+    document.getElementById('bulkWhatsAppVoterList').innerHTML = `
+      <div style="text-align: center; padding: 20px; color: #ff4444;">
+        <i class="fas fa-exclamation-triangle"></i><br>
+        Error loading voters: ${e.message}
+      </div>
+    `;
+  }
+}
+
+window.toggleAllWhatsAppVoters = function(checked) {
+  document.querySelectorAll('.whatsapp-voter-checkbox:not(:disabled)').forEach(checkbox => {
+    checkbox.checked = checked;
+  });
+  updateBulkWhatsAppStats();
+};
+
+window.updateBulkWhatsAppStats = function() {
+  const checkboxes = document.querySelectorAll('.whatsapp-voter-checkbox:not(:disabled)');
+  const selected = document.querySelectorAll('.whatsapp-voter-checkbox:not(:disabled):checked');
+  const totalWithPhones = checkboxes.length;
+  
+  document.getElementById('selectedVoterCount').textContent = selected.length;
+  document.getElementById('eligibleVoterCount').textContent = totalWithPhones;
+  document.getElementById('bulkWhatsAppStats').style.display = 'block';
+  
+  const sendBtn = document.getElementById('sendBulkWhatsAppBtn');
+  sendBtn.disabled = selected.length === 0;
+};
+
+window.sendBulkWhatsAppInvites = function() {
+  const selectedVoters = [];
+  const customMessage = document.getElementById('bulkWhatsAppMessage')?.value.trim() || '';
+  
+  document.querySelectorAll('.whatsapp-voter-checkbox:not(:disabled):checked').forEach(checkbox => {
+    selectedVoters.push({
+      id: checkbox.value,
+      name: checkbox.dataset.name,
+      phone: checkbox.dataset.phone
+    });
+  });
+  
+  if (selectedVoters.length === 0) {
+    showToast('No voters selected', 'error');
+    return;
+  }
+  
+  // Send invites one by one with delay to avoid overwhelming browser
+  let sentCount = 0;
+  
+  selectedVoters.forEach((voter, index) => {
+    setTimeout(() => {
+      try {
+        const voterLink = `${window.location.origin}${window.location.pathname}?org=${currentOrgId}&voter=${encodeURIComponent(voter.id)}`;
+        const orgName = currentOrgData?.name || 'Election';
+        
+        // Clean phone number
+        const cleanPhone = voter.phone.replace(/\D/g, '');
+        let whatsappNumber = cleanPhone;
+        
+        // Handle Ghanaian numbers
+        if (cleanPhone.startsWith('233') && cleanPhone.length === 12) {
+          whatsappNumber = cleanPhone;
+        } else if (cleanPhone.length === 10 && cleanPhone.startsWith('0')) {
+          whatsappNumber = '233' + cleanPhone.substring(1);
+        } else if (cleanPhone.length === 9) {
+          whatsappNumber = '233' + cleanPhone;
+        }
+        
+        // Base message
+        let message = `Hello ${voter.name}!\n\nYou're invited to vote in *${orgName}* election.\n\n🔗 *Voting Link:* ${voterLink}\n\n📝 *Instructions:*\n1. Click the link above\n2. Use your email to log in\n3. Cast your vote\n\n⏰ *Important:* This link is unique to you. Do not share it.\n\n`;
+        
+        // Add custom message if provided
+        if (customMessage) {
+          message += `💬 *Message from Election Committee:*\n${customMessage}\n\n`;
+        }
+        
+        message += `Thank you!\n*${orgName} Election Committee*`;
+        
+        // Create WhatsApp link
+        const whatsappLink = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
+        
+        // Open in new tab
+        window.open(whatsappLink, '_blank');
+        
+        sentCount++;
+        
+        // Show completion message
+        if (sentCount === selectedVoters.length) {
+          setTimeout(() => {
+            showToast(`WhatsApp invites sent to ${sentCount} voters`, 'success');
+            document.querySelector('.modal-overlay')?.remove();
+          }, 1000);
+        }
+      } catch(e) {
+        console.error(`Error sending WhatsApp to ${voter.name}:`, e);
+      }
+    }, index * 1000); // 1 second delay between each
+  });
+  
+  showToast(`Opening WhatsApp for ${selectedVoters.length} voters...`, 'info');
+};
 
 // ---------------- Voter Modal Functions ----------------
 window.showAddVoterModal = function() {
@@ -1771,6 +2264,7 @@ window.showAddVoterModal = function() {
         <div>
           <label class="label">Phone Number (Optional)</label>
           <input id="voterPhoneInput" class="input" placeholder="+233XXXXXXXXX">
+          <div class="subtext" style="margin-top: 5px;">Required for WhatsApp invites</div>
         </div>
         <div>
           <label class="label">Date of Birth (Optional)</label>
@@ -1787,8 +2281,8 @@ window.showAddVoterModal = function() {
           </div>
           <div style="font-size: 12px; color: #9beaff;">
             • Email must be unique<br>
-            • Phone and Voter ID must be unique if provided<br>
-            • Date of Birth is optional
+            • Phone is required for WhatsApp invites<br>
+            • Phone and Voter ID must be unique if provided
           </div>
         </div>
       </div>
@@ -1803,7 +2297,6 @@ window.showAddVoterModal = function() {
     `
   );
   
-  // Focus on first input
   setTimeout(() => {
     document.getElementById('voterNameInput')?.focus();
   }, 100);
@@ -1818,7 +2311,7 @@ window.showBulkVoterModal = function() {
           <label class="label">Voter Data (CSV Format)</label>
           <textarea id="bulkVoterData" class="input" placeholder="Format: Name, Email, Phone (optional), Date of Birth (optional)&#10;John Doe, john@example.com, +233501234567, 1990-01-15&#10;Jane Smith, jane@example.com, +233502345678, 1985-06-30" rows="8" style="font-family: monospace; font-size: 13px;"></textarea>
           <div class="subtext" style="margin-top: 5px;">
-            One voter per line. Date format: YYYY-MM-DD or DD/MM/YYYY
+            One voter per line. Phone is recommended for WhatsApp invites. Date format: YYYY-MM-DD or DD/MM/YYYY
           </div>
         </div>
         <div style="background: rgba(0, 255, 255, 0.05); padding: 12px; border-radius: 8px; border: 1px solid rgba(0, 255, 255, 0.1);">
@@ -1854,9 +2347,69 @@ window.showBulkVoterModal = function() {
     `
   );
   
-  // Focus on textarea
   setTimeout(() => {
     document.getElementById('bulkVoterData')?.focus();
+  }, 100);
+};
+
+window.changeVoterEmailModal = async function(voterId, currentEmail, voterName) {
+  const modal = createModal(
+    `<i class="fas fa-at"></i> Change Email for ${escapeHtml(voterName)}`,
+    `
+      <div style="display: flex; flex-direction: column; gap: 15px;">
+        <div>
+          <label class="label">Current Email</label>
+          <input class="input" value="${escapeHtml(currentEmail)}" disabled style="background: rgba(255,255,255,0.05);">
+        </div>
+        <div>
+          <label class="label">New Email Address *</label>
+          <input id="newVoterEmail" class="input" placeholder="new-email@example.com" type="email" required>
+          <div class="subtext" style="margin-top: 5px;">Enter the new email address for this voter</div>
+        </div>
+        <div>
+          <label class="label">Confirm New Email *</label>
+          <input id="confirmNewVoterEmail" class="input" placeholder="new-email@example.com" type="email" required>
+          <div class="subtext" style="margin-top: 5px;">Re-enter the new email address to confirm</div>
+        </div>
+        <div>
+          <label class="label">Reason for Change (Optional)</label>
+          <textarea id="emailChangeReason" class="input" placeholder="Why are you changing this email? (e.g., typo correction, domain change)" rows="3"></textarea>
+        </div>
+        <div style="background: rgba(255, 193, 7, 0.1); padding: 12px; border-radius: 8px; border: 1px solid rgba(255, 193, 7, 0.3);">
+          <div style="color: #ffc107; font-size: 12px; margin-bottom: 5px;">
+            <i class="fas fa-exclamation-triangle"></i> Important Notes:
+          </div>
+          <div style="font-size: 12px; color: #ffd54f;">
+            • This will create a new voter record with the new email<br>
+            • The old voter record will be marked as "replaced"<br>
+            • Voting history will be preserved if the voter has already voted<br>
+            • The voter will need to use the new email to log in
+          </div>
+        </div>
+      </div>
+    `,
+    `
+      <button class="btn neon-btn-outline" id="cancelEmailChangeBtn">
+        <i class="fas fa-times"></i> Cancel
+      </button>
+      <button class="btn neon-btn" id="confirmEmailChangeBtn">
+        <i class="fas fa-at"></i> Change Email
+      </button>
+    `
+  );
+  
+  setTimeout(() => {
+    document.getElementById('cancelEmailChangeBtn')?.addEventListener('click', () => {
+      document.querySelector('.modal-overlay')?.remove();
+    });
+    
+    document.getElementById('confirmEmailChangeBtn')?.addEventListener('click', () => {
+      changeVoterEmail(voterId, currentEmail, voterName);
+    });
+  }, 100);
+  
+  setTimeout(() => {
+    document.getElementById('newVoterEmail')?.focus();
   }, 100);
 };
 
@@ -1871,15 +2424,16 @@ window.editVoterModal = async function(voterId) {
     }
     
     const voter = voterSnap.data();
-    const email = decodeURIComponent(voterId);
+    const currentEmail = decodeURIComponent(voterId);
     
     const modal = createModal(
       `<i class="fas fa-edit"></i> Edit Voter: ${voter.name}`,
       `
         <div style="display: flex; flex-direction: column; gap: 15px;">
           <div>
-            <label class="label">Email (Cannot be changed)</label>
-            <input class="input" value="${escapeHtml(email)}" disabled style="background: rgba(255,255,255,0.05);">
+            <label class="label">Current Email</label>
+            <input class="input" value="${escapeHtml(currentEmail)}" disabled style="background: rgba(255,255,255,0.05);">
+            <div class="subtext" style="margin-top: 5px;">To change email, use the "Change Email" button</div>
           </div>
           <div>
             <label class="label">Full Name *</label>
@@ -1888,6 +2442,7 @@ window.editVoterModal = async function(voterId) {
           <div>
             <label class="label">Phone Number</label>
             <input id="editVoterPhone" class="input" value="${escapeHtml(voter.phone || '')}" placeholder="+233XXXXXXXXX">
+            <div class="subtext" style="margin-top: 5px;">Required for WhatsApp invites</div>
           </div>
           <div>
             <label class="label">Date of Birth (Optional)</label>
@@ -1904,6 +2459,7 @@ window.editVoterModal = async function(voterId) {
             </div>
             <div style="font-size: 12px; color: ${voter.hasVoted ? '#00ffaa' : '#ffc107'};">
               ${voter.hasVoted ? '✅ Has voted' : '⏳ Pending vote'}
+              ${voter.isReplaced ? '<br>⚠️ This voter has been replaced by another email' : ''}
             </div>
           </div>
         </div>
@@ -1927,95 +2483,406 @@ window.editVoterModal = async function(voterId) {
   }
 };
 
-window.sendVoterInvite = function(email, name, phone = '') {
-  const modal = createModal(
-    `<i class="fas fa-paper-plane"></i> Send Invite to ${name}`,
-    `
-      <div style="display: flex; flex-direction: column; gap: 15px;">
-        <div>
-          <label class="label">Recipient Email</label>
-          <input class="input" value="${escapeHtml(email)}" disabled style="background: rgba(255,255,255,0.05);">
-        </div>
-        <div>
-          <label class="label">Recipient Name</label>
-          <input class="input" value="${escapeHtml(name)}" disabled style="background: rgba(255,255,255,0.05);">
-        </div>
-        ${phone ? `
-          <div>
-            <label class="label">Phone Number</label>
-            <input class="input" value="${escapeHtml(phone)}" disabled style="background: rgba(255,255,255,0.05);">
-          </div>
-        ` : ''}
-        <div>
-          <label class="label">Invitation Method</label>
-          <div style="display: flex; gap: 10px; margin-top: 5px;">
-            <label style="display: flex; align-items: center; gap: 5px; flex: 1;">
-              <input type="checkbox" id="inviteEmail" checked>
-              <span style="font-size: 14px;">Email</span>
-            </label>
-            ${phone ? `
-              <label style="display: flex; align-items: center; gap: 5px; flex: 1;">
-                <input type="checkbox" id="inviteSMS" checked>
-                <span style="font-size: 14px;">SMS</span>
-              </label>
-            ` : ''}
-          </div>
-        </div>
-        <div style="background: rgba(0, 255, 255, 0.05); padding: 12px; border-radius: 8px; border: 1px solid rgba(0, 255, 255, 0.1);">
-          <div style="color: #00eaff; font-size: 12px; margin-bottom: 5px;">
-            <i class="fas fa-link"></i> Voting Link:
-          </div>
-          <div style="font-size: 12px; color: #9beaff; word-break: break-all;">
-            ${window.location.origin}${window.location.pathname}?org=${currentOrgId}&voter=${encodeURIComponent(email)}
-          </div>
-        </div>
-      </div>
-    `,
-    `
-      <button class="btn neon-btn-outline" onclick="document.querySelector('.modal-overlay').remove()">
-        <i class="fas fa-times"></i> Cancel
-      </button>
-      <button class="btn neon-btn" onclick="sendInviteNow('${escapeHtml(email)}', '${escapeHtml(name)}', '${escapeHtml(phone)}')">
-        <i class="fas fa-paper-plane"></i> Send Invite
-      </button>
-    `
-  );
-};
-
-window.sendInviteNow = async function(email, name, phone) {
-  const sendEmail = document.getElementById('inviteEmail')?.checked || false;
-  const sendSMS = document.getElementById('inviteSMS')?.checked || false;
+window.addVoterWithDate = async function() {
+  const name = document.getElementById('voterNameInput')?.value.trim();
+  const email = document.getElementById('voterEmailInput')?.value.trim().toLowerCase();
+  const dob = document.getElementById('voterDobInput')?.value.trim();
+  const phone = document.getElementById('voterPhoneInput')?.value.trim();
+  const voterId = document.getElementById('voterIdInput')?.value.trim();
   
-  if (!sendEmail && !sendSMS) {
-    showToast('Select at least one delivery method', 'error');
+  if (!name || !email) {
+    showToast('Name and email are required', 'error');
+    return;
+  }
+  
+  if (!validateEmail(email)) {
+    showToast('Please enter a valid email address', 'error');
     return;
   }
   
   try {
-    // Update voter invited status
     const voterRef = doc(db, "organizations", currentOrgId, "voters", encodeURIComponent(email));
-    await updateDoc(voterRef, {
-      invited: true,
-      lastInvited: serverTimestamp()
+    const existingVoter = await getDoc(voterRef);
+    
+    if (existingVoter.exists()) {
+      showToast('A voter with this email already exists', 'error');
+      return;
+    }
+  } catch(e) {
+    console.error('Error checking duplicate email:', e);
+  }
+  
+  if (phone) {
+    try {
+      const phoneQuery = query(
+        collection(db, "organizations", currentOrgId, "voters"),
+        where("phone", "==", phone)
+      );
+      const phoneSnap = await getDocs(phoneQuery);
+      
+      if (!phoneSnap.empty) {
+        showToast('A voter with this phone number already exists', 'error');
+        return;
+      }
+    } catch(e) {
+      console.error('Error checking duplicate phone:', e);
+    }
+  }
+  
+  if (voterId) {
+    try {
+      const voterIdQuery = query(
+        collection(db, "organizations", currentOrgId, "voters"),
+        where("voterId", "==", voterId)
+      );
+      const voterIdSnap = await getDocs(voterIdQuery);
+      
+      if (!voterIdSnap.empty) {
+        showToast('A voter with this Voter ID already exists', 'error');
+        return;
+      }
+    } catch(e) {
+      console.error('Error checking duplicate voter ID:', e);
+    }
+  }
+  
+  let dateOfBirth = '';
+  let dateValidation = { valid: true };
+  
+  if (dob && dob.trim() !== '') {
+    dateValidation = validateDateOfBirth(dob);
+    if (!dateValidation.valid) {
+      showToast(dateValidation.error, 'error');
+      return;
+    }
+    dateOfBirth = dateValidation.date;
+  }
+  
+  try {
+    const voterRef = doc(db, "organizations", currentOrgId, "voters", encodeURIComponent(email));
+    const voterData = {
+      name: name,
+      email: email,
+      phone: phone || '',
+      voterId: voterId || '',
+      hasVoted: false,
+      isActive: true,
+      isReplaced: false,
+      addedAt: serverTimestamp(),
+      invited: false
+    };
+    
+    if (dateOfBirth) {
+      voterData.dateOfBirth = dateOfBirth;
+    }
+    
+    await setDoc(voterRef, voterData);
+    
+    const orgRef = doc(db, "organizations", currentOrgId);
+    const orgSnap = await getDoc(orgRef);
+    const currentCount = orgSnap.exists() ? (orgSnap.data().voterCount || 0) : 0;
+    
+    await updateDoc(orgRef, {
+      voterCount: currentCount + 1
     });
     
-    const votingLink = `${window.location.origin}${window.location.pathname}?org=${currentOrgId}&voter=${encodeURIComponent(email)}`;
+    const updatedOrgSnap = await getDoc(orgRef);
+    if (updatedOrgSnap.exists()) {
+      currentOrgData = updatedOrgSnap.data();
+      updateECUI();
+    }
     
-    // Simulate sending (in real app, integrate with email/SMS service)
-    let message = `Invite sent to ${name}`;
-    if (sendEmail) message += ' via email';
-    if (sendSMS && phone) message += ' and SMS';
-    message += `. Link: ${votingLink}`;
-    
-    showToast(message, 'success');
+    showToast('Voter added successfully!', 'success');
     document.querySelector('.modal-overlay')?.remove();
-    
-    // Refresh voters list
     loadECVoters();
   } catch(e) {
-    console.error('Error sending invite:', e);
-    showToast('Error sending invite', 'error');
+    console.error('Error adding voter:', e);
+    showToast('Error adding voter: ' + e.message, 'error');
   }
+};
+
+window.updateVoter = async function(voterId) {
+  const name = document.getElementById('editVoterName')?.value.trim();
+  const dob = document.getElementById('editVoterDob')?.value.trim();
+  const phone = document.getElementById('editVoterPhone')?.value.trim();
+  const voterIdField = document.getElementById('editVoterId')?.value.trim();
+  
+  if (!name) {
+    showToast('Name is required', 'error');
+    return;
+  }
+  
+  let currentVoterData = null;
+  try {
+    const voterRef = doc(db, "organizations", currentOrgId, "voters", voterId);
+    const voterSnap = await getDoc(voterRef);
+    if (voterSnap.exists()) {
+      currentVoterData = voterSnap.data();
+    }
+  } catch(e) {
+    console.error('Error getting current voter data:', e);
+  }
+  
+  if (phone && phone !== (currentVoterData?.phone || '')) {
+    try {
+      const phoneQuery = query(
+        collection(db, "organizations", currentOrgId, "voters"),
+        where("phone", "==", phone)
+      );
+      const phoneSnap = await getDocs(phoneQuery);
+      
+      if (!phoneSnap.empty) {
+        showToast('A voter with this phone number already exists', 'error');
+        return;
+      }
+    } catch(e) {
+      console.error('Error checking duplicate phone:', e);
+    }
+  }
+  
+  if (voterIdField && voterIdField !== (currentVoterData?.voterId || '')) {
+    try {
+      const voterIdQuery = query(
+        collection(db, "organizations", currentOrgId, "voters"),
+        where("voterId", "==", voterIdField)
+      );
+      const voterIdSnap = await getDocs(voterIdQuery);
+      
+      if (!voterIdSnap.empty) {
+        showToast('A voter with this Voter ID already exists', 'error');
+        return;
+      }
+    } catch(e) {
+      console.error('Error checking duplicate voter ID:', e);
+    }
+  }
+  
+  let dateOfBirth = '';
+  
+  if (dob && dob.trim() !== '') {
+    const dateValidation = validateDateOfBirth(dob);
+    if (!dateValidation.valid) {
+      showToast(dateValidation.error, 'error');
+      return;
+    }
+    dateOfBirth = dateValidation.date;
+  }
+  
+  try {
+    const voterRef = doc(db, "organizations", currentOrgId, "voters", voterId);
+    const updateData = {
+      name: name,
+      phone: phone || '',
+      voterId: voterIdField || '',
+      updatedAt: serverTimestamp()
+    };
+    
+    if (dateOfBirth) {
+      updateData.dateOfBirth = dateOfBirth;
+    } else {
+      updateData.dateOfBirth = '';
+    }
+    
+    await updateDoc(voterRef, updateData);
+    
+    showToast('Voter updated successfully!', 'success');
+    document.querySelector('.modal-overlay')?.remove();
+    loadECVoters();
+  } catch(e) {
+    console.error('Error updating voter:', e);
+    showToast('Error updating voter: ' + e.message, 'error');
+  }
+};
+
+window.processBulkVoters = async function() {
+  const data = document.getElementById('bulkVoterData')?.value.trim();
+  if (!data) {
+    showToast('Please enter voter data', 'error');
+    return;
+  }
+  
+  const lines = data.split('\n').filter(line => line.trim());
+  const voters = [];
+  const duplicateCheck = {
+    emails: new Set(),
+    phones: new Set(),
+    voterIds: new Set()
+  };
+  
+  for (const line of lines) {
+    const parts = line.split(',').map(part => part.trim());
+    if (parts.length >= 2) {
+      const voter = {
+        name: parts[0],
+        email: parts[1].toLowerCase(),
+        phone: parts[2] || '',
+        dateOfBirth: parts[3] || ''
+      };
+      
+      if (!voter.name || !voter.email || !validateEmail(voter.email)) {
+        showToast(`Invalid voter: ${voter.name} (${voter.email})`, 'error');
+        continue;
+      }
+      
+      if (duplicateCheck.emails.has(voter.email)) {
+        showToast(`Duplicate email in batch: ${voter.email}`, 'error');
+        continue;
+      }
+      
+      if (voter.phone && duplicateCheck.phones.has(voter.phone)) {
+        showToast(`Duplicate phone in batch: ${voter.phone}`, 'error');
+        continue;
+      }
+      
+      voters.push(voter);
+      duplicateCheck.emails.add(voter.email);
+      if (voter.phone) duplicateCheck.phones.add(voter.phone);
+    }
+  }
+  
+  if (voters.length === 0) {
+    showToast('No valid voters found', 'error');
+    return;
+  }
+  
+  try {
+    const batch = writeBatch(db);
+    let successCount = 0;
+    let errorCount = 0;
+    let duplicateCount = 0;
+    
+    for (const voter of voters) {
+      try {
+        const voterRef = doc(db, "organizations", currentOrgId, "voters", encodeURIComponent(voter.email));
+        const existingVoter = await getDoc(voterRef);
+        
+        if (existingVoter.exists()) {
+          duplicateCount++;
+          continue;
+        }
+        
+        if (voter.phone) {
+          const phoneQuery = query(
+            collection(db, "organizations", currentOrgId, "voters"),
+            where("phone", "==", voter.phone)
+          );
+          const phoneSnap = await getDocs(phoneQuery);
+          
+          if (!phoneSnap.empty) {
+            duplicateCount++;
+            continue;
+          }
+        }
+        
+        const voterData = {
+          name: voter.name,
+          email: voter.email,
+          phone: voter.phone || '',
+          hasVoted: false,
+          isActive: true,
+          isReplaced: false,
+          addedAt: serverTimestamp(),
+          invited: false
+        };
+        
+        if (voter.dateOfBirth && voter.dateOfBirth.trim() !== '') {
+          const dateValidation = validateDateOfBirth(voter.dateOfBirth);
+          if (dateValidation.valid) {
+            voterData.dateOfBirth = dateValidation.date;
+          }
+        }
+        
+        batch.set(voterRef, voterData);
+        successCount++;
+      } catch(e) {
+        console.error('Error processing voter:', voter.email, e);
+        errorCount++;
+      }
+    }
+    
+    if (successCount > 0) {
+      await batch.commit();
+      
+      const orgRef = doc(db, "organizations", currentOrgId);
+      const orgSnap = await getDoc(orgRef);
+      const currentCount = orgSnap.exists() ? (orgSnap.data().voterCount || 0) : 0;
+      
+      await updateDoc(orgRef, {
+        voterCount: currentCount + successCount
+      });
+      
+      const updatedOrgSnap = await getDoc(orgRef);
+      if (updatedOrgSnap.exists()) {
+        currentOrgData = updatedOrgSnap.data();
+        updateECUI();
+      }
+      
+      let message = `Added ${successCount} voters successfully!`;
+      if (duplicateCount > 0) message += ` ${duplicateCount} duplicates skipped.`;
+      if (errorCount > 0) message += ` ${errorCount} errors.`;
+      
+      showToast(message, 'success');
+      document.querySelector('.modal-overlay')?.remove();
+      loadECVoters();
+    } else {
+      showToast('No new voters added. All may be duplicates.', 'warning');
+    }
+  } catch(e) {
+    console.error('Error adding bulk voters:', e);
+    showToast('Error: ' + e.message, 'error');
+  }
+};
+
+window.removeVoter = async function(voterId, voterName) {
+  if (!voterId) {
+    showToast('Invalid voter ID', 'error');
+    return;
+  }
+  
+  if (!confirm(`Are you sure you want to delete voter: ${voterName}?`)) {
+    return;
+  }
+  
+  try {
+    const voterRef = doc(db, "organizations", currentOrgId, "voters", voterId);
+    await deleteDoc(voterRef);
+    
+    const orgRef = doc(db, "organizations", currentOrgId);
+    const orgSnap = await getDoc(orgRef);
+    const currentCount = orgSnap.exists() ? (orgSnap.data().voterCount || 0) : 0;
+    
+    await updateDoc(orgRef, {
+      voterCount: Math.max(0, currentCount - 1)
+    });
+    
+    const updatedOrgSnap = await getDoc(orgRef);
+    if (updatedOrgSnap.exists()) {
+      currentOrgData = updatedOrgSnap.data();
+      updateECUI();
+    }
+    
+    showToast(`Voter ${voterName} deleted`, 'success');
+    loadECVoters();
+  } catch(e) {
+    console.error('Error deleting voter:', e);
+    showToast('Error deleting voter: ' + e.message, 'error');
+  }
+};
+
+window.searchVoters = function() {
+  const searchTerm = document.getElementById('voterSearch')?.value.toLowerCase() || '';
+  const voterItems = document.querySelectorAll('.voter-item');
+  
+  voterItems.forEach(item => {
+    const email = item.dataset.email || '';
+    const name = item.dataset.name || '';
+    
+    if (email.includes(searchTerm) || name.includes(searchTerm)) {
+      item.style.display = 'flex';
+    } else {
+      item.style.display = 'none';
+    }
+  });
 };
 
 // ---------------- Position Modal Functions ----------------
@@ -2093,7 +2960,6 @@ window.addPosition = async function() {
     return;
   }
   
-  // Check for duplicate position name
   try {
     const positionQuery = query(
       collection(db, "organizations", currentOrgId, "positions"),
@@ -2219,7 +3085,6 @@ window.updatePosition = async function(positionId) {
     return;
   }
   
-  // Check for duplicate position name (excluding current position)
   try {
     const positionQuery = query(
       collection(db, "organizations", currentOrgId, "positions"),
@@ -2294,20 +3159,17 @@ window.deletePositionConfirm = function(positionId, positionName) {
 
 window.deletePosition = async function(positionId) {
   try {
-    // First, get all candidates for this position
     const candidatesQuery = query(
       collection(db, "organizations", currentOrgId, "candidates"),
       where("positionId", "==", positionId)
     );
     const candidatesSnap = await getDocs(candidatesQuery);
     
-    // Delete all candidates
     const batch = writeBatch(db);
     candidatesSnap.forEach(doc => {
       batch.delete(doc.ref);
     });
     
-    // Delete the position
     const positionRef = doc(db, "organizations", currentOrgId, "positions", positionId);
     batch.delete(positionRef);
     
@@ -2477,7 +3339,6 @@ window.addCandidate = async function() {
   }
   
   try {
-    // Check for duplicate candidate name in same position
     const candidateQuery = query(
       collection(db, "organizations", currentOrgId, "candidates"),
       where("positionId", "==", positionId),
@@ -2492,7 +3353,6 @@ window.addCandidate = async function() {
     
     let photoUrl = '';
     
-    // Upload photo if provided
     if (photoFile) {
       try {
         const storageReference = storageRef(storage, `organizations/${currentOrgId}/candidates/${Date.now()}_${photoFile.name}`);
@@ -2557,7 +3417,6 @@ window.editCandidateModal = async function(candidateId) {
     
     const candidate = candidateSnap.data();
     
-    // Load positions for dropdown
     const positionsSnap = await getDocs(collection(db, "organizations", currentOrgId, "positions"));
     const positions = [];
     positionsSnap.forEach(s => positions.push({ id: s.id, ...s.data() }));
@@ -2661,12 +3520,10 @@ window.updateCandidate = async function(candidateId) {
   }
   
   try {
-    // Get current candidate data
     const candidateRef = doc(db, "organizations", currentOrgId, "candidates", candidateId);
     const candidateSnap = await getDoc(candidateRef);
     const currentCandidate = candidateSnap.data();
     
-    // Check for duplicate candidate name in same position (excluding current candidate)
     if (currentCandidate.name !== name || currentCandidate.positionId !== positionId) {
       const candidateQuery = query(
         collection(db, "organizations", currentOrgId, "candidates"),
@@ -2690,7 +3547,6 @@ window.updateCandidate = async function(candidateId) {
     
     let photoUrl = currentCandidate.photo;
     
-    // Upload new photo if provided
     if (photoFile) {
       try {
         const storageReference = storageRef(storage, `organizations/${currentOrgId}/candidates/${Date.now()}_${photoFile.name}`);
@@ -2711,7 +3567,6 @@ window.updateCandidate = async function(candidateId) {
           reader.readAsDataURL(photoFile);
         });
         
-        // Delete old photo if it's not the default avatar
         if (currentCandidate.photo && !currentCandidate.photo.includes('data:image/svg+xml')) {
           try {
             const oldPhotoRef = storageRef(storage, currentCandidate.photo);
@@ -2778,14 +3633,12 @@ window.deleteCandidateConfirm = function(candidateId, candidateName) {
 
 window.deleteCandidate = async function(candidateId) {
   try {
-    // Get candidate data first to delete photo
     const candidateRef = doc(db, "organizations", currentOrgId, "candidates", candidateId);
     const candidateSnap = await getDoc(candidateRef);
     
     if (candidateSnap.exists()) {
       const candidate = candidateSnap.data();
       
-      // Delete photo if it's not the default avatar
       if (candidate.photo && !candidate.photo.includes('data:image/svg+xml')) {
         try {
           const photoRef = storageRef(storage, candidate.photo);
@@ -2796,7 +3649,6 @@ window.deleteCandidate = async function(candidateId) {
       }
     }
     
-    // Delete candidate document
     await deleteDoc(candidateRef);
     
     showToast('Candidate deleted', 'success');
@@ -2806,430 +3658,6 @@ window.deleteCandidate = async function(candidateId) {
     console.error('Error deleting candidate:', e);
     showToast('Error deleting candidate: ' + e.message, 'error');
   }
-};
-
-// ---------------- Voter Functions ----------------
-window.addVoterWithDate = async function() {
-  const name = document.getElementById('voterNameInput')?.value.trim();
-  const email = document.getElementById('voterEmailInput')?.value.trim().toLowerCase();
-  const dob = document.getElementById('voterDobInput')?.value.trim();
-  const phone = document.getElementById('voterPhoneInput')?.value.trim();
-  const voterId = document.getElementById('voterIdInput')?.value.trim();
-  
-  // Validate inputs - Date of Birth is now optional
-  if (!name || !email) {
-    showToast('Name and email are required', 'error');
-    return;
-  }
-  
-  if (!validateEmail(email)) {
-    showToast('Please enter a valid email address', 'error');
-    return;
-  }
-  
-  // Check for duplicate email
-  try {
-    const voterRef = doc(db, "organizations", currentOrgId, "voters", encodeURIComponent(email));
-    const existingVoter = await getDoc(voterRef);
-    
-    if (existingVoter.exists()) {
-      showToast('A voter with this email already exists', 'error');
-      return;
-    }
-  } catch(e) {
-    console.error('Error checking duplicate email:', e);
-  }
-  
-  // If phone is provided, check for duplicate phone
-  if (phone) {
-    try {
-      const phoneQuery = query(
-        collection(db, "organizations", currentOrgId, "voters"),
-        where("phone", "==", phone)
-      );
-      const phoneSnap = await getDocs(phoneQuery);
-      
-      if (!phoneSnap.empty) {
-        showToast('A voter with this phone number already exists', 'error');
-        return;
-      }
-    } catch(e) {
-      console.error('Error checking duplicate phone:', e);
-    }
-  }
-  
-  // If voter ID is provided, check for duplicate voter ID
-  if (voterId) {
-    try {
-      const voterIdQuery = query(
-        collection(db, "organizations", currentOrgId, "voters"),
-        where("voterId", "==", voterId)
-      );
-      const voterIdSnap = await getDocs(voterIdQuery);
-      
-      if (!voterIdSnap.empty) {
-        showToast('A voter with this Voter ID already exists', 'error');
-        return;
-      }
-    } catch(e) {
-      console.error('Error checking duplicate voter ID:', e);
-    }
-  }
-  
-  let dateOfBirth = '';
-  let dateValidation = { valid: true };
-  
-  // Only validate date if provided
-  if (dob && dob.trim() !== '') {
-    dateValidation = validateDateOfBirth(dob);
-    if (!dateValidation.valid) {
-      showToast(dateValidation.error, 'error');
-      return;
-    }
-    dateOfBirth = dateValidation.date;
-  }
-  
-  try {
-    const voterRef = doc(db, "organizations", currentOrgId, "voters", encodeURIComponent(email));
-    const voterData = {
-      name: name,
-      email: email,
-      phone: phone || '',
-      voterId: voterId || '',
-      hasVoted: false,
-      addedAt: serverTimestamp(),
-      invited: false
-    };
-    
-    // Only add dateOfBirth if provided and valid
-    if (dateOfBirth) {
-      voterData.dateOfBirth = dateOfBirth;
-    }
-    
-    await setDoc(voterRef, voterData);
-    
-    // Update voter count - SYNC WITH ORGANIZATION
-    const orgRef = doc(db, "organizations", currentOrgId);
-    const orgSnap = await getDoc(orgRef);
-    const currentCount = orgSnap.exists() ? (orgSnap.data().voterCount || 0) : 0;
-    
-    await updateDoc(orgRef, {
-      voterCount: currentCount + 1
-    });
-    
-    // Refresh organization data
-    const updatedOrgSnap = await getDoc(orgRef);
-    if (updatedOrgSnap.exists()) {
-      currentOrgData = updatedOrgSnap.data();
-      updateECUI();
-    }
-    
-    showToast('Voter added successfully!', 'success');
-    document.querySelector('.modal-overlay')?.remove();
-    loadECVoters();
-  } catch(e) {
-    console.error('Error adding voter:', e);
-    showToast('Error adding voter: ' + e.message, 'error');
-  }
-};
-
-window.updateVoter = async function(voterId) {
-  const name = document.getElementById('editVoterName')?.value.trim();
-  const dob = document.getElementById('editVoterDob')?.value.trim();
-  const phone = document.getElementById('editVoterPhone')?.value.trim();
-  const voterIdField = document.getElementById('editVoterId')?.value.trim();
-  
-  if (!name) {
-    showToast('Name is required', 'error');
-    return;
-  }
-  
-  // Get current voter data to compare
-  let currentVoterData = null;
-  try {
-    const voterRef = doc(db, "organizations", currentOrgId, "voters", voterId);
-    const voterSnap = await getDoc(voterRef);
-    if (voterSnap.exists()) {
-      currentVoterData = voterSnap.data();
-    }
-  } catch(e) {
-    console.error('Error getting current voter data:', e);
-  }
-  
-  // Check for duplicate phone (if changed)
-  if (phone && phone !== (currentVoterData?.phone || '')) {
-    try {
-      const phoneQuery = query(
-        collection(db, "organizations", currentOrgId, "voters"),
-        where("phone", "==", phone)
-      );
-      const phoneSnap = await getDocs(phoneQuery);
-      
-      if (!phoneSnap.empty) {
-        showToast('A voter with this phone number already exists', 'error');
-        return;
-      }
-    } catch(e) {
-      console.error('Error checking duplicate phone:', e);
-    }
-  }
-  
-  // Check for duplicate voter ID (if changed)
-  if (voterIdField && voterIdField !== (currentVoterData?.voterId || '')) {
-    try {
-      const voterIdQuery = query(
-        collection(db, "organizations", currentOrgId, "voters"),
-        where("voterId", "==", voterIdField)
-      );
-      const voterIdSnap = await getDocs(voterIdQuery);
-      
-      if (!voterIdSnap.empty) {
-        showToast('A voter with this Voter ID already exists', 'error');
-        return;
-      }
-    } catch(e) {
-      console.error('Error checking duplicate voter ID:', e);
-    }
-  }
-  
-  let dateOfBirth = '';
-  
-  // Only validate date if provided
-  if (dob && dob.trim() !== '') {
-    const dateValidation = validateDateOfBirth(dob);
-    if (!dateValidation.valid) {
-      showToast(dateValidation.error, 'error');
-      return;
-    }
-    dateOfBirth = dateValidation.date;
-  }
-  
-  try {
-    const voterRef = doc(db, "organizations", currentOrgId, "voters", voterId);
-    const updateData = {
-      name: name,
-      phone: phone || '',
-      voterId: voterIdField || '',
-      updatedAt: serverTimestamp()
-    };
-    
-    // Only add dateOfBirth if provided
-    if (dateOfBirth) {
-      updateData.dateOfBirth = dateOfBirth;
-    } else {
-      // Remove dateOfBirth if field was cleared
-      updateData.dateOfBirth = '';
-    }
-    
-    await updateDoc(voterRef, updateData);
-    
-    showToast('Voter updated successfully!', 'success');
-    document.querySelector('.modal-overlay')?.remove();
-    loadECVoters();
-  } catch(e) {
-    console.error('Error updating voter:', e);
-    showToast('Error updating voter: ' + e.message, 'error');
-  }
-};
-
-window.processBulkVoters = async function() {
-  const data = document.getElementById('bulkVoterData')?.value.trim();
-  if (!data) {
-    showToast('Please enter voter data', 'error');
-    return;
-  }
-  
-  const lines = data.split('\n').filter(line => line.trim());
-  const voters = [];
-  const duplicateCheck = {
-    emails: new Set(),
-    phones: new Set(),
-    voterIds: new Set()
-  };
-  
-  // First pass: validate and collect voters
-  for (const line of lines) {
-    const parts = line.split(',').map(part => part.trim());
-    if (parts.length >= 2) {
-      const voter = {
-        name: parts[0],
-        email: parts[1].toLowerCase(),
-        phone: parts[2] || '',
-        dateOfBirth: parts[3] || ''
-      };
-      
-      // Validate email
-      if (!voter.name || !voter.email || !validateEmail(voter.email)) {
-        showToast(`Invalid voter: ${voter.name} (${voter.email})`, 'error');
-        continue;
-      }
-      
-      // Check for duplicates in this batch
-      if (duplicateCheck.emails.has(voter.email)) {
-        showToast(`Duplicate email in batch: ${voter.email}`, 'error');
-        continue;
-      }
-      
-      if (voter.phone && duplicateCheck.phones.has(voter.phone)) {
-        showToast(`Duplicate phone in batch: ${voter.phone}`, 'error');
-        continue;
-      }
-      
-      voters.push(voter);
-      duplicateCheck.emails.add(voter.email);
-      if (voter.phone) duplicateCheck.phones.add(voter.phone);
-    }
-  }
-  
-  if (voters.length === 0) {
-    showToast('No valid voters found', 'error');
-    return;
-  }
-  
-  try {
-    const batch = writeBatch(db);
-    let successCount = 0;
-    let errorCount = 0;
-    let duplicateCount = 0;
-    
-    // Check for existing duplicates in database
-    for (const voter of voters) {
-      try {
-        // Check if email already exists
-        const voterRef = doc(db, "organizations", currentOrgId, "voters", encodeURIComponent(voter.email));
-        const existingVoter = await getDoc(voterRef);
-        
-        if (existingVoter.exists()) {
-          duplicateCount++;
-          continue;
-        }
-        
-        // If phone is provided, check for duplicate phone
-        if (voter.phone) {
-          const phoneQuery = query(
-            collection(db, "organizations", currentOrgId, "voters"),
-            where("phone", "==", voter.phone)
-          );
-          const phoneSnap = await getDocs(phoneQuery);
-          
-          if (!phoneSnap.empty) {
-            duplicateCount++;
-            continue;
-          }
-        }
-        
-        const voterData = {
-          name: voter.name,
-          email: voter.email,
-          phone: voter.phone || '',
-          hasVoted: false,
-          addedAt: serverTimestamp(),
-          invited: false
-        };
-        
-        // Add date of birth if provided and valid
-        if (voter.dateOfBirth && voter.dateOfBirth.trim() !== '') {
-          const dateValidation = validateDateOfBirth(voter.dateOfBirth);
-          if (dateValidation.valid) {
-            voterData.dateOfBirth = dateValidation.date;
-          }
-        }
-        
-        batch.set(voterRef, voterData);
-        successCount++;
-      } catch(e) {
-        console.error('Error processing voter:', voter.email, e);
-        errorCount++;
-      }
-    }
-    
-    if (successCount > 0) {
-      await batch.commit();
-      
-      // Update voter count - SYNC WITH ORGANIZATION
-      const orgRef = doc(db, "organizations", currentOrgId);
-      const orgSnap = await getDoc(orgRef);
-      const currentCount = orgSnap.exists() ? (orgSnap.data().voterCount || 0) : 0;
-      
-      await updateDoc(orgRef, {
-        voterCount: currentCount + successCount
-      });
-      
-      // Refresh organization data
-      const updatedOrgSnap = await getDoc(orgRef);
-      if (updatedOrgSnap.exists()) {
-        currentOrgData = updatedOrgSnap.data();
-        updateECUI();
-      }
-      
-      let message = `Added ${successCount} voters successfully!`;
-      if (duplicateCount > 0) message += ` ${duplicateCount} duplicates skipped.`;
-      if (errorCount > 0) message += ` ${errorCount} errors.`;
-      
-      showToast(message, 'success');
-      document.querySelector('.modal-overlay')?.remove();
-      loadECVoters();
-    } else {
-      showToast('No new voters added. All may be duplicates.', 'warning');
-    }
-  } catch(e) {
-    console.error('Error adding bulk voters:', e);
-    showToast('Error: ' + e.message, 'error');
-  }
-};
-
-window.removeVoter = async function(voterId, voterName) {
-  if (!voterId) {
-    showToast('Invalid voter ID', 'error');
-    return;
-  }
-  
-  if (!confirm(`Are you sure you want to delete voter: ${voterName}?`)) {
-    return;
-  }
-  
-  try {
-    const voterRef = doc(db, "organizations", currentOrgId, "voters", voterId);
-    await deleteDoc(voterRef);
-    
-    // Update voter count - SYNC WITH ORGANIZATION
-    const orgRef = doc(db, "organizations", currentOrgId);
-    const orgSnap = await getDoc(orgRef);
-    const currentCount = orgSnap.exists() ? (orgSnap.data().voterCount || 0) : 0;
-    
-    await updateDoc(orgRef, {
-      voterCount: Math.max(0, currentCount - 1)
-    });
-    
-    // Refresh current organization data
-    const updatedOrgSnap = await getDoc(orgRef);
-    if (updatedOrgSnap.exists()) {
-      currentOrgData = updatedOrgSnap.data();
-      updateECUI();
-    }
-    
-    showToast(`Voter ${voterName} deleted`, 'success');
-    loadECVoters();
-  } catch(e) {
-    console.error('Error deleting voter:', e);
-    showToast('Error deleting voter: ' + e.message, 'error');
-  }
-};
-
-window.searchVoters = function() {
-  const searchTerm = document.getElementById('voterSearch')?.value.toLowerCase() || '';
-  const voterItems = document.querySelectorAll('.voter-item');
-  
-  voterItems.forEach(item => {
-    const email = item.dataset.email || '';
-    const name = item.dataset.name || '';
-    
-    if (email.includes(searchTerm) || name.includes(searchTerm)) {
-      item.style.display = 'flex';
-    } else {
-      item.style.display = 'none';
-    }
-  });
 };
 
 // ---------------- Settings Functions ----------------
@@ -3389,7 +3817,6 @@ window.resetVotesConfirm = function() {
 
 window.resetAllVotes = async function() {
   try {
-    // Reset all candidates' votes to 0
     const candidatesSnap = await getDocs(collection(db, "organizations", currentOrgId, "candidates"));
     const batch = writeBatch(db);
     
@@ -3397,22 +3824,22 @@ window.resetAllVotes = async function() {
       batch.update(doc.ref, { votes: 0 });
     });
     
-    // Delete all votes
     const votesSnap = await getDocs(collection(db, "organizations", currentOrgId, "votes"));
     votesSnap.forEach(doc => {
       batch.delete(doc.ref);
     });
     
-    // Reset all voters' hasVoted status
     const votersSnap = await getDocs(collection(db, "organizations", currentOrgId, "voters"));
     votersSnap.forEach(doc => {
-      batch.update(doc.ref, { 
-        hasVoted: false,
-        votedAt: null 
-      });
+      const voterData = doc.data();
+      if (!voterData.isReplaced) {
+        batch.update(doc.ref, { 
+          hasVoted: false,
+          votedAt: null 
+        });
+      }
     });
     
-    // Update organization vote count
     const orgRef = doc(db, "organizations", currentOrgId);
     batch.update(orgRef, { voteCount: 0 });
     
@@ -3462,7 +3889,6 @@ window.clearAllData = async function() {
   try {
     showToast('Clearing all data...', 'info');
     
-    // Delete all votes
     const votesSnap = await getDocs(collection(db, "organizations", currentOrgId, "votes"));
     const batch1 = writeBatch(db);
     votesSnap.forEach(doc => {
@@ -3470,7 +3896,6 @@ window.clearAllData = async function() {
     });
     await batch1.commit();
     
-    // Delete all candidates and their photos
     const candidatesSnap = await getDocs(collection(db, "organizations", currentOrgId, "candidates"));
     const batch2 = writeBatch(db);
     const deletePhotoPromises = [];
@@ -3479,7 +3904,6 @@ window.clearAllData = async function() {
       const candidate = doc.data();
       batch2.delete(doc.ref);
       
-      // Delete photo if not default
       if (candidate.photo && !candidate.photo.includes('data:image/svg+xml')) {
         try {
           const photoRef = storageRef(storage, candidate.photo);
@@ -3492,7 +3916,6 @@ window.clearAllData = async function() {
     await batch2.commit();
     await Promise.all(deletePhotoPromises);
     
-    // Delete all positions
     const positionsSnap = await getDocs(collection(db, "organizations", currentOrgId, "positions"));
     const batch3 = writeBatch(db);
     positionsSnap.forEach(doc => {
@@ -3500,7 +3923,6 @@ window.clearAllData = async function() {
     });
     await batch3.commit();
     
-    // Delete all voters
     const votersSnap = await getDocs(collection(db, "organizations", currentOrgId, "voters"));
     const batch4 = writeBatch(db);
     votersSnap.forEach(doc => {
@@ -3508,7 +3930,6 @@ window.clearAllData = async function() {
     });
     await batch4.commit();
     
-    // Reset organization counters
     const orgRef = doc(db, "organizations", currentOrgId);
     await updateDoc(orgRef, {
       voterCount: 0,
@@ -3525,7 +3946,6 @@ window.clearAllData = async function() {
     document.querySelector('.modal-overlay')?.remove();
     loadECSettings();
     
-    // Refresh all tabs
     loadECVoters();
     loadECPositions();
     loadECCandidates();
@@ -3543,8 +3963,7 @@ window.send30MinAlerts = async function() {
     
     votersSnap.forEach(doc => {
       const voter = doc.data();
-      if (!voter.hasVoted) {
-        // In a real app, send email/SMS here
+      if (!voter.isReplaced && !voter.hasVoted) {
         sentCount++;
       }
     });
@@ -3563,8 +3982,9 @@ window.sendVoteStartAlerts = async function() {
     
     votersSnap.forEach(doc => {
       const voter = doc.data();
-      // In a real app, send email/SMS here
-      sentCount++;
+      if (!voter.isReplaced) {
+        sentCount++;
+      }
     });
     
     showToast(`Vote start alerts sent to ${sentCount} voters`, 'success');
@@ -3581,7 +4001,7 @@ window.exportVotersCSV = async function() {
     const voters = [];
     votersSnap.forEach(s => voters.push({ id: s.id, ...s.data() }));
     
-    let csv = 'Name,Email,Phone,Date of Birth,Voter ID,Has Voted\n';
+    let csv = 'Name,Email,Phone,Date of Birth,Voter ID,Has Voted,Status,Replaced By\n';
     
     voters.forEach(v => {
       const name = `"${v.name || ''}"`;
@@ -3590,8 +4010,10 @@ window.exportVotersCSV = async function() {
       const dob = v.dateOfBirth ? `"${formatDateForDisplay(new Date(v.dateOfBirth))}"` : '""';
       const voterId = `"${v.voterId || ''}"`;
       const hasVoted = v.hasVoted ? 'Yes' : 'No';
+      const status = v.isReplaced ? 'Replaced' : 'Active';
+      const replacedBy = v.replacedBy ? `"${v.replacedBy}"` : '""';
       
-      csv += `${name},${email},${phone},${dob},${voterId},${hasVoted}\n`;
+      csv += `${name},${email},${phone},${dob},${voterId},${hasVoted},${status},${replacedBy}\n`;
     });
     
     const blob = new Blob([csv], { type: 'text/csv' });
@@ -3634,7 +4056,6 @@ window.exportResultsCSV = async function() {
       const posCandidates = candidates.filter(c => c.positionId === pos.id);
       if (posCandidates.length === 0) return;
       
-      // Calculate votes for this position
       const counts = {};
       votes.forEach(v => {
         if (v.choices && v.choices[pos.id]) {
@@ -3645,7 +4066,6 @@ window.exportResultsCSV = async function() {
       
       const totalPositionVotes = Object.values(counts).reduce((a, b) => a + b, 0);
       
-      // Sort candidates by votes
       const sortedCandidates = [...posCandidates].sort((a, b) => {
         return (counts[b.id] || 0) - (counts[a.id] || 0);
       });
@@ -3657,7 +4077,7 @@ window.exportResultsCSV = async function() {
         csv += `"${pos.name}","${candidate.name}",${candidateVotes},${percentage}%\n`;
       });
       
-      csv += '\n'; // Empty line between positions
+      csv += '\n';
     });
     
     const blob = new Blob([csv], { type: 'text/csv' });
@@ -3766,12 +4186,10 @@ window.createNewOrganization = async function() {
   }
   
   try {
-    // Generate organization ID
     const orgId = name.toLowerCase().replace(/[^a-z0-9]/g, '-') + '-' + Math.random().toString(36).substring(2, 8);
     
     let logoUrl = '';
     
-    // Upload logo if provided
     if (logoFile) {
       try {
         const storageReference = storageRef(storage, `organizations/${orgId}/logo`);
@@ -3857,7 +4275,7 @@ window.showECInviteModal = function(orgId, orgName, ecPassword) {
             <i class="fas fa-link"></i> EC Login Link:
           </div>
           <div style="font-size: 12px; color: #9beaff; word-break: break-all;">
-            ${window.location.origin}${window.location.pathname}?org=${orgId}&role=ec}
+            ${window.location.origin}${window.location.pathname}?org=${orgId}&role=ec
           </div>
         </div>
       </div>
@@ -3884,7 +4302,6 @@ window.sendECInvite = function(orgId, orgName, ecPassword) {
   
   const loginLink = `${window.location.origin}${window.location.pathname}?org=${orgId}&role=ec`;
   
-  // In a real app, send email here
   const emailBody = `
 Organization: ${orgName}
 Organization ID: ${orgId}
@@ -3971,8 +4388,7 @@ window.deleteOrganization = async function(orgId) {
   try {
     showToast('Deleting organization...', 'info');
     
-    // First, delete all subcollections
-    const collections = ['voters', 'positions', 'candidates', 'votes'];
+    const collections = ['voters', 'positions', 'candidates', 'votes', 'emailChanges'];
     
     for (const collectionName of collections) {
       const snap = await getDocs(collection(db, "organizations", orgId, collectionName));
@@ -3983,7 +4399,6 @@ window.deleteOrganization = async function(orgId) {
       await batch.commit();
     }
     
-    // Delete organization document
     await deleteDoc(doc(db, "organizations", orgId));
     
     showToast('Organization deleted successfully!', 'success');
@@ -4021,15 +4436,18 @@ window.syncVoterCounts = async function() {
   try {
     showToast('Syncing voter counts...', 'info');
     
-    // Get actual voter count from voters collection
     const votersSnap = await getDocs(collection(db, "organizations", currentOrgId, "voters"));
-    const totalVoters = votersSnap.size;
+    let totalVoters = 0;
+    votersSnap.forEach(doc => {
+      const voterData = doc.data();
+      if (!voterData.isReplaced) {
+        totalVoters++;
+      }
+    });
     
-    // Get actual vote count from votes collection
     const votesSnap = await getDocs(collection(db, "organizations", currentOrgId, "votes"));
     const votesCast = votesSnap.size;
     
-    // Update organization with accurate counts
     const orgRef = doc(db, "organizations", currentOrgId);
     await updateDoc(orgRef, {
       voterCount: totalVoters,
@@ -4037,14 +4455,13 @@ window.syncVoterCounts = async function() {
       lastSync: serverTimestamp()
     });
     
-    // Refresh organization data
     const orgSnap = await getDoc(orgRef);
     if (orgSnap.exists()) {
       currentOrgData = orgSnap.data();
       updateECUI();
     }
     
-    showToast(`Synced! Total Voters: ${totalVoters}, Votes Cast: ${votesCast}`, 'success');
+    showToast(`Synced! Total Active Voters: ${totalVoters}, Votes Cast: ${votesCast}`, 'success');
     loadECOutcomes();
   } catch(e) {
     console.error('Error syncing voter counts:', e);
@@ -4097,8 +4514,6 @@ style.textContent = `
   }
 `;
 document.head.appendChild(style);
-// Import the voters routes
-const votersRoutes = require('./routes/voters');
 
-// Use the routes
-app.use('/api/voters', votersRoutes);
+// Hotfix for immediate issues
+console.log("✅ Neon Voting System Initialized with fixes for refresh and invite issues");

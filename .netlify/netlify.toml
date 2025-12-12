@@ -1,5 +1,3 @@
-functionsDirectory = "C:\\Users\\Realtime IT\\Desktop\\voting-app\\netlify\\functions"
-functionsDirectoryOrigin = "ui"
 plugins = []
 headers = []
 redirects = []
@@ -11,9 +9,6 @@ redirects = []
 [build]
 publish = "C:\\Users\\Realtime IT\\Desktop\\voting-app"
 publishOrigin = "default"
-commandOrigin = "ui"
-command = "# no build command"
-functions = "C:\\Users\\Realtime IT\\Desktop\\voting-app\\netlify\\functions"
 
 [build.environment]
 

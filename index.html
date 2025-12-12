@@ -1179,6 +1179,22 @@
 
         <div class="panel-with-sidebar">
             <div class="panel-content">
+                <!-- EC PANEL VOTER MANAGEMENT TOOLBAR - ADDED HERE -->
+                <div style="display:flex;gap:8px;margin-bottom:20px">
+                  <button class="btn neon-btn" onclick="showAddVoterModal()">
+                    <i class="fas fa-user-plus"></i> Add Voter
+                  </button>
+                  <button class="btn neon-btn-outline" onclick="showBulkVoterModal()">
+                    <i class="fas fa-users"></i> Bulk Add
+                  </button>
+                  <button class="btn neon-btn-outline" onclick="showBulkVoterInviteModal()">
+                    <i class="fas fa-paper-plane"></i> Bulk Invite
+                  </button>
+                  <button class="btn neon-btn-outline" onclick="refreshVoters()">
+                    <i class="fas fa-redo"></i>
+                  </button>
+                </div>
+
                 <div class="tab-bar" id="ecTabs">
                     <button class="tab-btn active" data-ec-tab="voters">
                         <i class="fas fa-users"></i> Voters
