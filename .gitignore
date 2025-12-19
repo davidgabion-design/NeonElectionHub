@@ -1,11 +1,3 @@
-﻿node_modules/
-voting-app-backups/
-*.log
-.DS_Store
+node_modules/
 .env
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-
-# Local Netlify folder
-.netlify
+.netlify/
